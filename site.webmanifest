@@ -1,0 +1,22 @@
+{
+  "name": "Bulldogo.cz",
+  "short_name": "Bulldogo",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff6a00",
+  "icons": [
+    {
+      "src": "/fotky/bulldogo-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/fotky/bulldogo-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+

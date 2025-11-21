@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Nepublikovat testovací a debug stránky
+Disallow: /test
+Disallow: /test-
+Disallow: /debug
+Disallow: /*test*.html
+Disallow: /*debug*.html
+
+Sitemap: https://bulldogo.cz/sitemap.xml
+

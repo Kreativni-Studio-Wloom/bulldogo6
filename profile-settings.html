@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nastavení - Bulldogo.cz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+        
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.appspot.com",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        // Inicializace Firebase
+        const app = initializeApp(firebaseConfig);
+        const firebaseAuth = getAuth(app);
+        const firebaseDb = getFirestore(app);
+        const analytics = getAnalytics(app);
+        
+        // Export pro globální použití
+        window.firebaseApp = app;
+        window.firebaseAuth = firebaseAuth;
+        window.firebaseDb = firebaseDb;
+    </script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <!-- Logo Section -->
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">B</div>
+                <span class="logo-text">
+                    <span class="logo-bull">ULL</span>
+                    <span class="logo-dogo">DOGO</span>
+                </span>
+            </div>
+            <div class="header-buttons">
+            </div>
+        </div>
+
+        <!-- Navigation Section -->
+        <div class="navigation-section">
+            <h3 class="nav-section-title">NAVIGACE</h3>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home nav-icon"></i>
+                        <span class="nav-text">Domů</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="services.html" class="nav-link">
+                        <i class="fas fa-list-alt nav-icon"></i>
+                        <span class="nav-text">Služby</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="my-ads.html" class="nav-link">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span class="nav-text">Mé inzeráty</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#about" class="nav-link">
+                        <i class="fas fa-info-circle nav-icon"></i>
+                        <span class="nav-text">O nás</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contact" class="nav-link">
+                        <i class="fas fa-envelope nav-icon"></i>
+                        <span class="nav-text">Kontakt</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link">
+                        <i class="fas fa-comment-alt nav-icon"></i>
+                        <span class="nav-text">Chat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="top-ads.html" class="nav-link">
+                        <i class="fas fa-fire nav-icon"></i>
+                        <span class="nav-text">Topování</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="packages.html" class="nav-link">
+                        <i class="fas fa-box nav-icon"></i>
+                        <span class="nav-text">Balíčky</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Auth Buttons Section (shown when not logged in) -->
+        <div class="auth-section" id="authSection">
+            <button class="btn-login" onclick="showAuthModal('login')">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Přihlášení</span>
+            </button>
+            <button class="btn-register" onclick="showAuthModal('register')">
+                <i class="fas fa-user-plus"></i>
+                <span>Registrace</span>
+            </button>
+        </div>
+
+        <!-- User Profile Section (shown when logged in) -->
+        <div class="user-profile-section" id="userProfileSection" style="display: none;">
+            <button class="btn-profile" onclick="window.location.href='profile.html'">
+                <i class="fas fa-user-circle"></i>
+                <span>Profil</span>
+            </button>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Odhlásit se</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Toggle Button (when collapsed) -->
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+        <!-- Profile Hero Section -->
+        <section class="page-hero">
+            <div class="container">
+                <div class="page-hero-card">
+                    <div class="page-hero-inner">
+                        <h2 class="services-title"><span class="title-text">Nastavení</span><span class="title-accent"></span></h2>
+                        <p class="page-hero-subtitle">Správa vašeho účtu a předvoleb</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Cards -->
+        <section class="profile-stats-section">
+            <div class="container">
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-ad"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">Aktivní inzeráty</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">4.8</div>
+                            <div class="stat-label">Hodnocení</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn" onclick="window.location.href='profile.html'">Přehled</button>
+            <button class="tab-btn" onclick="window.location.href='profile-services.html'">Moje služby</button>
+            <button class="tab-btn" onclick="window.location.href='profile-ratings.html'">Hodnocení</button>
+            <button class="tab-btn active">Nastavení</button>
+            <button class="tab-btn" onclick="window.location.href='profile-plan.html'">Spravovat balíček</button>
+            <button class="tab-btn" onclick="window.location.href='top-ads.html'">Topování</button>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="settings-content">
+            <div class="settings-sections">
+                <!-- Personal Information -->
+                <div class="settings-section">
+                    <h3 class="settings-title">
+                        <i class="fas fa-user"></i>
+                        Osobní informace
+                    </h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="firstName">Křestní jméno</label>
+                            <input type="text" id="firstName" value="" class="form-input" placeholder="Zadejte vaše křestní jméno">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Příjmení</label>
+                            <input type="text" id="lastName" value="" class="form-input" placeholder="Zadejte vaše příjmení">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" value="" class="form-input" placeholder="Zadejte váš email">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Telefon</label>
+                            <input type="tel" id="phone" value="" class="form-input" placeholder="Zadejte váš telefon">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">Město</label>
+                            <input type="text" id="city" value="" class="form-input" placeholder="Zadejte vaše město">
+                        </div>
+                        <div class="form-group">
+                            <label for="bio">O mně</label>
+                            <textarea id="bio" class="form-input" rows="3" placeholder="Krátký popis o sobě..."></textarea>
+                        </div>
+                        <button type="button" onclick="savePersonalInfo()" class="btn-save" data-section="personal">
+                            <i class="fas fa-save"></i>
+                            Uložit změny
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Business Information -->
+                <div class="settings-section">
+                    <h3 class="settings-title">
+                        <i class="fas fa-briefcase"></i>
+                        Obchodní informace
+                    </h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="businessName">Název firmy</label>
+                            <input type="text" id="businessName" value="" class="form-input" placeholder="Zadejte název firmy">
+                        </div>
+                        <div class="form-group">
+                            <label for="businessType">Typ podnikání</label>
+                            <select id="businessType" class="form-input">
+                                <option value="">Vyberte typ podnikání</option>
+                                <option value="individual">OSVČ</option>
+                                <option value="company">Společnost</option>
+                                <option value="freelancer">Freelancer</option>
+                                <option value="other">Jiné</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="businessIco">IČ (Identifikační číslo)</label>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <input type="text" id="businessIco" value="" class="form-input" placeholder="Zadejte IČ firmy" style="flex:1;">
+                                <button type="button" id="btnVerifyICOSettings" class="btn-save" style="white-space:nowrap;">
+                                    <i class="fas fa-check-circle"></i>
+                                    Ověřit
+                                </button>
+                            </div>
+                            <div id="icoStatusSettings" style="font-size:13px; margin-top:6px; color:#6b7280;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="businessDic">DIČ (Daňové identifikační číslo)</label>
+                            <input type="text" id="businessDic" value="" class="form-input" placeholder="Zadejte DIČ firmy">
+                        </div>
+                        <div class="form-group">
+                            <label for="businessAddress">Adresa firmy</label>
+                            <textarea id="businessAddress" class="form-input" rows="2" placeholder="Ulice, město, PSČ"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="businessDescription">Popis podnikání</label>
+                            <textarea id="businessDescription" class="form-input" rows="4" placeholder="Co děláte, jaké služby poskytujete..."></textarea>
+                        </div>
+                        <button class="btn-save" data-section="business" onclick="saveBusinessInfo()">
+                            <i class="fas fa-save"></i>
+                            Uložit změny
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="settings-section">
+                    <h3 class="settings-title">
+                        <i class="fas fa-cog"></i>
+                        Nastavení účtu
+                    </h3>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="currentPassword">Současné heslo</label>
+                            <input type="password" id="currentPassword" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">Nové heslo</label>
+                            <input type="password" id="newPassword" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Potvrdit heslo</label>
+                            <input type="password" id="confirmPassword" class="form-input">
+                        </div>
+                        <button class="btn-save" onclick="changePassword()">
+                            <i class="fas fa-key"></i>
+                            Změnit heslo
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- Danger Zone -->
+                <div class="settings-section danger-zone">
+                    <h3 class="settings-title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Nebezpečná zóna
+                    </h3>
+                    <div class="settings-form">
+                        <div class="danger-actions">
+                            <button class="btn-danger" onclick="deleteAccount()">
+                                <i class="fas fa-trash"></i>
+                                Smazat účet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Globální proměnné pro real-time listener
+        let profileListener = null;
+        let isInitialized = false;
+
+        // Export funkcí pro globální použití - OKAMŽITĚ (budou nastaveny po definici)
+
+        // Inicializace po načtení DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Inicializuji nastavení profilu');
+            initializeSettings();
+            loadUserProfile();
+        });
+
+        // Load user profile data
+        async function loadUserProfile() {
+            console.log('🔧 Loading user profile...');
+            try {
+                // Wait for Firebase to be available
+                const checkFirebase = setInterval(() => {
+                    console.log('🔍 Checking Firebase:', {
+                        firebaseAuth: !!window.firebaseAuth,
+                        firebaseDb: !!window.firebaseDb
+                    });
+                    if (window.firebaseAuth && window.firebaseDb) {
+                        console.log('✅ Firebase available, loading data');
+                        clearInterval(checkFirebase);
+                        loadUserData();
+                        
+                        // Listen for auth state changes
+                        window.firebaseAuth.onAuthStateChanged((user) => {
+                            console.log('👤 Auth state changed on profile page:', user ? user.email : 'Not logged in');
+                            if (user) {
+                                loadUserData();
+                            }
+                        });
+                    }
+                }, 100);
+            } catch (error) {
+                console.error('❌ Chyba při načítání profilu:', error);
+            }
+        }
+
+        // Uložení osobních informací - DEFINICE HNED
+        async function savePersonalInfo() {
+            console.log('🚀 savePersonalInfo volána!');
+            try {
+                    console.log('🔍 Kontroluji Firebase:', {
+                        firebaseAuth: !!window.firebaseAuth,
+                        firebaseDb: !!window.firebaseDb
+                    });
+                
+                const currentUser = window.firebaseAuth.currentUser;
+                console.log('👤 Aktuální uživatel:', currentUser ? currentUser.uid : 'NENÍ PŘIHLÁŠEN');
+                
+                if (!currentUser) {
+                    showMessage('Musíte být přihlášeni!', 'error');
+                    return;
+                }
+
+                // Získat hodnoty z formuláře
+                const firstNameEl = document.getElementById('firstName');
+                const lastNameEl = document.getElementById('lastName');
+                const emailEl = document.getElementById('email');
+                const phoneEl = document.getElementById('phone');
+                const cityEl = document.getElementById('city');
+                const bioEl = document.getElementById('bio');
+                
+                console.log('🔍 Elementy formuláře:', {
+                    firstName: !!firstNameEl,
+                    lastName: !!lastNameEl,
+                    email: !!emailEl,
+                    phone: !!phoneEl,
+                    city: !!cityEl,
+                    bio: !!bioEl
+                });
+                
+                const firstName = firstNameEl ? firstNameEl.value : '';
+                const lastName = lastNameEl ? lastNameEl.value : '';
+                
+                const personalData = {
+                    firstName: firstName,
+                    lastName: lastName,
+                    name: `${firstName} ${lastName}`.trim(), // Zachovat i složené jméno pro kompatibilitu
+                    email: emailEl ? emailEl.value : '',
+                    phone: phoneEl ? phoneEl.value : '',
+                    city: cityEl ? cityEl.value : '',
+                    bio: bioEl ? bioEl.value : '',
+                    updatedAt: new Date()
+                };
+
+                console.log('💾 Ukládám osobní informace:', personalData);
+
+                const { setDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                
+                console.log('📝 Cesta k dokumentu:', `users/${currentUser.uid}/profile/profile`);
+                
+                await setDoc(profileRef, personalData, { merge: true });
+
+                console.log('✅ Data úspěšně uložena do Firebase');
+                showMessage('✅ Osobní informace byly uloženy!', 'success');
+
+            } catch (error) {
+                console.error('❌ Chyba při ukládání osobních informací:', error);
+                showMessage('Nepodařilo se uložit osobní informace: ' + error.message, 'error');
+            }
+        }
+
+        // Uložení obchodních informací - DEFINICE HNED
+        async function saveBusinessInfo() {
+            console.log('🚀 saveBusinessInfo volána!');
+            try {
+                console.log('🔍 Kontroluji Firebase:', {
+                    firebaseAuth: !!window.firebaseAuth,
+                    firebaseDb: !!window.firebaseDb
+                });
+                
+                const currentUser = window.firebaseAuth.currentUser;
+                console.log('👤 Aktuální uživatel:', currentUser ? currentUser.uid : 'NENÍ PŘIHLÁŠEN');
+                
+                if (!currentUser) {
+                    showMessage('Musíte být přihlášeni!', 'error');
+                    return;
+                }
+
+                // Získat hodnoty z formuláře
+                const businessNameEl = document.getElementById('businessName');
+                const businessTypeEl = document.getElementById('businessType');
+                const businessIcoEl = document.getElementById('businessIco');
+                const businessDicEl = document.getElementById('businessDic');
+                const businessAddressEl = document.getElementById('businessAddress');
+                const businessDescriptionEl = document.getElementById('businessDescription');
+                
+                console.log('🔍 Elementy formuláře:', {
+                    businessName: !!businessNameEl,
+                    businessType: !!businessTypeEl,
+                    businessIco: !!businessIcoEl,
+                    businessDic: !!businessDicEl,
+                    businessAddress: !!businessAddressEl,
+                    businessDescription: !!businessDescriptionEl
+                });
+                
+                // Ověření IČO – pokud je vyplněno, musí být úspěšně ověřeno tlačítkem
+                const icoRaw = businessIcoEl ? businessIcoEl.value : '';
+                const normalizedIco = normalizeICO(icoRaw);
+                if (normalizedIco) {
+                    const verifiedFlag = window.__icoVerified === true && window.__icoVerifiedValue === normalizedIco;
+                    if (!verifiedFlag) {
+                        showMessage('Nejdříve ověřte IČO tlačítkem Ověřit.', 'error');
+                        return;
+                    }
+                }
+
+                const businessData = {
+                    businessName: businessNameEl ? businessNameEl.value : '',
+                    businessType: businessTypeEl ? businessTypeEl.value : '',
+                    businessIco: normalizedIco || '',
+                    businessDic: businessDicEl ? businessDicEl.value : '',
+                    businessAddress: businessAddressEl ? businessAddressEl.value : '',
+                    businessDescription: businessDescriptionEl ? businessDescriptionEl.value : '',
+                    updatedAt: new Date()
+                };
+
+                console.log('💾 Ukládám obchodní informace:', businessData);
+
+                const { setDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                
+                console.log('📝 Cesta k dokumentu:', `users/${currentUser.uid}/profile/profile`);
+                
+                await setDoc(profileRef, businessData, { merge: true });
+
+                console.log('✅ Data úspěšně uložena do Firebase');
+                showMessage('✅ Obchodní informace byly uloženy!', 'success');
+
+            } catch (error) {
+                console.error('❌ Chyba při ukládání obchodních informací:', error);
+                showMessage('Nepodařilo se uložit obchodní informace: ' + error.message, 'error');
+            }
+        }
+
+        // ---- IČO ověřování (ARES) ----
+        function normalizeICO(input) {
+            const digits = (input || '').toString().replace(/\D+/g, '');
+            return digits.slice(0, 8);
+        }
+
+        async function validateICOWithARES(ico) {
+            const n = normalizeICO(ico);
+            if (n.length !== 8) return { ok: false, reason: 'IČO musí mít 8 číslic.' };
+
+            const fetchWithTimeout = (input, opts = {}) => {
+                const { timeoutMs = 3000, ...rest } = opts;
+                const ctrl = new AbortController();
+                const t = setTimeout(() => ctrl.abort(), timeoutMs);
+                return fetch(input, { ...rest, signal: ctrl.signal }).finally(() => clearTimeout(t));
+            };
+
+            // --- JSON pokusy (nové REST API) ---
+            const baseJson = [
+                `https://ares.gov.cz/ekonomicke-subjekty-v-be/v1/ekonomicke-subjekty/${n}`,
+                `https://ares.gov.cz/ekonomicke-subjekty-v-be/ekonomicke-subjekty/${n}`
+            ];
+            const localProxy = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+                ? baseJson.map(u => `http://localhost:8010/${u.replace('https://','')}`) : [];
+            const jsonCandidates = [
+                ...localProxy,
+                ...baseJson,
+                // Proxies pro CORS
+                ...baseJson.map(u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`),
+                ...baseJson.map(u => `https://thingproxy.freeboard.io/fetch/${u}`),
+                ...baseJson.map(u => `https://cors.isomorphic-git.org/${u}`)
+            ];
+
+            for (const directUrl of jsonCandidates) {
+                // Direct
+                try {
+                    const r = await fetchWithTimeout(directUrl, { headers: { 'Accept': 'application/json' }, timeoutMs: 3000 });
+                    if (r.ok) {
+                        const data = await r.json().catch(() => null);
+                        if (data) {
+                            const name = data.obchodniJmeno || data.obchodni_name || data.obchodni_jmeno || data.nazevSubjektu || '';
+                            const sidlo = data.sidlo || data.sídlo || data.adresaSidla || null;
+                            if (name || sidlo) return { ok: true, name, seat: sidlo };
+                        }
+                    }
+                } catch (_) {}
+                // Proxy (CORS)
+                try {
+                    const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(directUrl)}`;
+                    const r2 = await fetchWithTimeout(proxied, { headers: { 'Accept': 'application/json' }, timeoutMs: 3000 });
+                    if (r2.ok) {
+                        const data = await r2.json().catch(() => null);
+                        if (data) {
+                            const name = data.obchodniJmeno || data.obchodni_name || data.obchodni_jmeno || data.nazevSubjektu || '';
+                            const sidlo = data.sidlo || data.sídlo || data.adresaSidla || null;
+                            if (name || sidlo) return { ok: true, name, seat: sidlo };
+                        }
+                    }
+                } catch (_) {}
+            }
+
+            // --- XML fallback (původní ARES) ---
+            const xmlBase = [
+                `https://wwwinfo.mfcr.cz/cgi-bin/ares/darv_bas.cgi?ico=${n}&ver=1.0&jazyk=cz`,
+                `https://wwwinfo.mfcr.cz/cgi-bin/ares/darv_res.cgi?ico=${n}&ver=1.0&jazyk=cz`
+            ];
+            const xmlLocal = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+                ? xmlBase.map(u => `http://localhost:8010/${u.replace('https://','')}`) : [];
+            const xmlCandidates = [
+                ...xmlLocal,
+                ...xmlBase,
+                ...xmlBase.map(u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`),
+                ...xmlBase.map(u => `https://thingproxy.freeboard.io/fetch/${u}`),
+                ...xmlBase.map(u => `https://cors.isomorphic-git.org/${u}`)
+            ];
+            for (const u of xmlCandidates) {
+                try {
+                    const r = await fetchWithTimeout(u, { timeoutMs: 3000 });
+                    if (!r.ok) continue;
+                    const xmlText = await r.text();
+                    const doc = new DOMParser().parseFromString(xmlText, 'text/xml');
+                    const icoNode = doc.querySelector('ICO');
+                    const nameNode = doc.querySelector('OF');
+                    if (icoNode && icoNode.textContent.replace(/\D+/g, '') === n) {
+                        let seatText = '';
+                        const ns = doc.querySelector('NS');
+                        const n3 = doc.querySelector('N');
+                        const cd = doc.querySelector('CD');
+                        const co = doc.querySelector('CO');
+                        const psc = doc.querySelector('PSC');
+                        const p = doc.querySelector('P');
+                        const parts = [];
+                        if (n3) parts.push(n3.textContent.trim());
+                        const num = [cd?.textContent?.trim(), co?.textContent?.trim()].filter(Boolean).join('/');
+                        if (num) parts.push(num);
+                        if (psc || p) parts.push([psc?.textContent?.trim(), p?.textContent?.trim()].filter(Boolean).join(' '));
+                        if (ns) parts.push(ns.textContent.trim());
+                        seatText = parts.filter(Boolean).join(', ');
+                        return { ok: true, name: nameNode ? nameNode.textContent : '', seat: seatText ? { text: seatText } : null };
+                    }
+                } catch (_) {}
+            }
+
+            return { ok: false, reason: 'Subjekt s tímto IČO nebyl nalezen.' };
+        }
+
+        // UI logika pro ověření IČO v Nastavení
+        document.addEventListener('DOMContentLoaded', () => {
+            const icoInput = document.getElementById('businessIco');
+            const verifyBtn = document.getElementById('btnVerifyICOSettings');
+            const statusEl = document.getElementById('icoStatusSettings');
+            const nameEl = document.getElementById('businessName');
+            const addrEl = document.getElementById('businessAddress');
+
+            // Resetovat flag při změně IČO
+            if (icoInput) {
+                icoInput.addEventListener('input', () => {
+                    window.__icoVerified = false;
+                    window.__icoVerifiedValue = '';
+                    if (statusEl) { statusEl.style.color = '#6b7280'; statusEl.textContent = ''; }
+                });
+            }
+
+            if (verifyBtn) {
+                verifyBtn.addEventListener('click', async () => {
+                    try {
+                        verifyBtn.disabled = true;
+                        if (statusEl) { statusEl.style.color = '#6b7280'; statusEl.textContent = 'Ověřuji IČO…'; }
+                        const val = icoInput ? icoInput.value : '';
+                        const res = await validateICOWithARES(val);
+                        if (res.ok) {
+                            const n = normalizeICO(val);
+                            if (icoInput) icoInput.value = n;
+                            window.__icoVerified = true;
+                            window.__icoVerifiedValue = n;
+                            if (statusEl) { statusEl.style.color = '#28a745'; statusEl.textContent = 'IČO ověřeno'; }
+                            // Předvyplnit název/sídlo pokud prázdné
+                            if (res.name && nameEl && !nameEl.value) nameEl.value = res.name;
+                            if (res.seat && addrEl && !addrEl.value && res.seat.text) addrEl.value = res.seat.text;
+                        } else {
+                            window.__icoVerified = false;
+                            window.__icoVerifiedValue = '';
+                            if (statusEl) { statusEl.style.color = '#dc3545'; statusEl.textContent = res.reason || 'IČO se nepodařilo ověřit'; }
+                        }
+                    } finally {
+                        verifyBtn.disabled = false;
+                    }
+                });
+            }
+        });
+
+        // Uložení předvoleb - DEFINICE HNED
+        async function savePreferences() {
+            console.log('🚀 savePreferences volána!');
+            try {
+                console.log('🔍 Kontroluji Firebase:', {
+                    firebaseAuth: !!window.firebaseAuth,
+                    firebaseDb: !!window.firebaseDb
+                });
+                
+                const currentUser = window.firebaseAuth.currentUser;
+                console.log('👤 Aktuální uživatel:', currentUser ? currentUser.uid : 'NENÍ PŘIHLÁŠEN');
+                
+                if (!currentUser) {
+                    showMessage('Musíte být přihlášeni!', 'error');
+                    return;
+                }
+
+                // Získat hodnoty z formuláře
+                const emailNotificationsEl = document.getElementById('emailNotifications');
+                const smsNotificationsEl = document.getElementById('smsNotifications');
+                const marketingEmailsEl = document.getElementById('marketingEmails');
+                
+                console.log('🔍 Elementy formuláře:', {
+                    emailNotifications: !!emailNotificationsEl,
+                    smsNotifications: !!smsNotificationsEl,
+                    marketingEmails: !!marketingEmailsEl
+                });
+                
+                const preferencesData = {
+                    emailNotifications: emailNotificationsEl ? emailNotificationsEl.checked : true,
+                    smsNotifications: smsNotificationsEl ? smsNotificationsEl.checked : false,
+                    marketingEmails: marketingEmailsEl ? marketingEmailsEl.checked : false,
+                    updatedAt: new Date()
+                };
+
+                console.log('💾 Ukládám předvolby:', preferencesData);
+
+                const { setDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                
+                console.log('📝 Cesta k dokumentu:', `users/${currentUser.uid}/profile/profile`);
+                
+                await setDoc(profileRef, preferencesData, { merge: true });
+
+                console.log('✅ Data úspěšně uložena do Firebase');
+                showMessage('✅ Předvolby byly uloženy!', 'success');
+
+            } catch (error) {
+                console.error('❌ Chyba při ukládání předvoleb:', error);
+                showMessage('Nepodařilo se uložit předvolby: ' + error.message, 'error');
+            }
+        }
+
+        // Změna hesla - DEFINICE HNED
+        async function changePassword() {
+            try {
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) {
+                    showMessage('Musíte být přihlášeni!', 'error');
+                    return;
+                }
+
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                // Validace
+                if (!currentPassword || !newPassword || !confirmPassword) {
+                    showMessage('Vyplňte všechna pole!', 'error');
+                    return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    showMessage('Nová hesla se neshodují!', 'error');
+                    return;
+                }
+
+                if (newPassword.length < 6) {
+                    showMessage('Nové heslo musí mít alespoň 6 znaků!', 'error');
+                    return;
+                }
+
+                console.log('🔑 Měním heslo...');
+
+                // Re-autentifikace s aktuálním heslem
+                const { reauthenticateWithCredential, EmailAuthProvider } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+                const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+                
+                await reauthenticateWithCredential(currentUser, credential);
+
+                // Změna hesla
+                const { updatePassword } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+                await updatePassword(currentUser, newPassword);
+
+                // Vyčistit formulář
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+
+                showMessage('✅ Heslo bylo úspěšně změněno!', 'success');
+                console.log('✅ Heslo úspěšně změněno');
+
+            } catch (error) {
+                console.error('❌ Chyba při změně hesla:', error);
+                
+                let errorMessage = 'Nepodařilo se změnit heslo';
+                if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Současné heslo je nesprávné';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Nové heslo je příliš slabé';
+                } else if (error.code === 'auth/requires-recent-login') {
+                    errorMessage = 'Pro změnu hesla se musíte znovu přihlásit';
+                }
+                
+                showMessage(errorMessage, 'error');
+            }
+        }
+
+        // Zobrazení zprávy - DEFINICE HNED
+        function showMessage(message, type = 'info') {
+            // Odstranit existující zprávy
+            const existingMessages = document.querySelectorAll('.message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            messageDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            // Stylování
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                color: white;
+                font-weight: bold;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                min-width: 300px;
+                font-size: 14px;
+            `;
+            
+            if (type === 'success') {
+                messageDiv.style.backgroundColor = '#28a745';
+            } else if (type === 'error') {
+                messageDiv.style.backgroundColor = '#dc3545';
+            } else {
+                messageDiv.style.backgroundColor = '#007bff';
+            }
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        // Delete account function
+        async function deleteAccount() {
+            // Show confirmation modal
+            const confirmationText = prompt(`
+⚠️ VAROVÁNÍ: NEVRATNÁ AKCE ⚠️
+
+Opravdu chcete smazat svůj účet?
+
+Tato akce je NEVRATNÁ a nelze ji vzít zpět!
+Všechna vaše data budou trvale smazána:
+- Váš profil a osobní informace
+- Všechny vaše inzeráty a služby
+- Všechny recenze a hodnocení
+- Všechny zprávy a konverzace
+- Všechna historická data
+
+PO POŽÁDÁNÍ O SMAZÁNÍ NELZE PODÁVAT REKLAMACE!
+
+Pro potvrzení zadejte přesně: smazat
+            `);
+
+            if (confirmationText !== "smazat") {
+                if (confirmationText !== null) {
+                    alert("❌ Nesprávné potvrzení. Smazání účtu bylo zrušeno.");
+                }
+                return;
+            }
+
+            // Second confirmation
+            const finalConfirmation = confirm(`
+🚨 FINÁLNÍ POTVRZENÍ 🚨
+
+Opravdu chcete trvale smazat svůj účet?
+
+Tato akce je NEVRATNÁ!
+Všechna vaše data budou navždy ztracena!
+
+Klikněte OK pro pokračování nebo Storno pro zrušení.
+            `);
+
+            if (!finalConfirmation) {
+                alert("❌ Smazání účtu bylo zrušeno.");
+                return;
+            }
+
+            try {
+                // Show loading message
+                alert("🔄 Mažu váš účet... Prosím počkejte.");
+                
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) {
+                    alert("❌ Uživatel není přihlášen.");
+                    return;
+                }
+
+                // Import Firebase functions
+                const { 
+                    deleteDoc, 
+                    doc, 
+                    collection, 
+                    getDocs, 
+                    query, 
+                    where
+                } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const { deleteUser } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+
+                console.log('🗑️ Začínám mazání účtu pro uživatele:', currentUser.uid);
+
+                // Delete user profile
+                try {
+                    await deleteDoc(doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile'));
+                    console.log('✅ Profil smazán');
+                } catch (error) {
+                    console.log('⚠️ Profil nebyl nalezen nebo již byl smazán');
+                }
+
+                // Delete all user ads
+                try {
+                    const adsCollection = collection(window.firebaseDb, 'users', currentUser.uid, 'inzeraty');
+                    const adsSnapshot = await getDocs(adsCollection);
+                    const deletePromises = adsSnapshot.docs.map(doc => deleteDoc(doc.ref));
+                    await Promise.all(deletePromises);
+                    console.log('✅ Všechny inzeráty smazány');
+                } catch (error) {
+                    console.log('⚠️ Inzeráty nebyly nalezeny nebo již byly smazány');
+                }
+
+                // Delete all reviews for this user
+                try {
+                    const reviewsQuery = query(
+                        collection(window.firebaseDb, 'reviews'),
+                        where('reviewedUserId', '==', currentUser.uid)
+                    );
+                    const reviewsSnapshot = await getDocs(reviewsQuery);
+                    const deleteReviewPromises = reviewsSnapshot.docs.map(doc => deleteDoc(doc.ref));
+                    await Promise.all(deleteReviewPromises);
+                    console.log('✅ Všechny recenze smazány');
+                } catch (error) {
+                    console.log('⚠️ Recenze nebyly nalezeny nebo již byly smazány');
+                }
+
+                // Delete all messages from this user
+                try {
+                    const messagesQuery = query(
+                        collection(window.firebaseDb, 'messages'),
+                        where('userId', '==', currentUser.uid)
+                    );
+                    const messagesSnapshot = await getDocs(messagesQuery);
+                    const deleteMessagePromises = messagesSnapshot.docs.map(doc => deleteDoc(doc.ref));
+                    await Promise.all(deleteMessagePromises);
+                    console.log('✅ Všechny zprávy smazány');
+                } catch (error) {
+                    console.log('⚠️ Zprávy nebyly nalezeny nebo již byly smazány');
+                }
+
+                // Delete Firebase Auth user
+                await deleteUser(window.firebaseAuth, currentUser);
+                console.log('✅ Firebase Auth uživatel smazán');
+
+                // Success message
+                alert(`
+✅ ÚČET BYL ÚSPĚŠNĚ SMAZÁN
+
+Váš účet a všechna související data byla trvale smazána.
+Budete přesměrováni na hlavní stránku.
+                `);
+
+                // Redirect to home page
+                window.location.href = 'index.html';
+
+            } catch (error) {
+                console.error('❌ Chyba při mazání účtu:', error);
+                alert(`
+❌ CHYBA PŘI MAZÁNÍ ÚČTU
+
+Došlo k chybě: ${error.message}
+
+Prosím kontaktujte podporu.
+                `);
+            }
+        }
+
+        // EXPORT FUNKCÍ - HNED PO DEFINICI
+        window.savePersonalInfo = savePersonalInfo;
+        window.saveBusinessInfo = saveBusinessInfo;
+        window.savePreferences = savePreferences;
+        window.changePassword = changePassword;
+        window.deleteAccount = deleteAccount;
+        window.showMessage = showMessage;
+        
+        console.log('✅ Funkce exportovány:', {
+            savePersonalInfo: typeof window.savePersonalInfo,
+            saveBusinessInfo: typeof window.saveBusinessInfo,
+            savePreferences: typeof window.savePreferences,
+            changePassword: typeof window.changePassword
+        });
+
+        // Hlavní inicializační funkce
+        async function initializeSettings() {
+            try {
+                // Počkat na Firebase
+                await waitForFirebase();
+                
+                // Načíst data uživatele (automaticky prefilled)
+                await loadUserSettings();
+                
+                // Nastavit real-time listener
+                setupRealtimeListener();
+                
+                // Nastavit event listenery pro formuláře
+                setupFormListeners();
+                
+                // Automatické načítání dat při různých událostech
+                setupAutoRefresh();
+                
+                isInitialized = true;
+                console.log('✅ Nastavení profilu inicializováno s automatickým prefilled daty');
+                
+            } catch (error) {
+                console.error('❌ Chyba při inicializaci:', error);
+                showMessage('Chyba při načítání nastavení', 'error');
+            }
+        }
+
+        // Nastavení automatického načítání dat
+        function setupAutoRefresh() {
+            // Automatické načítání při focus na stránku
+            window.addEventListener('focus', () => {
+                if (isInitialized) {
+                    console.log('🔄 Automatické načítání dat při focus');
+                    loadUserSettings();
+                }
+            });
+
+            // Automatické načítání při návratu na stránku (visibility change)
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden && isInitialized) {
+                    console.log('🔄 Automatické načítání dat při návratu na stránku');
+                    loadUserSettings();
+                }
+            });
+
+            // Automatické načítání při změně auth stavu
+            if (window.firebaseAuth) {
+                window.firebaseAuth.onAuthStateChanged((user) => {
+                    if (user && isInitialized) {
+                        console.log('🔄 Automatické načítání dat při změně auth stavu');
+                        loadUserSettings();
+                    }
+                });
+            }
+
+            // Automatické načítání každých 30 sekund (pokud je stránka aktivní)
+            setInterval(() => {
+                if (!document.hidden && isInitialized) {
+                    console.log('🔄 Automatické načítání dat (30s interval)');
+                    loadUserSettings();
+                }
+            }, 30000);
+        }
+
+        // Počkat na Firebase
+        async function waitForFirebase() {
+            return new Promise((resolve, reject) => {
+                const checkFirebase = setInterval(() => {
+                    if (window.firebaseAuth && window.firebaseDb) {
+                        clearInterval(checkFirebase);
+                        resolve();
+                    }
+                }, 100);
+                
+                // Timeout po 10 sekundách
+                setTimeout(() => {
+                    clearInterval(checkFirebase);
+                    reject(new Error('Firebase se nenačetl'));
+                }, 10000);
+            });
+        }
+
+        // Automatické načtení nastavení uživatele
+        async function loadUserSettings() {
+            try {
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) {
+                    console.log('⚠️ Uživatel není přihlášen');
+                    return;
+                }
+
+                console.log('🔄 Automaticky načítám data pro uživatele:', currentUser.uid);
+
+                const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                const profileSnap = await getDoc(profileRef);
+                
+                let userProfile = null;
+                if (profileSnap.exists()) {
+                    userProfile = profileSnap.data();
+                    console.log('✅ Automaticky načtený profil:', userProfile);
+                } else {
+                    // Pokud profil neexistuje, vytvořit základní strukturu s aktuálními daty uživatele
+                    const displayName = currentUser.displayName || currentUser.email?.split('@')[0] || '';
+                    const nameParts = displayName.split(' ');
+                    
+                    userProfile = {
+                        firstName: nameParts[0] || '',
+                        lastName: nameParts.slice(1).join(' ') || '',
+                        name: displayName, // Zachovat složené jméno pro kompatibilitu
+                        email: currentUser.email || '',
+                        phone: '',
+                        city: '',
+                        bio: '',
+                        businessName: '',
+                        businessType: '',
+                        businessIco: '',
+                        businessDic: '',
+                        businessAddress: '',
+                        businessDescription: '',
+                        emailNotifications: true,
+                        smsNotifications: false,
+                        marketingEmails: false,
+                        createdAt: new Date()
+                    };
+                    
+                    // Uložit základní profil
+                    const { setDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                    await setDoc(profileRef, userProfile, { merge: true });
+                    console.log('✅ Automaticky vytvořen základní profil:', userProfile);
+                }
+
+                // Automaticky aktualizovat formulář s daty (vždy prefilled)
+                updateFormFields(userProfile);
+                
+                // Tichá notifikace o úspěšném načtení (pouze při prvním načtení)
+                if (!window.dataLoaded) {
+                    console.log('✅ Data automaticky načtena a formulář prefilled');
+                    window.dataLoaded = true;
+                }
+                
+            } catch (error) {
+                console.error('❌ Chyba při automatickém načítání nastavení:', error);
+                // Tichá chyba - neobtěžovat uživatele notifikacemi
+            }
+        }
+
+        // Real-time listener pro změny v profilu
+        function setupRealtimeListener() {
+            try {
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) return;
+
+                const { onSnapshot, doc } = import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                onSnapshot.then(({ onSnapshot }) => {
+                    const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                    
+                    profileListener = onSnapshot(profileRef, (snapshot) => {
+                        if (snapshot.exists()) {
+                            const userProfile = snapshot.data();
+                            console.log('🔄 Real-time aktualizace profilu:', userProfile);
+                            
+                            // Aktualizovat pouze pokud uživatel neupravuje formulář
+                            const activeElement = document.activeElement;
+                            const isEditing = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.tagName === 'SELECT');
+                            
+                            if (!isEditing) {
+                                updateFormFields(userProfile);
+                            }
+                        }
+                    }, (error) => {
+                        console.error('❌ Chyba real-time listeneru:', error);
+                    });
+                });
+                
+            } catch (error) {
+                console.error('❌ Chyba při nastavení real-time listeneru:', error);
+            }
+        }
+
+        // Nastavení event listenerů pro formuláře
+        function setupFormListeners() {
+            // Auto-save při změně hodnot (s debounce)
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                let timeout;
+                input.addEventListener('input', () => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        // Označit, že byly provedeny změny
+                        input.classList.add('modified');
+                    }, 500);
+                });
+            });
+        }
+
+        // Aktualizace formulářových polí s daty (vždy prefilled kromě hesel)
+        function updateFormFields(userProfile) {
+            console.log('🔄 Aktualizuji formulář s daty:', userProfile);
+            
+            // Osobní informace - vždy prefilled
+            const personalFields = {
+                'firstName': userProfile?.firstName || '',
+                'lastName': userProfile?.lastName || '',
+                'email': userProfile?.email || '',
+                'phone': userProfile?.phone || '',
+                'city': userProfile?.city || '',
+                'bio': userProfile?.bio || ''
+            };
+
+            Object.entries(personalFields).forEach(([fieldId, value]) => {
+                const element = document.getElementById(fieldId);
+                if (element) {
+                    element.value = value;
+                    element.placeholder = value ? `Aktuální: ${value}` : 'Zadejte hodnotu';
+                }
+            });
+
+            // Obchodní informace - vždy prefilled
+            const businessFields = {
+                'businessName': userProfile?.businessName || '',
+                'businessType': userProfile?.businessType || '',
+                'businessIco': userProfile?.businessIco || '',
+                'businessDic': userProfile?.businessDic || '',
+                'businessAddress': userProfile?.businessAddress || '',
+                'businessDescription': userProfile?.businessDescription || ''
+            };
+
+            Object.entries(businessFields).forEach(([fieldId, value]) => {
+                const element = document.getElementById(fieldId);
+                if (element) {
+                    element.value = value;
+                    element.placeholder = value ? `Aktuální: ${value}` : 'Zadejte hodnotu';
+                }
+            });
+
+            // Předvolby - vždy prefilled
+            const preferenceFields = {
+                'emailNotifications': userProfile?.emailNotifications !== false,
+                'smsNotifications': userProfile?.smsNotifications === true,
+                'marketingEmails': userProfile?.marketingEmails === true
+            };
+
+            Object.entries(preferenceFields).forEach(([fieldId, value]) => {
+                const element = document.getElementById(fieldId);
+                if (element) {
+                    element.checked = value;
+                }
+            });
+            
+            // Hesla - NIKDY neprefilled (zůstávají prázdná)
+            const passwordFields = ['currentPassword', 'newPassword', 'confirmPassword'];
+            passwordFields.forEach(fieldId => {
+                const element = document.getElementById(fieldId);
+                if (element) {
+                    element.value = ''; // Vždy prázdné
+                    element.placeholder = 'Zadejte heslo';
+                }
+            });
+            
+            console.log('✅ Formulář aktualizován s prefilled daty (kromě hesel)');
+        }
+
+        // CSS pro animace
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            .modified {
+                border-color: #007bff !important;
+                box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Cleanup při opuštění stránky
+        window.addEventListener('beforeunload', () => {
+            if (profileListener) {
+                profileListener();
+            }
+        });
+
+        // Load actual user data
+        async function loadUserData() {
+            console.log('💾 Loading user data...');
+            try {
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) {
+                    console.log('⚠️ Uživatel není přihlášen');
+                    return;
+                }
+
+                console.log('👤 Načítám data pro uživatele:', currentUser.uid);
+
+                // Load user profile from Firestore
+                const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                const profileSnap = await getDoc(profileRef);
+                
+                let userProfile = null;
+                if (profileSnap.exists()) {
+                    userProfile = profileSnap.data();
+                }
+
+                // Load user ads to get statistics
+                const { getDocs, collection } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const adsRef = collection(window.firebaseDb, 'users', currentUser.uid, 'inzeraty');
+                const adsSnapshot = await getDocs(adsRef);
+                
+                const userAds = [];
+                adsSnapshot.forEach((doc) => {
+                    userAds.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Update statistics
+                console.log('📊 Calling updateStatistics with:', { userAds: userAds.length, userProfile });
+                updateStatistics(userAds, userProfile);
+                
+                // Load all reviews and update rating after loading
+                loadAllUserReviews(currentUser.uid);
+
+            } catch (error) {
+                console.error('Chyba při načítání dat uživatele:', error);
+            }
+        }
+
+        // Update statistics with real data
+        function updateStatistics(userAds, userProfile) {
+            console.log('📊 Updating statistics:', { userAds, userProfile });
+            
+            // Active ads count
+            const activeAds = userAds ? userAds.filter(ad => ad.status === 'active').length : 0;
+            const activeAdsElement = document.querySelector('.stat-card:nth-child(1) .stat-number');
+            if (activeAdsElement) {
+                activeAdsElement.textContent = activeAds > 0 ? activeAds : '-';
+                console.log('📝 Updated active ads:', activeAds);
+            }
+
+            // Rating will be updated after loading reviews
+            const ratingElement = document.querySelector('.stat-card:nth-child(2) .stat-number');
+            if (ratingElement) {
+                ratingElement.textContent = '-';
+            }
+            
+            console.log('✅ Statistics updated');
+        }
+
+        // Load all user reviews (profile + ads)
+        async function loadAllUserReviews(userId) {
+            console.log('⭐ Loading all reviews for user:', userId);
+            try {
+                const { getDocs, collection, collectionGroup } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                // Load profile reviews
+                const profileReviewsRef = collection(window.firebaseDb, 'users', userId, 'reviews');
+                const profileSnap = await getDocs(profileReviewsRef);
+                const profileReviews = profileSnap.docs.map(d => ({ 
+                    id: d.id, 
+                    ...d.data(),
+                    type: 'profile'
+                }));
+
+                // Load ad reviews using collectionGroup
+                const adReviewsGroup = collectionGroup(window.firebaseDb, 'reviews');
+                const adReviews = [];
+                const groupSnap = await getDocs(adReviewsGroup);
+                groupSnap.forEach(docSnap => {
+                    const parent = docSnap.ref.parent; // reviews collection
+                    const adDoc = parent?.parent; // adId document
+                    const inzeraty = adDoc?.parent; // 'inzeraty' collection
+                    const userDoc = inzeraty?.parent; // user uid document
+                    if (userDoc && userDoc.id === userId && inzeraty.id === 'inzeraty') {
+                        adReviews.push({ 
+                            id: docSnap.id, 
+                            ...docSnap.data(),
+                            type: 'ad',
+                            adId: adDoc.id
+                        });
+                    }
+                });
+
+                // Combine all reviews
+                const allReviews = [...profileReviews, ...adReviews];
+                console.log('📊 Found reviews:', { 
+                    profile: profileReviews.length, 
+                    ads: adReviews.length, 
+                    total: allReviews.length 
+                });
+
+                // Update rating in statistics after loading reviews
+                updateRatingFromReviews(allReviews);
+
+            } catch (error) {
+                console.error('❌ Error loading reviews:', error);
+            }
+        }
+
+        // Update rating in statistics from reviews
+        function updateRatingFromReviews(reviews) {
+            console.log('🔄 Updating rating from reviews:', reviews.length);
+            
+            // Calculate average rating
+            const avgRating = reviews.length > 0 ? 
+                (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length) : 0;
+            
+            const ratingElement = document.querySelector('.stat-card:nth-child(2) .stat-number');
+            if (ratingElement) {
+                if (reviews.length > 0) {
+                    ratingElement.textContent = avgRating.toFixed(1);
+                } else {
+                    ratingElement.textContent = '-';
+                }
+                console.log('📝 Updated rating from reviews:', avgRating.toFixed(1), 'reviews:', reviews.length);
+            }
+        }
+    </script>
+    <!-- Načtení skriptů pro správné zobrazení navbaru -->
+    <script src="script.js" defer></script>
+    <script src="auth.js" defer></script>
+</body>
+</html>

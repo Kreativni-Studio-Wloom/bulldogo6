@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Auth - Bulldogo.cz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+        
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        // Inicializace Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+        
+        // Export pro globální použití
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        
+        console.log('🔥 Firebase inicializován:', { auth: !!auth, db: !!db });
+    </script>
+</head>
+<body>
+    <div style="padding: 2rem; text-align: center;">
+        <h1>Test Autentifikace</h1>
+        
+        <div style="margin: 2rem 0;">
+            <button class="btn-login" onclick="testShowAuthModal('login')" style="margin: 0.5rem; padding: 1rem 2rem; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                <i class="fas fa-sign-in-alt"></i> Test Přihlášení
+            </button>
+            
+            <button class="btn-register" onclick="testShowAuthModal('register')" style="margin: 0.5rem; padding: 1rem 2rem; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                <i class="fas fa-user-plus"></i> Test Registrace
+            </button>
+        </div>
+        
+        <div id="debug-info" style="margin: 2rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px; text-align: left;">
+            <h3>Debug informace:</h3>
+            <div id="debug-content">Načítám...</div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Přihlášení</h2>
+                <span class="close" onclick="closeAuthModal()">&times;</span>
+            </div>
+            <form id="authForm" class="auth-form">
+                <!-- Výběr typu registrace (pouze při registraci) -->
+                <div class="form-group registration-type" style="display: none;">
+                    <label class="form-label">Typ registrace:</label>
+                    <div class="registration-type-buttons">
+                        <button type="button" class="registration-type-btn active" data-type="person">
+                            <i class="fas fa-user"></i> Fyzická osoba
+                        </button>
+                        <button type="button" class="registration-type-btn" data-type="company">
+                            <i class="fas fa-building"></i> Firma
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulář pro fyzickou osobu -->
+                <div class="person-form" style="display: none;">
+                    <div class="form-group">
+                        <input type="text" id="firstName" name="firstName" placeholder="Jméno" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="lastName" name="lastName" placeholder="Příjmení" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="phone" name="phone" placeholder="Telefon" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="birthDate" name="birthDate" placeholder="Datum narození" required>
+                    </div>
+                </div>
+
+                <!-- Formulář pro firmu -->
+                <div class="company-form" style="display: none;">
+                    <div class="form-group">
+                        <input type="text" id="companyName" name="companyName" placeholder="Obchodní název">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="ico" name="ico" placeholder="IČ">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="dic" name="dic" placeholder="DIČ (volitelné)" data-optional="true">
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="companyPhone" name="companyPhone" placeholder="Telefon">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="companyAddress" name="companyAddress" placeholder="Sídlo firmy">
+                    </div>
+                </div>
+
+                <!-- Společná pole -->
+                <div class="form-group">
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" name="password" placeholder="Heslo" required>
+                </div>
+                <button type="submit" class="btn btn-primary auth-submit-btn">Přihlásit se</button>
+            </form>
+            <div class="auth-switch">
+                <button type="button" class="auth-switch-btn" data-type="register">Nemáte účet? Zaregistrujte se</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    
+    <script>
+        // Test funkce
+        function testShowAuthModal(type) {
+            console.log('🧪 Test volání showAuthModal s typem:', type);
+            console.log('🔍 showAuthModal dostupná:', typeof window.showAuthModal);
+            
+            if (typeof window.showAuthModal === 'function') {
+                window.showAuthModal(type);
+            } else {
+                alert('showAuthModal není dostupná!');
+            }
+        }
+        
+        // Debug informace
+        function updateDebugInfo() {
+            const debugContent = document.getElementById('debug-content');
+            debugContent.innerHTML = `
+                <p><strong>Firebase Auth:</strong> ${window.firebaseAuth ? '✅ Načten' : '❌ Nenalezen'}</p>
+                <p><strong>Firebase DB:</strong> ${window.firebaseDb ? '✅ Načten' : '❌ Nenalezen'}</p>
+                <p><strong>showAuthModal:</strong> ${typeof window.showAuthModal}</p>
+                <p><strong>closeAuthModal:</strong> ${typeof window.closeAuthModal}</p>
+                <p><strong>Modal element:</strong> ${document.getElementById('authModal') ? '✅ Nalezen' : '❌ Nenalezen'}</p>
+            `;
+        }
+        
+        // Aktualizovat debug info každou sekundu
+        setInterval(updateDebugInfo, 1000);
+        
+        // Inicializace
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Test stránka načtena');
+            updateDebugInfo();
+        });
+    </script>
+</body>
+</html>
+

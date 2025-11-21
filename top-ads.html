@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topování inzerátů - Bulldogo.cz</title>
+    <meta name="description" content="Zvýrazněte svůj inzerát na Bulldogo.cz. Vyberte délku topování a získejte více zobrazení.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://bulldogo.cz/top-ads.html">
+    <meta name="theme-color" content="#ff6a00">
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="icon" type="image/png" href="fotky/bulldogo-logo.png">
+    <link rel="apple-touch-icon" href="fotky/bulldogo-logo.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Bulldogo.cz">
+    <meta property="og:title" content="Topování inzerátů - Bulldogo.cz">
+    <meta property="og:description" content="Zvýrazněte svůj inzerát pro vyšší viditelnost.">
+    <meta property="og:url" content="https://bulldogo.cz/top-ads.html">
+    <meta property="og:image" content="https://bulldogo.cz/fotky/bulldogo-logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="electric-border.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK (centralizovaná inicializace) -->
+    <script type="module" src="firebase-init.js"></script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <!-- Logo Section -->
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">B</div>
+                <span class="logo-text">
+                    <span class="logo-bull">ULL</span>
+                    <span class="logo-dogo">DOGO</span>
+                </span>
+            </div>
+            <div class="header-buttons">
+            </div>
+        </div>
+
+        <!-- Navigation Section -->
+        <div class="navigation-section">
+            <h3 class="nav-section-title">NAVIGACE</h3>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home nav-icon"></i>
+                        <span class="nav-text">Domů</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="services.html" class="nav-link">
+                        <i class="fas fa-list-alt nav-icon"></i>
+                        <span class="nav-text">Služby</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="my-ads.html" class="nav-link">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span class="nav-text">Mé inzeráty</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#about" class="nav-link">
+                        <i class="fas fa-info-circle nav-icon"></i>
+                        <span class="nav-text">O nás</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contact" class="nav-link">
+                        <i class="fas fa-envelope nav-icon"></i>
+                        <span class="nav-text">Kontakt</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link">
+                        <i class="fas fa-comment-alt nav-icon"></i>
+                        <span class="nav-text">Chat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="top-ads.html" class="nav-link active">
+                        <i class="fas fa-fire nav-icon"></i>
+                        <span class="nav-text">Topování</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="packages.html" class="nav-link">
+                        <i class="fas fa-box nav-icon"></i>
+                        <span class="nav-text">Balíčky</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Auth Buttons Section (shown when not logged in) -->
+        <div class="auth-section" id="authSection">
+            <button class="btn-login" onclick="showAuthModal('login')">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Přihlášení</span>
+            </button>
+            <button class="btn-register" onclick="showAuthModal('register')">
+                <i class="fas fa-user-plus"></i>
+                <span>Registrace</span>
+            </button>
+        </div>
+
+        <!-- User Profile Section (shown when logged in) -->
+        <div class="user-profile-section" id="userProfileSection" style="display: none;">
+            <button class="btn-profile" onclick="window.location.href='profile.html'">
+                <i class="fas fa-user-circle"></i>
+                <span>Profil</span>
+            </button>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Odhlásit se</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+        <!-- Hero Section (sjednocený obdélník) -->
+        <section class="page-hero">
+            <div class="container">
+                <div class="page-hero-card">
+                    <div class="page-hero-inner">
+                        <h2 class="services-title"><span class="title-text">Topování inzerátů</span><span class="title-accent"></span></h2>
+                        <p class="page-hero-subtitle">Zvýrazněte svůj inzerát a získejte více zákazníků</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Top Ads Pricing Section -->
+        <section class="top-ads-pricing">
+            <div class="container">
+                <div class="pricing-header">
+                    <h2 class="section-title">Ceník topování</h2>
+                    <p class="section-subtitle">Vyberte si délku topování, která vám vyhovuje</p>
+                </div>
+
+                <div class="pricing-grid">
+                    <!-- 1 den -->
+                    <div class="pricing-card">
+                        <div class="pricing-badge">Nejpopulárnější</div>
+                        <div class="pricing-header">
+                            <h3 class="pricing-title">1 den</h3>
+                            <div class="pricing-price">
+                                <span class="price">19</span>
+                                <span class="currency">Kč</span>
+                            </div>
+                        </div>
+                        <div class="pricing-features">
+                            <ul>
+                                <li><i class="fas fa-check"></i> Zlatý rámeček kolem inzerátu</li>
+                                <li><i class="fas fa-check"></i> TOP odznak</li>
+                                <li><i class="fas fa-check"></i> Vysoká viditelnost</li>
+                                <li><i class="fas fa-check"></i> Animovaný efekt</li>
+                            </ul>
+                        </div>
+                        <button class="btn-pricing" data-duration="1" data-price="19">
+                            <i class="fas fa-shopping-cart"></i>
+                            Vybrat
+                        </button>
+                    </div>
+
+                    <!-- 1 týden -->
+                    <div class="pricing-card featured">
+                        <div class="pricing-badge">Nejoblíbenější</div>
+                        <div class="pricing-header">
+                            <h3 class="pricing-title">1 týden</h3>
+                            <div class="pricing-price">
+                                <span class="price">49</span>
+                                <span class="currency">Kč</span>
+                            </div>
+                            <div class="pricing-savings">Ušetříte 84 Kč!</div>
+                        </div>
+                        <div class="pricing-features">
+                            <ul>
+                                <li><i class="fas fa-check"></i> Zlatý rámeček kolem inzerátu</li>
+                                <li><i class="fas fa-check"></i> TOP odznak</li>
+                                <li><i class="fas fa-check"></i> Vysoká viditelnost</li>
+                                <li><i class="fas fa-check"></i> Animovaný efekt</li>
+                                <li><i class="fas fa-check"></i> 7 dní topování</li>
+                            </ul>
+                        </div>
+                        <button class="btn-pricing" data-duration="7" data-price="49">
+                            <i class="fas fa-shopping-cart"></i>
+                            Vybrat
+                        </button>
+                    </div>
+
+                    <!-- 1 měsíc -->
+                    <div class="pricing-card">
+                        <div class="pricing-badge">Nejvýhodnější</div>
+                        <div class="pricing-header">
+                            <h3 class="pricing-title">1 měsíc</h3>
+                            <div class="pricing-price">
+                                <span class="price">149</span>
+                                <span class="currency">Kč</span>
+                            </div>
+                            <div class="pricing-savings">Ušetříte 421 Kč!</div>
+                        </div>
+                        <div class="pricing-features">
+                            <ul>
+                                <li><i class="fas fa-check"></i> Zlatý rámeček kolem inzerátu</li>
+                                <li><i class="fas fa-check"></i> TOP odznak</li>
+                                <li><i class="fas fa-check"></i> Vysoká viditelnost</li>
+                                <li><i class="fas fa-check"></i> Animovaný efekt</li>
+                                <li><i class="fas fa-check"></i> 30 dní topování</li>
+                                <li><i class="fas fa-check"></i> Prioritní podpora</li>
+                            </ul>
+                        </div>
+                        <button class="btn-pricing" data-duration="30" data-price="149">
+                            <i class="fas fa-shopping-cart"></i>
+                            Vybrat
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ad Selection Section -->
+        <section class="ad-selection" id="adSelection" style="display: none;">
+            <div class="container">
+                <div class="selection-header">
+                    <h2 class="section-title">Vyberte inzerát k topování</h2>
+                    <p class="section-subtitle">Vyberte inzerát, který chcete zvýraznit</p>
+                </div>
+
+                <div class="ads-list" id="adsList">
+                    <!-- Ads will be loaded here -->
+                </div>
+
+                <div class="selection-actions">
+                    <button class="btn-secondary" onclick="hideAdSelection()">
+                        <i class="fas fa-arrow-left"></i>
+                        Zpět k výběru
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment Section -->
+        <section class="payment-section" id="paymentSection" style="display: none;">
+            <div class="container">
+                <div class="payment-header">
+                    <h2 class="section-title">Dokončení objednávky</h2>
+                    <p class="section-subtitle">Dokončete platbu pro aktivaci topování</p>
+                </div>
+
+                <div class="payment-summary">
+                    <div class="summary-card">
+                        <h3>Shrnutí objednávky</h3>
+                        <div class="summary-item">
+                            <span>Inzerát:</span>
+                            <span id="selectedAdTitle">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Délka topování:</span>
+                            <span id="selectedDuration">-</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span>Cena:</span>
+                            <span id="totalPrice">-</span>
+                        </div>
+                    </div>
+
+                    <div class="payment-methods">
+                        <h3>Způsob platby</h3>
+                        <div class="payment-options">
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="card" checked>
+                                <div class="option-content">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span>Kreditní karta</span>
+                                </div>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="bank">
+                                <div class="option-content">
+                                    <i class="fas fa-university"></i>
+                                    <span>Bankovní převod</span>
+                                </div>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="payment" value="paypal">
+                                <div class="option-content">
+                                    <i class="fab fa-paypal"></i>
+                                    <span>PayPal</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="payment-actions">
+                        <button class="btn-secondary" onclick="hidePayment()">
+                            <i class="fas fa-arrow-left"></i>
+                            Zpět
+                        </button>
+                        <button class="btn-primary" onclick="processPayment()">
+                            <i class="fas fa-credit-card"></i>
+                            Zaplatit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Success Section -->
+        <section class="success-section" id="successSection" style="display: none;">
+            <div class="container">
+                <div class="success-content">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2 class="success-title">Platba úspěšná!</h2>
+                    <p class="success-message">Vaše topování bylo aktivováno. Inzerát je nyní zvýrazněn.</p>
+                    <div class="success-actions">
+                        <button class="btn-primary" onclick="window.location.href='my-ads.html'">
+                            <i class="fas fa-list"></i>
+                            Zobrazit mé inzeráty
+                        </button>
+                        <button class="btn-secondary" onclick="resetTopAds()">
+                            <i class="fas fa-plus"></i>
+                            Topovat další inzerát
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h3>Bulldogo.cz</h3>
+                        <p>Profesionální služby pro každého. Spojujeme zákazníky s kvalifikovanými profesionály.</p>
+                    </div>
+                    <div class="footer-section">
+                        <h3>Rychlé odkazy</h3>
+                        <ul>
+                            <li><a href="index.html">Domů</a></li>
+                            <li><a href="services.html">Služby</a></li>
+                            <li><a href="my-ads.html">Mé inzeráty</a></li>
+                            <li><a href="top-ads.html">Topování</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h3>Důležité odkazy</h3>
+                        <ul>
+                            <li><a href="#" onclick="return false;" style="cursor: default; text-decoration: none; color: inherit;">Cookies</a></li>
+                            <li><a href="#" onclick="return false;" style="cursor: default; text-decoration: none; color: inherit;">GDPR</a></li>
+                            <li><a href="soubory/podminky.pdf" target="_blank">VOP</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h3>Kontakt</h3>
+                        <p><i class="fas fa-phone"></i> +420 123 456 789</p>
+                        <p><i class="fas fa-envelope"></i> support@bulldogo.cz</p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2025 Bulldogo.cz. Všechna práva vyhrazena.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Přihlášení</h2>
+                <span class="close" onclick="closeAuthModal()">&times;</span>
+            </div>
+            <form id="authForm" class="auth-form">
+                <!-- Výběr typu registrace (pouze při registraci) -->
+                <div class="form-group registration-type" style="display: none;">
+                    <label class="form-label">Typ registrace:</label>
+                    <div class="registration-type-buttons">
+                        <button type="button" class="registration-type-btn active" data-type="person">
+                            <i class="fas fa-user"></i> Fyzická osoba
+                        </button>
+                        <button type="button" class="registration-type-btn" data-type="company">
+                            <i class="fas fa-building"></i> Firma
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulář pro fyzickou osobu -->
+                <div class="person-form" style="display: none;">
+                    <div class="form-group">
+                        <input type="text" id="firstName" name="firstName" placeholder="Jméno" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="lastName" name="lastName" placeholder="Příjmení" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="phone" name="phone" placeholder="Telefon" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="birthDate" name="birthDate" placeholder="Datum narození" required>
+                    </div>
+                </div>
+
+                <!-- Formulář pro firmu -->
+                <div class="company-form" style="display: none;">
+                    <div class="form-group">
+                        <input type="text" id="companyName" name="companyName" placeholder="Obchodní název">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="ico" name="ico" placeholder="IČ">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="dic" name="dic" placeholder="DIČ (volitelné)" data-optional="true">
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="companyPhone" name="companyPhone" placeholder="Telefon">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="companyAddress" name="companyAddress" placeholder="Sídlo firmy">
+                    </div>
+                </div>
+
+                <!-- Společná pole -->
+                <div class="form-group">
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" name="password" placeholder="Heslo" required>
+                </div>
+                <button type="button" id="btnSendPhoneCode" class="btn btn-primary auth-submit-btn" style="display:none;">Pokračovat na ověření telefonního čísla</button>
+                <button type="submit" class="btn btn-primary auth-submit-btn" id="btnAuthSubmit">Přihlásit se</button>
+                <div id="phoneStep2" style="display:none; margin-top:8px;">
+                    <div class="form-group">
+                        <input type="text" id="smsCode" inputmode="numeric" placeholder="Kód z SMS">
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" id="btnVerifyPhoneCode" class="btn btn-primary">Ověřit kód a dokončit registraci</button>
+                        <button type="button" id="btnPhoneBack" class="btn">Zpět</button>
+                    </div>
+                </div>
+                <div id="recaptcha-container" style="height:0; overflow:hidden;"></div>
+            </form>
+            <div class="auth-switch">
+                <button type="button" class="auth-switch-btn" data-type="register">Nemáte účet? Zaregistrujte se</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js" defer></script>
+    <script src="auth.js" defer></script>
+    <script src="top-ads.js" defer></script>
+</body>
+</html>

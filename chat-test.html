@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Test - Bulldogo.cz</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .test-container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-button { 
+            background: #667eea; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 10px 5px;
+            font-size: 14px;
+        }
+        .test-button:hover { background: #5a6fd8; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-section h3 { margin-top: 0; color: #333; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .log { background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Chat Test - Bulldogo.cz</h1>
+        
+        <div class="test-section">
+            <h3>1. Firebase Připojení</h3>
+            <button class="test-button" onclick="testFirebase()">Test Firebase</button>
+            <div id="firebaseStatus" class="status info">Čekám na test...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. Autentifikace</h3>
+            <button class="test-button" onclick="testAuth()">Test Přihlášení</button>
+            <div id="authStatus" class="status info">Čekám na test...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. Vytvoření Konverzace</h3>
+            <button class="test-button" onclick="testCreateConv()">Test Vytvoření Chat</button>
+            <div id="convStatus" class="status info">Čekám na test...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. Odeslání Zprávy</h3>
+            <button class="test-button" onclick="testSendMessage()">Test Odeslání</button>
+            <div id="messageStatus" class="status info">Čekám na test...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>5. Navigace</h3>
+            <button class="test-button" onclick="window.location.href='chat.html'">Jít na Chat</button>
+            <button class="test-button" onclick="window.location.href='services.html'">Jít na Služby</button>
+            <button class="test-button" onclick="window.location.href='index.html'">Jít na Hlavní</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>Log</h3>
+            <div id="log" class="log"></div>
+            <button class="test-button" onclick="clearLog()">Vymazat Log</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        
+        log('✅ Firebase inicializován');
+    </script>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${time}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+        
+        function setStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+        
+        async function testFirebase() {
+            try {
+                log('🧪 Testuji Firebase připojení...');
+                
+                if (!window.firebaseAuth || !window.firebaseDb) {
+                    throw new Error('Firebase není inicializován');
+                }
+                
+                log('✅ Firebase Auth: ' + !!window.firebaseAuth);
+                log('✅ Firebase DB: ' + !!window.firebaseDb);
+                
+                setStatus('firebaseStatus', '✅ Firebase připojen', 'success');
+                
+            } catch (error) {
+                log('❌ Firebase chyba: ' + error.message);
+                setStatus('firebaseStatus', '❌ Firebase chyba: ' + error.message, 'error');
+            }
+        }
+        
+        async function testAuth() {
+            try {
+                log('🧪 Testuji autentifikaci...');
+                
+                const currentUser = window.firebaseAuth?.currentUser;
+                if (currentUser) {
+                    log('✅ Uživatel přihlášen: ' + currentUser.uid);
+                    setStatus('authStatus', '✅ Uživatel přihlášen', 'success');
+                } else {
+                    log('⚠️ Uživatel není přihlášen');
+                    setStatus('authStatus', '⚠️ Uživatel není přihlášen', 'error');
+                }
+                
+            } catch (error) {
+                log('❌ Auth chyba: ' + error.message);
+                setStatus('authStatus', '❌ Auth chyba: ' + error.message, 'error');
+            }
+        }
+        
+        async function testCreateConv() {
+            try {
+                log('🧪 Testuji vytvoření konverzace...');
+                
+                const currentUser = window.firebaseAuth?.currentUser;
+                if (!currentUser) {
+                    throw new Error('Uživatel není přihlášen');
+                }
+                
+                const { addDoc, collection, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const conversationsRef = collection(window.firebaseDb, 'conversations');
+                const conversationData = {
+                    listingId: 'test-' + Date.now(),
+                    participants: [currentUser.uid, 'test-seller-' + Date.now()],
+                    unread: {
+                        [currentUser.uid]: 0
+                    },
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                };
+                
+                log('📝 Vytvářím konverzaci...');
+                const docRef = await addDoc(conversationsRef, conversationData);
+                log('✅ Konverzace vytvořena: ' + docRef.id);
+                
+                setStatus('convStatus', '✅ Konverzace vytvořena', 'success');
+                
+            } catch (error) {
+                log('❌ Konverzace chyba: ' + error.message);
+                setStatus('convStatus', '❌ Konverzace chyba: ' + error.message, 'error');
+            }
+        }
+        
+        async function testSendMessage() {
+            try {
+                log('🧪 Testuji odeslání zprávy...');
+                
+                const currentUser = window.firebaseAuth?.currentUser;
+                if (!currentUser) {
+                    throw new Error('Uživatel není přihlášen');
+                }
+                
+                // Najít existující konverzaci
+                const { getDocs, collection, query, where, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const conversationsRef = collection(window.firebaseDb, 'conversations');
+                const q = query(conversationsRef, where('participants', 'array-contains', currentUser.uid));
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    throw new Error('Žádná konverzace nenalezena');
+                }
+                
+                const conversation = querySnapshot.docs[0];
+                log('📋 Používám konverzaci: ' + conversation.id);
+                
+                const messagesRef = collection(window.firebaseDb, 'conversations', conversation.id, 'messages');
+                const messageData = {
+                    senderUid: currentUser.uid,
+                    text: 'Test zpráva ' + new Date().toLocaleTimeString(),
+                    type: 'text',
+                    createdAt: serverTimestamp()
+                };
+                
+                log('📝 Odesílám zprávu...');
+                await addDoc(messagesRef, messageData);
+                log('✅ Zpráva odeslána');
+                
+                setStatus('messageStatus', '✅ Zpráva odeslána', 'success');
+                
+            } catch (error) {
+                log('❌ Zpráva chyba: ' + error.message);
+                setStatus('messageStatus', '❌ Zpráva chyba: ' + error.message, 'error');
+            }
+        }
+        
+        // Automaticky spustit test Firebase při načtení
+        window.addEventListener('load', () => {
+            setTimeout(testFirebase, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Všechny služby - Bulldogo.cz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="electric-border.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">B</div>
+                <span class="logo-text">
+                    <span class="logo-bull">ULL</span>
+                    <span class="logo-dogo">DOGO</span>
+                </span>
+            </div>
+            <div class="header-buttons"></div>
+        </div>
+
+        <div class="navigation-section">
+            <h3 class="nav-section-title">NAVIGACE</h3>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home nav-icon"></i>
+                        <span class="nav-text">Domů</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="services.html" class="nav-link active">
+                        <i class="fas fa-list-alt nav-icon"></i>
+                        <span class="nav-text">Služby</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="my-ads.html" class="nav-link">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span class="nav-text">Mé inzeráty</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link">
+                        <i class="fas fa-comment-alt nav-icon"></i>
+                        <span class="nav-text">Chat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#about" class="nav-link">
+                        <i class="fas fa-info-circle nav-icon"></i>
+                        <span class="nav-text">O nás</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="top-ads.html" class="nav-link">
+                        <i class="fas fa-fire nav-icon"></i>
+                        <span class="nav-text">Topování</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contact" class="nav-link">
+                        <i class="fas fa-envelope nav-icon"></i>
+                        <span class="nav-text">Kontakt</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="auth-section">
+            <button class="btn-login" onclick="showAuthModal('login')">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Přihlásit se</span>
+            </button>
+            <button class="btn-register" onclick="showAuthModal('register')">
+                <i class="fas fa-user-plus"></i>
+                <span>Registrovat</span>
+            </button>
+            <button class="btn-profile" onclick="window.location.href='profile.html'">
+                <i class="fas fa-user-circle"></i>
+                <span>Profil</span>
+            </button>
+        </div>
+
+        <div class="user-profile-section" style="display: none;">
+            <div class="user-profile-card" onclick="toggleUserDropdown()">
+                <div class="user-info">
+                    <div class="user-email">user@example.com</div>
+                    <div class="user-role">Uživatel</div>
+                </div>
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="dropdown-arrow">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            <div class="user-dropdown-menu">
+                <a href="profile.html" class="dropdown-item">
+                    <i class="fas fa-user"></i>
+                    <span>Můj profil</span>
+                </a>
+                <a href="my-ads.html" class="dropdown-item">
+                    <i class="fas fa-ad"></i>
+                    <span>Moje inzeráty</span>
+                </a>
+                <a href="settings.html" class="dropdown-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Nastavení</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Odhlásit se</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Toggle Button (for collapsed state) -->
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()" style="display: none;">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <section class="services-page-header">
+            <div class="container">
+                <div class="page-header-content">
+                    <h1>Služby</h1>
+                    <p>Přehled všech dostupných služeb</p>
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Hledat služby...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="filter-dropdown">
+                            <select id="categoryFilter">
+                                <option value="">Všechny kategorie</option>
+                                <option value="technical">Technické služby</option>
+                                <option value="it">IT služby</option>
+                                <option value="design">Design a kreativita</option>
+                                <option value="education">Vzdělávání</option>
+                                <option value="home">Domácí služby</option>
+                                <option value="transport">Doprava a logistika</option>
+                            </select>
+                        </div>
+                        <div class="search-box">
+                            <select id="regionFilter" style="min-width:220px">
+                                <option value="">Kraj (ČR/SR)</option>
+                                <optgroup label="Česká republika">
+                                    <option value="Praha">Hlavní město Praha</option>
+                                    <option value="Stredocesky">Středočeský kraj</option>
+                                    <option value="Jihocesky">Jihočeský kraj</option>
+                                    <option value="Plzensky">Plzeňský kraj</option>
+                                    <option value="Karlovarsky">Karlovarský kraj</option>
+                                    <option value="Ustecky">Ústecký kraj</option>
+                                    <option value="Liberecky">Liberecký kraj</option>
+                                    <option value="Kralovehradecky">Královehradecký kraj</option>
+                                    <option value="Pardubicky">Pardubický kraj</option>
+                                    <option value="Vysocina">Kraj Vysočina</option>
+                                    <option value="Jihomoravsky">Jihomoravský kraj</option>
+                                    <option value="Olomoucky">Olomoucký kraj</option>
+                                    <option value="Zlinsky">Zlínský kraj</option>
+                                    <option value="Moravskoslezsky">Moravskoslezský kraj</option>
+                                </optgroup>
+                                <optgroup label="Slovenská republika">
+                                    <option value="Bratislavsky">Bratislavský kraj</option>
+                                    <option value="Trnavsky">Trnavský kraj</option>
+                                    <option value="Trenciansky">Trenčianský kraj</option>
+                                    <option value="Nitriansky">Nitriansky kraj</option>
+                                    <option value="Zilinsky">Žilinský kraj</option>
+                                    <option value="Banskobystricky">Banskobystrický kraj</option>
+                                    <option value="Presovsky">Prešovský kraj</option>
+                                    <option value="Kosicky">Košický kraj</option>
+                                </optgroup>
+                            </select>
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="sort-dropdown">
+                            <select id="sortSelect">
+                                <option value="newest">Nejnovější</option>
+                                <option value="oldest">Nejstarší</option>
+                                <option value="price-low">Cena: od nejnižší</option>
+                                <option value="price-high">Cena: od nejvyšší</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="container">
+            <div class="search-filter-section"></div>
+
+    <!-- Services Grid -->
+    <section class="services-listing">
+        <div class="container">
+            <div class="services-grid" id="servicesGrid">
+                <!-- Featured Ad with Electric Border -->
+                <div class="service-card featured-service">
+                    <div class="service-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h3>Kompletní Malování Bytů</h3>
+                    <p>Profesionální malování bytů a domů. Včetně přípravy povrchů, základního nátěru a finálního nátěru. Používáme pouze kvalitní materiály.</p>
+                    <ul class="service-list">
+                        <li>Příprava povrchů</li>
+                        <li>Základní nátěr</li>
+                        <li>Finální nátěr</li>
+                        <li>Kvalitní materiály</li>
+                    </ul>
+                    <div class="service-badge">
+                        <i class="fas fa-star"></i>
+                        <span>TOPOVANÝ</span>
+                    </div>
+                    <div class="service-price">1,800 Kč</div>
+                </div>
+                
+                <!-- Služby se načtou dynamicky -->
+                <div class="loading-services">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Načítání služeb...</p>
+                </div>
+            </div>
+            
+            <div class="no-services" id="noServices" style="display: none;">
+                <i class="fas fa-search"></i>
+                <h3>Žádné služby nenalezeny</h3>
+                <p>Zkuste změnit kritéria vyhledávání nebo přidejte novou službu.</p>
+                <div class="no-services-actions">
+                    <button class="btn btn-primary" onclick="showAddServiceModal()">Přidat službu</button>
+                    <button class="btn btn-secondary" onclick="addTestServices()">Přidat testovací služby</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Bulldogo.cz</h3>
+                    <p>Profesionální služby pro každého. Spojujeme zákazníky s kvalifikovanými profesionály.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Rychlé odkazy</h3>
+                    <ul>
+                        <li><a href="index.html">Domů</a></li>
+                        <li><a href="services.html">Služby</a></li>
+                        <li><a href="index.html#about">O nás</a></li>
+                        <li><a href="index.html#contact">Kontakt</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Důležité odkazy</h3>
+                    <ul>
+                        <li><a href="#" onclick="return false;" style="cursor: default; text-decoration: none; color: inherit;">Cookies</a></li>
+                        <li><a href="#" onclick="return false;" style="cursor: default; text-decoration: none; color: inherit;">GDPR</a></li>
+                        <li><a href="soubory/podminky.pdf" target="_blank">VOP</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Kontakt</h3>
+                    <p><i class="fas fa-phone"></i> +420 123 456 789</p>
+                    <p><i class="fas fa-envelope"></i> support@bulldogo.cz</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Bulldogo.cz. Všechna práva vyhrazena.</p>
+            </div>
+        </div>
+    </footer>
+
+    </div> <!-- End main-content -->
+
+    <script src="script.js"></script>
+    <script src="services-local.js"></script>
+    <script src="auth.js"></script>
+    <script src="cities.js"></script>
+    <script src="chat.js"></script>
+    <script src="click-spark.js"></script>
+    <script src="electric-border.js"></script>
+</body>
+</html>

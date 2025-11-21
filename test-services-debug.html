@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Services Loading</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .warning { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>Debug Services Loading</h1>
+    <div id="log"></div>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+        
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        // Inicializace Firebase
+        const app = initializeApp(firebaseConfig);
+        const firebaseAuth = getAuth(app);
+        const firebaseDb = getFirestore(app);
+        const analytics = getAnalytics(app);
+        
+        // Export pro globální použití
+        window.firebaseApp = app;
+        window.firebaseAuth = firebaseAuth;
+        window.firebaseDb = firebaseDb;
+        
+        log('✅ Firebase inicializován', 'success');
+    </script>
+    
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()}: ${message}`;
+            logDiv.appendChild(div);
+            console.log(message);
+        }
+        
+        // Test načítání skriptů
+        log('🔧 Test načítání skriptů...', 'info');
+        
+        // Kontrola po 1 sekundě
+        setTimeout(() => {
+            log('🔍 Kontrola po 1 sekundě...', 'info');
+            
+            if (typeof window.firebaseAuth !== 'undefined') {
+                log('✅ window.firebaseAuth je dostupný', 'success');
+            } else {
+                log('❌ window.firebaseAuth není dostupný', 'error');
+            }
+            
+            if (typeof window.firebaseDb !== 'undefined') {
+                log('✅ window.firebaseDb je dostupný', 'success');
+            } else {
+                log('❌ window.firebaseDb není dostupný', 'error');
+            }
+        }, 1000);
+        
+        // Kontrola po 3 sekundách
+        setTimeout(() => {
+            log('🔍 Kontrola po 3 sekundách...', 'info');
+            
+            if (typeof allServices !== 'undefined') {
+                log(`✅ allServices: ${allServices.length} služeb`, 'success');
+            } else {
+                log('❌ allServices není definován', 'error');
+            }
+            
+            if (typeof filteredServices !== 'undefined') {
+                log(`✅ filteredServices: ${filteredServices.length} služeb`, 'success');
+            } else {
+                log('❌ filteredServices není definován', 'error');
+            }
+            
+            if (typeof displayServices !== 'undefined') {
+                log('✅ displayServices je dostupný', 'success');
+            } else {
+                log('❌ displayServices není dostupný', 'error');
+            }
+        }, 3000);
+        
+        // Kontrola po 5 sekundách
+        setTimeout(() => {
+            log('🔍 Kontrola po 5 sekundách...', 'info');
+            
+            const servicesGrid = document.getElementById('servicesGrid');
+            if (servicesGrid) {
+                log('✅ Element servicesGrid nalezen', 'success');
+                log(`📊 Obsah servicesGrid: ${servicesGrid.innerHTML.length} znaků`, 'info');
+            } else {
+                log('❌ Element servicesGrid nenalezen', 'error');
+            }
+        }, 5000);
+    </script>
+    
+    <script src="script.js"></script>
+    <script src="services.js"></script>
+    <script src="auth.js"></script>
+    <script src="cities.js"></script>
+    <script src="chat.js"></script>
+    <script src="click-spark.js"></script>
+    <script src="electric-border.js"></script>
+    
+    <!-- Simulace services.html struktury -->
+    <div class="main-content">
+        <section class="services-page-header">
+            <div class="container">
+                <div class="page-header-content">
+                    <h1>Služby</h1>
+                    <p>Přehled všech dostupných služeb</p>
+                </div>
+            </div>
+        </section>
+        
+        <div class="container">
+            <section class="services-listing">
+                <div class="container">
+                    <div class="services-grid" id="servicesGrid">
+                        <div class="loading-services">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Načítání služeb...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+</html>

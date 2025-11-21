@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Debug - Diagnostika</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status { 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+            border-left: 4px solid;
+        }
+        .success { 
+            background-color: #d4edda; 
+            color: #155724; 
+            border-left-color: #28a745;
+        }
+        .error { 
+            background-color: #f8d7da; 
+            color: #721c24; 
+            border-left-color: #dc3545;
+        }
+        .info { 
+            background-color: #d1ecf1; 
+            color: #0c5460; 
+            border-left-color: #17a2b8;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left-color: #ffc107;
+        }
+        button { 
+            padding: 12px 24px; 
+            margin: 5px; 
+            cursor: pointer; 
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        pre { 
+            background-color: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 5px; 
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+            font-size: 12px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        // Globální proměnné
+        let firebaseApp = null;
+        let firebaseAuth = null;
+        let firebaseDb = null;
+        
+        // Funkce pro logování
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('log');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        // Funkce pro zobrazení výsledku
+        function showResult(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        // Test 1: Inicializace Firebase
+        async function testFirebaseInit() {
+            log('🔧 Test 1: Inicializace Firebase...', 'info');
+            
+            try {
+                firebaseApp = initializeApp(firebaseConfig);
+                firebaseAuth = getAuth(firebaseApp);
+                firebaseDb = getFirestore(firebaseApp);
+                
+                log('✅ Firebase úspěšně inicializován', 'success');
+                log(`App: ${firebaseApp.name}`, 'info');
+                log(`Auth: ${firebaseAuth.app.name}`, 'info');
+                log(`DB: ${firebaseDb.app.name}`, 'info');
+                
+                showResult('✅ Firebase úspěšně inicializován', 'success');
+                return true;
+            } catch (error) {
+                log(`❌ Chyba při inicializaci Firebase: ${error.message}`, 'error');
+                showResult(`❌ Chyba při inicializaci Firebase: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        // Test 2: Připojení k databázi
+        async function testDatabaseConnection() {
+            log('🔧 Test 2: Připojení k databázi...', 'info');
+            
+            try {
+                const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                // Test čtení z kolekce 'services'
+                const servicesRef = collection(firebaseDb, 'services');
+                log('📁 Reference na kolekci services vytvořena', 'info');
+                
+                const snapshot = await getDocs(servicesRef);
+                log(`📊 Počet dokumentů v kolekci services: ${snapshot.docs.length}`, 'info');
+                
+                if (snapshot.docs.length === 0) {
+                    log('⚠️ Kolekce services je prázdná', 'warning');
+                    showResult('⚠️ Kolekce services je prázdná - možná příčina problému', 'warning');
+                } else {
+                    log('✅ Kolekce services obsahuje data', 'success');
+                    showResult(`✅ Kolekce services obsahuje ${snapshot.docs.length} služeb`, 'success');
+                    
+                    // Zobrazit první dokument jako příklad
+                    const firstDoc = snapshot.docs[0];
+                    log(`📄 První dokument: ${firstDoc.id}`, 'info');
+                    log(`📄 Data: ${JSON.stringify(firstDoc.data(), null, 2)}`, 'info');
+                }
+                
+                return true;
+            } catch (error) {
+                log(`❌ Chyba při připojení k databázi: ${error.message}`, 'error');
+                log(`❌ Error code: ${error.code}`, 'error');
+                showResult(`❌ Chyba při připojení k databázi: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        // Test 3: Real-time listener
+        async function testRealtimeListener() {
+            log('🔧 Test 3: Real-time listener...', 'info');
+            
+            try {
+                const { collection, query, orderBy, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const servicesRef = collection(firebaseDb, 'services');
+                const q = query(servicesRef, orderBy('createdAt', 'desc'));
+                
+                log('👂 Nastavuji real-time listener...', 'info');
+                
+                return new Promise((resolve) => {
+                    const unsubscribe = onSnapshot(q, (snapshot) => {
+                        log(`📡 Real-time update: ${snapshot.docs.length} služeb`, 'success');
+                        log(`📊 Metadata: fromCache=${snapshot.metadata.fromCache}, hasPendingWrites=${snapshot.metadata.hasPendingWrites}`, 'info');
+                        
+                        if (snapshot.docs.length === 0) {
+                            log('⚠️ Real-time listener: žádné služby', 'warning');
+                            showResult('⚠️ Real-time listener funguje, ale žádné služby nenalezeny', 'warning');
+                        } else {
+                            log('✅ Real-time listener funguje správně', 'success');
+                            showResult(`✅ Real-time listener funguje - ${snapshot.docs.length} služeb`, 'success');
+                        }
+                        
+                        unsubscribe();
+                        resolve(true);
+                    }, (error) => {
+                        log(`❌ Chyba v real-time listeneru: ${error.message}`, 'error');
+                        log(`❌ Error code: ${error.code}`, 'error');
+                        showResult(`❌ Chyba v real-time listeneru: ${error.message}`, 'error');
+                        resolve(false);
+                    });
+                    
+                    // Timeout po 10 sekundách
+                    setTimeout(() => {
+                        log('⏰ Timeout real-time listeneru', 'warning');
+                        unsubscribe();
+                        resolve(false);
+                    }, 10000);
+                });
+                
+            } catch (error) {
+                log(`❌ Chyba při nastavování real-time listeneru: ${error.message}`, 'error');
+                showResult(`❌ Chyba při nastavování real-time listeneru: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        // Test 4: Přidání testovací služby
+        async function testAddService() {
+            log('🔧 Test 4: Přidání testovací služby...', 'info');
+            
+            try {
+                const { collection, addDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const servicesRef = collection(firebaseDb, 'services');
+                const testService = {
+                    title: "Debug Test Service",
+                    category: "test",
+                    description: "Toto je testovací služba pro debug",
+                    price: "999 Kč",
+                    location: "Debug City",
+                    userId: "debug-user",
+                    userEmail: "debug@test.com",
+                    createdAt: new Date(),
+                    status: "active"
+                };
+                
+                const docRef = await addDoc(servicesRef, testService);
+                log(`✅ Testovací služba přidána s ID: ${docRef.id}`, 'success');
+                showResult(`✅ Testovací služba úspěšně přidána (ID: ${docRef.id})`, 'success');
+                
+                return true;
+            } catch (error) {
+                log(`❌ Chyba při přidávání služby: ${error.message}`, 'error');
+                log(`❌ Error code: ${error.code}`, 'error');
+                showResult(`❌ Chyba při přidávání služby: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        // Test 5: Kontrola pravidel
+        async function testRules() {
+            log('🔧 Test 5: Kontrola pravidel...', 'info');
+            
+            try {
+                const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                // Pokus o čtení z kolekce
+                const testRef = collection(firebaseDb, 'test-rules');
+                await getDocs(testRef);
+                
+                log('✅ Pravidla umožňují čtení', 'success');
+                
+                // Pokus o zápis
+                const { addDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                await addDoc(testRef, { test: true, timestamp: new Date() });
+                
+                log('✅ Pravidla umožňují zápis', 'success');
+                showResult('✅ Firebase pravidla jsou správně nastavena', 'success');
+                
+                return true;
+            } catch (error) {
+                log(`❌ Chyba s pravidly: ${error.message}`, 'error');
+                log(`❌ Error code: ${error.code}`, 'error');
+                showResult(`❌ Problém s Firebase pravidly: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        // Spuštění všech testů
+        async function runAllTests() {
+            log('🚀 Spouštím kompletní diagnostiku Firebase...', 'info');
+            document.getElementById('log').innerHTML = '';
+            
+            const results = [];
+            
+            results.push(await testFirebaseInit());
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            results.push(await testDatabaseConnection());
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            results.push(await testRealtimeListener());
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            results.push(await testRules());
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            results.push(await testAddService());
+            
+            const successCount = results.filter(r => r).length;
+            const totalCount = results.length;
+            
+            log(`📊 Výsledky: ${successCount}/${totalCount} testů úspěšných`, successCount === totalCount ? 'success' : 'warning');
+            
+            if (successCount === totalCount) {
+                showResult('🎉 Všechny testy prošly úspěšně! Firebase by měl fungovat.', 'success');
+            } else {
+                showResult(`⚠️ ${totalCount - successCount} testů selhalo. Zkontrolujte logy pro detaily.`, 'warning');
+            }
+        }
+        
+        // Export funkcí pro globální použití
+        window.testFirebaseInit = testFirebaseInit;
+        window.testDatabaseConnection = testDatabaseConnection;
+        window.testRealtimeListener = testRealtimeListener;
+        window.testAddService = testAddService;
+        window.testRules = testRules;
+        window.runAllTests = runAllTests;
+        
+        // Automatické spuštění při načtení
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                runAllTests();
+            }, 1000);
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Firebase Debug - Diagnostika</h1>
+        <p>Tato stránka provede kompletní diagnostiku Firebase připojení a identifikuje možné problémy.</p>
+        
+        <div id="status"></div>
+        
+        <div class="test-section">
+            <h3>🧪 Testy</h3>
+            <button class="btn-primary" onclick="runAllTests()">Spustit všechny testy</button>
+            <button class="btn-success" onclick="testFirebaseInit()">Test 1: Inicializace</button>
+            <button class="btn-success" onclick="testDatabaseConnection()">Test 2: Databáze</button>
+            <button class="btn-success" onclick="testRealtimeListener()">Test 3: Real-time</button>
+            <button class="btn-warning" onclick="testRules()">Test 4: Pravidla</button>
+            <button class="btn-danger" onclick="testAddService()">Test 5: Přidání služby</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>📋 Log</h3>
+            <div id="log" style="max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 10px; background: #f8f9fa;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔧 Možné problémy a řešení</h3>
+            <ul>
+                <li><strong>Kolekce services je prázdná:</strong> Klikněte na "Test 5: Přidání služby" pro přidání testovacích dat</li>
+                <li><strong>Chyba s pravidly:</strong> Zkontrolujte Firebase Console → Firestore → Rules</li>
+                <li><strong>Chyba připojení:</strong> Zkontrolujte internetové připojení a Firebase konfiguraci</li>
+                <li><strong>Real-time listener nefunguje:</strong> Možná problém s oprávněními nebo síťovým připojením</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+

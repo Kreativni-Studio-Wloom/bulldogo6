@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Auth - Bulldogo.cz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+        
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        
+        console.log('🔥 Firebase inicializován pro debug');
+    </script>
+</head>
+<body>
+    <div style="padding: 2rem; max-width: 800px; margin: 0 auto;">
+        <h1>Debug Auth Formuláře</h1>
+        
+        <div id="debug-info" style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+            <h3>Debug informace:</h3>
+            <div id="debug-content">Načítám...</div>
+        </div>
+        
+        <button onclick="testShowAuthModal('login')" style="padding: 1rem 2rem; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 1rem 0;">
+            Test Otevření Modalu
+        </button>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Přihlášení</h2>
+                <span class="close" onclick="closeAuthModal()">&times;</span>
+            </div>
+            <form id="authForm" class="auth-form">
+                <div class="form-group">
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" name="password" placeholder="Heslo" required>
+                </div>
+                <button type="submit" class="btn btn-primary auth-submit-btn">Přihlásit se</button>
+            </form>
+            <div class="auth-switch">
+                <button type="button" class="auth-switch-btn" data-type="register">Nemáte účet? Zaregistrujte se</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    
+    <script>
+        function updateDebugInfo() {
+            const debugContent = document.getElementById('debug-content');
+            debugContent.innerHTML = `
+                <p><strong>Firebase Auth:</strong> ${window.firebaseAuth ? '✅ Načten' : '❌ Nenalezen'}</p>
+                <p><strong>Firebase DB:</strong> ${window.firebaseDb ? '✅ Načten' : '❌ Nenalezen'}</p>
+                <p><strong>showAuthModal:</strong> ${typeof window.showAuthModal}</p>
+                <p><strong>closeAuthModal:</strong> ${typeof window.closeAuthModal}</p>
+                <p><strong>Auth Modal:</strong> ${document.getElementById('authModal') ? '✅ Nalezen' : '❌ Nenalezen'}</p>
+                <p><strong>Auth Form:</strong> ${document.getElementById('authForm') ? '✅ Nalezen' : '❌ Nenalezen'}</p>
+                <p><strong>Modal Title:</strong> ${document.querySelector('.modal-title') ? '✅ Nalezen' : '❌ Nenalezen'}</p>
+                <p><strong>Submit Button:</strong> ${document.querySelector('.auth-submit-btn') ? '✅ Nalezen' : '❌ Nenalezen'}</p>
+            `;
+        }
+        
+        function testShowAuthModal(type) {
+            console.log('🧪 Test volání showAuthModal s typem:', type);
+            if (typeof window.showAuthModal === 'function') {
+                window.showAuthModal(type);
+            } else {
+                alert('showAuthModal není dostupná!');
+            }
+        }
+        
+        // Aktualizovat debug info každou sekundu
+        setInterval(updateDebugInfo, 1000);
+        
+        // Inicializace
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Debug auth stránka načtena');
+            updateDebugInfo();
+        });
+    </script>
+</body>
+</html>
+

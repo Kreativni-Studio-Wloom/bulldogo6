@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Services - Identifikace problému</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .debug-section h3 { margin-top: 0; color: #333; }
+        .status { padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; border: none; border-radius: 5px; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; font-size: 12px; }
+        .log { max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Services - Identifikace problému</h1>
+        
+        <div class="debug-section">
+            <h3>📊 Stav systému</h3>
+            <div id="systemStatus"></div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>🧪 Testy</h3>
+            <button class="btn-primary" onclick="runFullDiagnostic()">Spustit kompletní diagnostiku</button>
+            <button class="btn-success" onclick="testFirebase()">Test Firebase</button>
+            <button class="btn-warning" onclick="testLocalFallback()">Test lokální databáze</button>
+            <button class="btn-warning" onclick="forceLoadServices()">Vynutit načtení služeb</button>
+        </div>
+        
+        <div class="debug-section">
+            <h3>📋 Log</h3>
+            <div id="log" class="log"></div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>🔧 Možná řešení</h3>
+            <div id="solutions"></div>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const firebaseAuth = getAuth(app);
+        const firebaseDb = getFirestore(app);
+        
+        window.firebaseApp = app;
+        window.firebaseAuth = firebaseAuth;
+        window.firebaseDb = firebaseDb;
+        
+        console.log('Firebase inicializován:', { app, auth: firebaseAuth, db: firebaseDb });
+    </script>
+    
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script src="services.js"></script>
+    
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `status ${type}`;
+            entry.innerHTML = `[${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        function updateSystemStatus() {
+            const statusDiv = document.getElementById('systemStatus');
+            let status = '';
+            
+            // Kontrola Firebase
+            if (window.firebaseAuth && window.firebaseDb) {
+                status += '<div class="status success">✅ Firebase inicializován</div>';
+            } else {
+                status += '<div class="status error">❌ Firebase není inicializován</div>';
+            }
+            
+            // Kontrola funkcí
+            if (typeof addTestServices !== 'undefined') {
+                status += '<div class="status success">✅ addTestServices dostupný</div>';
+            } else {
+                status += '<div class="status error">❌ addTestServices není dostupný</div>';
+            }
+            
+            if (typeof displayServices !== 'undefined') {
+                status += '<div class="status success">✅ displayServices dostupný</div>';
+            } else {
+                status += '<div class="status error">❌ displayServices není dostupný</div>';
+            }
+            
+            // Kontrola proměnných
+            if (typeof allServices !== 'undefined') {
+                status += `<div class="status info">📊 allServices: ${allServices.length} služeb</div>`;
+            } else {
+                status += '<div class="status error">❌ allServices není definován</div>';
+            }
+            
+            if (typeof filteredServices !== 'undefined') {
+                status += `<div class="status info">📊 filteredServices: ${filteredServices.length} služeb</div>`;
+            } else {
+                status += '<div class="status error">❌ filteredServices není definován</div>';
+            }
+            
+            statusDiv.innerHTML = status;
+        }
+        
+        async function testFirebase() {
+            log('🔧 Test Firebase připojení...', 'info');
+            
+            try {
+                const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const servicesRef = collection(window.firebaseDb, 'services');
+                const snapshot = await getDocs(servicesRef);
+                
+                log(`✅ Firebase funguje: ${snapshot.docs.length} služeb v databázi`, 'success');
+                
+                if (snapshot.docs.length === 0) {
+                    log('⚠️ Databáze je prázdná - to může být příčina problému', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ Firebase chyba: ${error.message}`, 'error');
+            }
+        }
+        
+        function testLocalFallback() {
+            log('🔧 Test lokální databáze...', 'info');
+            
+            try {
+                // Simulace lokálního fallbacku
+                const savedServices = localStorage.getItem('inzerio-services');
+                
+                if (savedServices) {
+                    const services = JSON.parse(savedServices);
+                    log(`✅ Lokální databáze: ${services.length} služeb`, 'success');
+                } else {
+                    log('⚠️ Lokální databáze je prázdná', 'warning');
+                }
+                
+                // Zkusit vytvořit testovací služby
+                if (typeof createTestServices !== 'undefined') {
+                    createTestServices();
+                    log('✅ Testovací služby vytvořeny', 'success');
+                } else {
+                    log('❌ createTestServices není dostupný', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Lokální databáze chyba: ${error.message}`, 'error');
+            }
+        }
+        
+        function forceLoadServices() {
+            log('🔧 Vynucuji načtení služeb...', 'info');
+            
+            try {
+                // Zkusit různé způsoby načtení
+                if (typeof initLocalFallback !== 'undefined') {
+                    initLocalFallback();
+                    log('✅ initLocalFallback spuštěn', 'success');
+                }
+                
+                if (typeof displayServices !== 'undefined') {
+                    displayServices();
+                    log('✅ displayServices spuštěn', 'success');
+                }
+                
+                if (typeof updateStats !== 'undefined') {
+                    updateStats();
+                    log('✅ updateStats spuštěn', 'success');
+                }
+                
+                // Aktualizovat stav
+                updateSystemStatus();
+                
+            } catch (error) {
+                log(`❌ Chyba při vynucení načtení: ${error.message}`, 'error');
+            }
+        }
+        
+        async function runFullDiagnostic() {
+            log('🚀 Spouštím kompletní diagnostiku...', 'info');
+            document.getElementById('log').innerHTML = '';
+            
+            updateSystemStatus();
+            await testFirebase();
+            testLocalFallback();
+            forceLoadServices();
+            
+            // Analýza možných problémů
+            const solutionsDiv = document.getElementById('solutions');
+            let solutions = '<h4>Možná řešení:</h4><ul>';
+            
+            if (!window.firebaseAuth || !window.firebaseDb) {
+                solutions += '<li><strong>Firebase není inicializován:</strong> Zkontrolujte internetové připojení a Firebase konfiguraci</li>';
+            }
+            
+            if (typeof allServices === 'undefined' || allServices.length === 0) {
+                solutions += '<li><strong>Žádné služby:</strong> Klikněte na "Test lokální databáze" nebo "Vynutit načtení služeb"</li>';
+            }
+            
+            if (typeof displayServices === 'undefined') {
+                solutions += '<li><strong>displayServices není dostupný:</strong> Zkontrolujte načtení services.js</li>';
+            }
+            
+            solutions += '<li><strong>Obecné řešení:</strong> Otevřete services.html a klikněte na "Testovací služby"</li>';
+            solutions += '<li><strong>Debug:</strong> Otevřete browser console (F12) a zkontrolujte chybové zprávy</li>';
+            solutions += '</ul>';
+            
+            solutionsDiv.innerHTML = solutions;
+        }
+        
+        // Automatické spuštění při načtení
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                runFullDiagnostic();
+            }, 1000);
+        });
+        
+        // Pravidelné aktualizace stavu
+        setInterval(updateSystemStatus, 5000);
+    </script>
+</body>
+</html>
+

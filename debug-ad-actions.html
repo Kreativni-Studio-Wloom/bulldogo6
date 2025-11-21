@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Ad Actions - Test pozice</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="electric-border.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Debug styly pro testování */
+        .debug-ad-card {
+            position: relative;
+            width: 300px;
+            height: 250px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin: 20px;
+            overflow: hidden;
+        }
+        
+        .debug-ad-image {
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(45deg, #007bff, #28a745);
+            position: relative;
+        }
+        
+        .debug-ad-content {
+            padding: 15px;
+            height: 100px;
+        }
+        
+        /* Test různé pozice */
+        .test-1 .ad-actions {
+            background: red !important;
+            border: 3px solid blue !important;
+        }
+        
+        .test-2 .ad-actions {
+            background: yellow !important;
+            border: 3px solid green !important;
+            bottom: 1cm !important;
+            top: auto !important;
+        }
+        
+        .test-3 .ad-actions {
+            background: orange !important;
+            border: 3px solid purple !important;
+            bottom: 20px !important;
+            top: auto !important;
+        }
+    </style>
+</head>
+<body>
+    <div style="padding: 50px; background: #f5f5f5;">
+        <h1>Debug Ad Actions - Test pozice</h1>
+        <p>Testujeme různé přístupy k pozicování tlačítek</p>
+        
+        <!-- Test 1: Původní pozice -->
+        <div style="margin: 20px 0;">
+            <h3>Test 1: Původní pozice (top: 16px)</h3>
+            <article class="ad-card debug-ad-card test-1">
+                <div class="debug-ad-image">
+                    <div class="ad-actions">
+                        <button class="btn-contact" title="Kontaktovat">
+                            <i class="fas fa-comment"></i>
+                        </button>
+                        <button class="btn-profile" title="Profil">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <button class="btn-info" title="Info">
+                            <i class="fas fa-info"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="debug-ad-content">
+                    <h3>Test Inzerát 1</h3>
+                    <p>Původní pozice</p>
+                </div>
+            </article>
+        </div>
+
+        <!-- Test 2: Bottom 1cm -->
+        <div style="margin: 20px 0;">
+            <h3>Test 2: Bottom 1cm</h3>
+            <article class="ad-card debug-ad-card test-2">
+                <div class="debug-ad-image">
+                    <div class="ad-actions">
+                        <button class="btn-contact" title="Kontaktovat">
+                            <i class="fas fa-comment"></i>
+                        </button>
+                        <button class="btn-profile" title="Profil">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <button class="btn-info" title="Info">
+                            <i class="fas fa-info"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="debug-ad-content">
+                    <h3>Test Inzerát 2</h3>
+                    <p>Bottom 1cm</p>
+                </div>
+            </article>
+        </div>
+
+        <!-- Test 3: Bottom 20px -->
+        <div style="margin: 20px 0;">
+            <h3>Test 3: Bottom 20px</h3>
+            <article class="ad-card debug-ad-card test-3">
+                <div class="debug-ad-image">
+                    <div class="ad-actions">
+                        <button class="btn-contact" title="Kontaktovat">
+                            <i class="fas fa-comment"></i>
+                        </button>
+                        <button class="btn-profile" title="Profil">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <button class="btn-info" title="Info">
+                            <i class="fas fa-info"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="debug-ad-content">
+                    <h3>Test Inzerát 3</h3>
+                    <p>Bottom 20px</p>
+                </div>
+            </article>
+        </div>
+
+        <!-- Test 4: Inline styly -->
+        <div style="margin: 20px 0;">
+            <h3>Test 4: Inline styly</h3>
+            <article class="ad-card debug-ad-card">
+                <div class="debug-ad-image">
+                    <div class="ad-actions" style="background: pink !important; border: 3px solid black !important; bottom: 1cm !important; top: auto !important;">
+                        <button class="btn-contact" title="Kontaktovat">
+                            <i class="fas fa-comment"></i>
+                        </button>
+                        <button class="btn-profile" title="Profil">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <button class="btn-info" title="Info">
+                            <i class="fas fa-info"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="debug-ad-content">
+                    <h3>Test Inzerát 4</h3>
+                    <p>Inline styly</p>
+                </div>
+            </article>
+        </div>
+    </div>
+    
+    <script src="force-ad-actions-position.js"></script>
+</body>
+</html>

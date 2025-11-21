@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login - Bulldogo.cz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+        
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        // Inicializace Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+        
+        // Export pro globální použití
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        
+        console.log('🔥 Firebase inicializován:', { auth: !!auth, db: !!db });
+    </script>
+</head>
+<body>
+    <div style="padding: 2rem; max-width: 600px; margin: 0 auto;">
+        <h1>Test Přihlašování</h1>
+        
+        <div id="status" style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+            <h3>Stav systému:</h3>
+            <div id="status-content">Načítám...</div>
+        </div>
+        
+        <form id="testLoginForm" style="margin: 2rem 0;">
+            <h3>Test Přihlášení</h3>
+            <div style="margin: 1rem 0;">
+                <label>Email:</label><br>
+                <input type="email" id="testEmail" value="test@example.com" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0;">
+            </div>
+            <div style="margin: 1rem 0;">
+                <label>Heslo:</label><br>
+                <input type="password" id="testPassword" value="test123" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0;">
+            </div>
+            <button type="submit" style="padding: 1rem 2rem; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Test Přihlášení
+            </button>
+        </form>
+        
+        <div id="testResults" style="margin: 2rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+            <h3>Výsledky testů:</h3>
+            <div id="testResults-content">Čekám na testy...</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    
+    <script>
+        let testResults = [];
+        
+        function addTestResult(test, result, details = '') {
+            testResults.push({ test, result, details, time: new Date().toLocaleTimeString() });
+            updateTestResults();
+        }
+        
+        function updateTestResults() {
+            const content = document.getElementById('testResults-content');
+            content.innerHTML = testResults.map(r => 
+                `<div style="margin: 0.5rem 0; padding: 0.5rem; background: ${r.result === 'SUCCESS' ? '#d4edda' : r.result === 'ERROR' ? '#f8d7da' : '#fff3cd'}; border-radius: 3px;">
+                    <strong>${r.test}</strong> - ${r.result} (${r.time})<br>
+                    <small>${r.details}</small>
+                </div>`
+            ).join('');
+        }
+        
+        function updateStatus() {
+            const statusContent = document.getElementById('status-content');
+            statusContent.innerHTML = `
+                <p><strong>Firebase Auth:</strong> ${window.firebaseAuth ? '✅ Načten' : '❌ Nenalezen'}</p>
+                <p><strong>Firebase DB:</strong> ${window.firebaseDb ? '✅ Načten' : '❌ Nenalezen'}</p>
+                <p><strong>showAuthModal:</strong> ${typeof window.showAuthModal}</p>
+                <p><strong>login funkce:</strong> ${typeof window.login}</p>
+                <p><strong>Current User:</strong> ${window.firebaseAuth?.currentUser ? 'Přihlášen' : 'Odhlášen'}</p>
+            `;
+        }
+        
+        // Test přihlašování
+        document.getElementById('testLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            addTestResult('Přihlašování', 'TESTING', `Email: ${email}`);
+            
+            try {
+                // Test Firebase Auth přímo
+                const { signInWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+                
+                if (!window.firebaseAuth) {
+                    throw new Error('Firebase Auth není dostupný');
+                }
+                
+                const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+                addTestResult('Přihlašování', 'SUCCESS', `Uživatel: ${userCredential.user.email}`);
+                
+            } catch (error) {
+                addTestResult('Přihlašování', 'ERROR', `Chyba: ${error.message}`);
+                console.error('Test přihlašování selhal:', error);
+            }
+        });
+        
+        // Aktualizovat status každou sekundu
+        setInterval(updateStatus, 1000);
+        
+        // Inicializace
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Test login stránka načtena');
+            updateStatus();
+            addTestResult('Inicializace', 'SUCCESS', 'Stránka načtena');
+        });
+    </script>
+</body>
+</html>
+

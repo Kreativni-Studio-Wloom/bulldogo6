@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Bulldogo.cz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+        
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.appspot.com",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        // Inicializace Firebase
+        const app = initializeApp(firebaseConfig);
+        const firebaseAuth = getAuth(app);
+        const firebaseDb = getFirestore(app);
+        const analytics = getAnalytics(app);
+        
+        // Export pro globální použití
+        window.firebaseApp = app;
+        window.firebaseAuth = firebaseAuth;
+        window.firebaseDb = firebaseDb;
+    </script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">B</div>
+                <span class="logo-text">
+                    <span class="logo-bull">ULL</span>
+                    <span class="logo-dogo">DOGO</span>
+                </span>
+            </div>
+            <div class="header-buttons"></div>
+        </div>
+
+        <div class="navigation-section">
+            <h3 class="nav-section-title">NAVIGACE</h3>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <span class="nav-text">Domů</span>
+                        <i class="fas fa-home nav-icon"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="services.html" class="nav-link">
+                        <span class="nav-text">Služby</span>
+                        <i class="fas fa-list-alt nav-icon"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="my-ads.html" class="nav-link">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span class="nav-text">Mé inzeráty</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#about" class="nav-link">
+                        <i class="fas fa-info-circle nav-icon"></i>
+                        <span class="nav-text">O nás</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contact" class="nav-link">
+                        <i class="fas fa-envelope nav-icon"></i>
+                        <span class="nav-text">Kontakt</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link">
+                        <i class="fas fa-comment-alt nav-icon"></i>
+                        <span class="nav-text">Chat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="top-ads.html" class="nav-link">
+                        <i class="fas fa-fire nav-icon"></i>
+                        <span class="nav-text">Topování</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Auth Buttons Section (shown when not logged in) -->
+        <div class="auth-section" id="authSection">
+            <button class="btn-login" onclick="showAuthModal('login')">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Přihlásit se</span>
+            </button>
+            <button class="btn-register" onclick="showAuthModal('register')">
+                <i class="fas fa-user-plus"></i>
+                <span>Registrovat</span>
+            </button>
+        </div>
+
+        <!-- User Profile Section (shown when logged in) -->
+        <div class="user-profile-section" id="userProfileSection" style="display: none;">
+            <button class="btn-profile" onclick="window.location.href='profile.html'">
+                <i class="fas fa-user-circle"></i>
+                <span>Profil</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Toggle Button (for collapsed state) -->
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()" style="display: none;">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+    <!-- Admin Login Section -->
+    <section id="adminLogin" class="admin-login-section">
+        <div class="container">
+            <div class="admin-login-container">
+                <div class="admin-login-header">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>Admin Dashboard</h1>
+                    <p>Přihlášení pro administrátory</p>
+                </div>
+                <form id="adminLoginForm" class="admin-login-form">
+                    <div class="form-group">
+                        <input type="text" id="adminUsername" name="username" placeholder="Admin uživatelské jméno" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="adminPassword" name="password" placeholder="Admin heslo" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Přihlásit se</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="dashboard-section" style="display: none;">
+        <div class="container">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalUsers">0</h3>
+                            <p>Celkem uživatelů</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalAds">0</h3>
+                            <p>Celkem inzerátů</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="activeAds">0</h3>
+                            <p>Aktivní inzeráty</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="dashboard-controls">
+                <div class="search-box">
+                    <input type="text" id="userSearch" placeholder="Hledat uživatele...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="filter-dropdown">
+                    <select id="userFilter">
+                        <option value="">Všichni uživatelé</option>
+                        <option value="withAds">S inzeráty</option>
+                        <option value="withoutAds">Bez inzerátů</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Users List -->
+            <div class="users-container">
+                <div class="users-header">
+                    <h2><i class="fas fa-users"></i> Seznam uživatelů</h2>
+                </div>
+                <div class="users-grid" id="usersGrid">
+                    <div class="loading-users">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Načítám uživatele...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Details Modal -->
+    <div id="userDetailsModal" class="modal">
+        <div class="modal-content user-details-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Detaily uživatele</h2>
+                <span class="close" onclick="closeUserDetailsModal()">&times;</span>
+            </div>
+            <div class="user-details-content">
+                <div class="user-info-section">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <h3 id="userDetailName"></h3>
+                        <p id="userDetailEmail"></p>
+                        <p id="userDetailJoinDate"></p>
+                    </div>
+                </div>
+                <div class="user-balance-section">
+                    <div class="balance-info">
+                        <div class="balance-display">
+                            <i class="fas fa-wallet"></i>
+                            <span class="balance-label">Zůstatek:</span>
+                            <span class="balance-value" id="userDetailBalance">0 Kč</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="showBalanceEditModal()">
+                            <i class="fas fa-edit"></i> Upravit zůstatek
+                        </button>
+                    </div>
+                </div>
+                <div class="user-ads-section">
+                    <h3><i class="fas fa-list"></i> Inzeráty uživatele</h3>
+                    <div class="user-ads-grid" id="userAdsGrid">
+                        <!-- User ads will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Balance Edit Modal -->
+    <div id="balanceEditModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Upravit zůstatek</h2>
+                <span class="close" onclick="closeBalanceEditModal()">&times;</span>
+            </div>
+            <form id="balanceEditForm" class="balance-form">
+                <div class="form-group">
+                    <label for="newBalance">Nový zůstatek (Kč)</label>
+                    <input type="number" id="newBalance" name="balance" placeholder="Zadejte nový zůstatek" required min="0" step="1">
+                </div>
+                <div class="form-group">
+                    <label for="balanceReason">Důvod změny</label>
+                    <textarea id="balanceReason" name="reason" placeholder="Zadejte důvod změny zůstatku" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Uložit změnu</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Bulldogo.cz</h3>
+                    <p>Profesionální služby pro každého. Spojujeme zákazníky s kvalifikovanými profesionály.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Rychlé odkazy</h3>
+                    <ul>
+                        <li><a href="index.html">Domů</a></li>
+                        <li><a href="services.html">Služby</a></li>
+                        <li><a href="index.html#about">O nás</a></li>
+                        <li><a href="index.html#contact">Kontakt</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Důležité odkazy</h3>
+                    <ul>
+                        <li><a href="#" onclick="return false;" style="cursor: default; text-decoration: none; color: inherit;">Cookies</a></li>
+                        <li><a href="#" onclick="return false;" style="cursor: default; text-decoration: none; color: inherit;">GDPR</a></li>
+                        <li><a href="soubory/podminky.pdf" target="_blank">VOP</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Kontakt</h3>
+                    <p><i class="fas fa-phone"></i> +420 123 456 789</p>
+                    <p><i class="fas fa-envelope"></i> support@bulldogo.cz</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Bulldogo.cz. Všechna práva vyhrazena.</p>
+            </div>
+        </div>
+    </footer>
+
+    </div> <!-- End main-content -->
+
+    <script src="script.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="click-spark.js"></script>
+</body>
+</html>

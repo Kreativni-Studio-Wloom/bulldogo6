@@ -1,0 +1,57 @@
+// Firebase Firestore pravidla pro povolení přístupu
+// Tyto pravidla musí být nastavena v Firebase Console
+// 
+// DŮLEŽITÉ: Zkopírujte tento obsah do Firebase Console → Firestore → Rules → Edit
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===== PRAVIDLA PRO INZERÁTY (MUSÍ BÝT PRVNÍ PRO COLLECTIONGROUP) =====
+    // DŮLEŽITÉ: Pro collectionGroup("inzeraty") dotazy musí být toto pravidlo explicitní a první
+    match /users/{userId}/inzeraty/{adId} {
+      allow read: if true;  // Veřejné čtení pro všechny (i bez přihlášení)
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Veřejné čtení všech dokumentů uživatelů i bez autentifikace (pro collectionGroup dotazy)
+    // Toto je nutné pro collectionGroup("inzeraty") dotazy, které potřebují přístup k users dokumentům
+    match /users/{userId}/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Explicitně povolit čtení uživatelských dokumentů bez autentifikace
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // ===== PRAVIDLA PRO RECENZE =====
+    // Recenze na profilu uživatele
+    match /users/{userId}/reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && (request.auth.uid == resource.data.reviewerId || request.auth.uid == userId);
+      allow delete: if request.auth != null && (request.auth.uid == resource.data.reviewerId || request.auth.uid == userId);
+    }
+    
+    // Recenze na inzerátech
+    match /users/{userId}/inzeraty/{adId}/reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && (request.auth.uid == resource.data.reviewerId || request.auth.uid == userId);
+      allow delete: if request.auth != null && (request.auth.uid == resource.data.reviewerId || request.auth.uid == userId);
+    }
+    
+    // Root kolekce reviews (fallback, pokud existuje)
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && request.auth.uid == resource.data.reviewerId;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.reviewerId;
+    }
+  }
+}

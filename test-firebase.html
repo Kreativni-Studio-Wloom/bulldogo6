@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        // Inicializace Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Export pro globální použití
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        
+        console.log('Firebase inicializován:', { app, auth, db });
+    </script>
+</head>
+<body>
+    <h1>Firebase Test</h1>
+    
+    <div id="status"></div>
+    
+    <button onclick="testConnection()">Test připojení</button>
+    <button onclick="testWrite()">Test zápisu</button>
+    <button onclick="testRead()">Test čtení</button>
+    <button onclick="addTestService()">Přidat testovací službu</button>
+    <button onclick="readServices()">Načíst služby</button>
+    
+    <div id="output"></div>
+    
+    <script>
+        function log(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            statusDiv.appendChild(div);
+            console.log(message);
+        }
+        
+        function logOutput(data) {
+            const outputDiv = document.getElementById('output');
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(data, null, 2);
+            outputDiv.appendChild(pre);
+        }
+        
+        async function testConnection() {
+            try {
+                log('Testování připojení k Firebase...', 'info');
+                
+                if (window.firebaseDb) {
+                    log('✅ Firebase DB je dostupný', 'success');
+                    logOutput({ status: 'connected', db: 'available' });
+                } else {
+                    log('❌ Firebase DB není dostupný', 'error');
+                }
+            } catch (error) {
+                log('❌ Chyba při testování připojení: ' + error.message, 'error');
+                logOutput({ error: error.message });
+            }
+        }
+        
+        async function testWrite() {
+            try {
+                log('Testování zápisu do Firebase...', 'info');
+                
+                const { collection, addDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const testRef = collection(window.firebaseDb, 'test');
+                const testDoc = await addDoc(testRef, {
+                    test: true,
+                    timestamp: new Date(),
+                    message: 'Test zápisu z test-firebase.html'
+                });
+                
+                log('✅ Zápis úspěšný: ' + testDoc.id, 'success');
+                logOutput({ success: true, docId: testDoc.id });
+                
+            } catch (error) {
+                log('❌ Chyba při zápisu: ' + error.message, 'error');
+                logOutput({ error: error.message, code: error.code });
+            }
+        }
+        
+        async function testRead() {
+            try {
+                log('Testování čtení z Firebase...', 'info');
+                
+                const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const testRef = collection(window.firebaseDb, 'test');
+                const snapshot = await getDocs(testRef);
+                
+                const docs = [];
+                snapshot.forEach((doc) => {
+                    docs.push({ id: doc.id, ...doc.data() });
+                });
+                
+                log('✅ Čtení úspěšné: ' + docs.length + ' dokumentů', 'success');
+                logOutput({ success: true, count: docs.length, docs: docs });
+                
+            } catch (error) {
+                log('❌ Chyba při čtení: ' + error.message, 'error');
+                logOutput({ error: error.message, code: error.code });
+            }
+        }
+        
+        async function addTestService() {
+            try {
+                log('Přidávání testovací služby...', 'info');
+                
+                const { collection, addDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const servicesRef = collection(window.firebaseDb, 'services');
+                const serviceDoc = await addDoc(servicesRef, {
+                    title: "Testovací služba",
+                    category: "test",
+                    description: "Toto je testovací služba pro ověření funkčnosti Firebase",
+                    price: "100 Kč",
+                    location: "Testovací město",
+                    userId: "test-user",
+                    userEmail: "test@example.com",
+                    createdAt: new Date(),
+                    status: "active"
+                });
+                
+                log('✅ Testovací služba přidána: ' + serviceDoc.id, 'success');
+                logOutput({ success: true, serviceId: serviceDoc.id });
+                
+            } catch (error) {
+                log('❌ Chyba při přidávání služby: ' + error.message, 'error');
+                logOutput({ error: error.message, code: error.code });
+            }
+        }
+        
+        async function readServices() {
+            try {
+                log('Načítání služeb z Firebase...', 'info');
+                
+                const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const servicesRef = collection(window.firebaseDb, 'services');
+                const snapshot = await getDocs(servicesRef);
+                
+                const services = [];
+                snapshot.forEach((doc) => {
+                    services.push({ id: doc.id, ...doc.data() });
+                });
+                
+                log('✅ Služby načteny: ' + services.length + ' služeb', 'success');
+                logOutput({ success: true, count: services.length, services: services });
+                
+            } catch (error) {
+                log('❌ Chyba při načítání služeb: ' + error.message, 'error');
+                logOutput({ error: error.message, code: error.code });
+            }
+        }
+        
+        // Automatický test při načtení stránky
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testConnection();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

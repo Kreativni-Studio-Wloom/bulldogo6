@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Spacing - Přímé inline styly</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="electric-border.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .test-card {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin: 20px;
+            padding: 15px;
+        }
+        
+        .test-price {
+            color: #f77c00;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div style="padding: 50px; background: #f5f5f5;">
+        <h1>Test Spacing - Přímé inline styly</h1>
+        
+        <!-- Test 1: Původní mezery -->
+        <div style="margin: 20px 0;">
+            <h3>Test 1: Původní mezery (8px)</h3>
+            <div class="test-card">
+                <h3>Test Inzerát</h3>
+                <p>Popis inzerátu</p>
+                <div class="test-price">500 Kč/hod</div>
+                <div class="ad-actions" style="margin-top: 8px; padding: 8px 0; background: yellow;">
+                    <button class="btn-contact" title="Kontaktovat">
+                        <i class="fas fa-comment"></i>
+                    </button>
+                    <button class="btn-profile" title="Profil">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button class="btn-info" title="Info">
+                        <i class="fas fa-info"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 2: Poloviční mezery -->
+        <div style="margin: 20px 0;">
+            <h3>Test 2: Poloviční mezery (4px)</h3>
+            <div class="test-card">
+                <h3>Test Inzerát</h3>
+                <p>Popis inzerátu</p>
+                <div class="test-price">500 Kč/hod</div>
+                <div class="ad-actions" style="margin-top: 4px; padding: 4px 0; background: lightgreen;">
+                    <button class="btn-contact" title="Kontaktovat">
+                        <i class="fas fa-comment"></i>
+                    </button>
+                    <button class="btn-profile" title="Profil">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button class="btn-info" title="Info">
+                        <i class="fas fa-info"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 3: Minimální mezery -->
+        <div style="margin: 20px 0;">
+            <h3>Test 3: Minimální mezery (2px)</h3>
+            <div class="test-card">
+                <h3>Test Inzerát</h3>
+                <p>Popis inzerátu</p>
+                <div class="test-price">500 Kč/hod</div>
+                <div class="ad-actions" style="margin-top: 2px; padding: 2px 0; background: lightblue;">
+                    <button class="btn-contact" title="Kontaktovat">
+                        <i class="fas fa-comment"></i>
+                    </button>
+                    <button class="btn-profile" title="Profil">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button class="btn-info" title="Info">
+                        <i class="fas fa-info"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 4: Bez mezer -->
+        <div style="margin: 20px 0;">
+            <h3>Test 4: Bez mezer (0px)</h3>
+            <div class="test-card">
+                <h3>Test Inzerát</h3>
+                <p>Popis inzerátu</p>
+                <div class="test-price">500 Kč/hod</div>
+                <div class="ad-actions" style="margin-top: 0; padding: 0; background: pink;">
+                    <button class="btn-contact" title="Kontaktovat">
+                        <i class="fas fa-comment"></i>
+                    </button>
+                    <button class="btn-profile" title="Profil">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button class="btn-info" title="Info">
+                        <i class="fas fa-info"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 5: Se spodními mezerami -->
+        <div style="margin: 20px 0;">
+            <h3>Test 5: Se spodními mezerami (8px)</h3>
+            <div class="test-card">
+                <h3>Test Inzerát</h3>
+                <p>Popis inzerátu</p>
+                <div class="test-price">500 Kč/hod</div>
+                <div class="ad-actions" style="margin-top: 2px; padding: 2px 0; margin-bottom: 8px; padding-bottom: 8px; background: lightcoral;">
+                    <button class="btn-contact" title="Kontaktovat">
+                        <i class="fas fa-comment"></i>
+                    </button>
+                    <button class="btn-profile" title="Profil">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button class="btn-info" title="Info">
+                        <i class="fas fa-info"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

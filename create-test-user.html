@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vytvoření Test Uživatele - Bulldogo.cz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        // Inicializace Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Export pro globální použití
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        
+        console.log('🔥 Firebase inicializován pro vytvoření test uživatele');
+    </script>
+</head>
+<body>
+    <div style="padding: 2rem; max-width: 600px; margin: 0 auto;">
+        <h1>Vytvoření Test Uživatele</h1>
+        
+        <div id="status" style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+            <h3>Stav:</h3>
+            <div id="status-content">Načítám...</div>
+        </div>
+        
+        <form id="createUserForm" style="margin: 2rem 0;">
+            <h3>Vytvořit Test Uživatele</h3>
+            <div style="margin: 1rem 0;">
+                <label>Email:</label><br>
+                <input type="email" id="userEmail" value="test@gmail.com" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0;">
+            </div>
+            <div style="margin: 1rem 0;">
+                <label>Heslo:</label><br>
+                <input type="password" id="userPassword" value="123123" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0;">
+            </div>
+            <div style="margin: 1rem 0;">
+                <label>Jméno:</label><br>
+                <input type="text" id="userName" value="Test User" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0;">
+            </div>
+            <button type="submit" style="padding: 1rem 2rem; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Vytvořit Test Uživatele
+            </button>
+        </form>
+        
+        <div id="results" style="margin: 2rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+            <h3>Výsledky:</h3>
+            <div id="results-content">Čekám na akci...</div>
+        </div>
+    </div>
+    
+    <script>
+        function updateStatus() {
+            const statusContent = document.getElementById('status-content');
+            statusContent.innerHTML = `
+                <p><strong>Firebase Auth:</strong> ${window.firebaseAuth ? '✅ Načten' : '❌ Nenalezen'}</p>
+                <p><strong>Firebase DB:</strong> ${window.firebaseDb ? '✅ Načten' : '❌ Nenalezen'}</p>
+                <p><strong>Current User:</strong> ${window.firebaseAuth?.currentUser ? 'Přihlášen' : 'Odhlášen'}</p>
+            `;
+        }
+        
+        function addResult(message, type = 'info') {
+            const resultsContent = document.getElementById('results-content');
+            const time = new Date().toLocaleTimeString();
+            const color = type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#fff3cd';
+            
+            resultsContent.innerHTML += `
+                <div style="margin: 0.5rem 0; padding: 0.5rem; background: ${color}; border-radius: 3px;">
+                    <strong>${time}:</strong> ${message}
+                </div>
+            `;
+        }
+        
+        // Vytvoření test uživatele
+        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            const name = document.getElementById('userName').value;
+            
+            addResult(`Pokus o vytvoření uživatele: ${email}`, 'info');
+            
+            try {
+                if (!window.firebaseAuth || !window.firebaseDb) {
+                    throw new Error('Firebase není dostupný');
+                }
+                
+                // Import Firebase funkcí
+                const { createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+                const { setDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                // Vytvořit uživatele
+                const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+                const user = userCredential.user;
+                
+                addResult(`✅ Uživatel vytvořen: ${user.uid}`, 'success');
+                
+                // Vytvořit profil v Firestore
+                await setDoc(doc(window.firebaseDb, 'users', user.uid), {
+                    uid: user.uid,
+                    email: user.email,
+                    createdAt: new Date(),
+                    userType: 'person'
+                });
+                
+                await setDoc(doc(window.firebaseDb, 'users', user.uid, 'profile', 'profile'), {
+                    name: name,
+                    email: user.email,
+                    balance: 1000,
+                    createdAt: new Date(),
+                    userType: 'person'
+                });
+                
+                addResult(`✅ Profil vytvořen v Firestore`, 'success');
+                addResult(`🎉 Test uživatel úspěšně vytvořen! Můžete se přihlásit s emailem: ${email}`, 'success');
+                
+            } catch (error) {
+                addResult(`❌ Chyba: ${error.message}`, 'error');
+                console.error('Chyba při vytváření uživatele:', error);
+            }
+        });
+        
+        // Aktualizovat status každou sekundu
+        setInterval(updateStatus, 1000);
+        
+        // Inicializace
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Create test user stránka načtena');
+            updateStatus();
+        });
+    </script>
+</body>
+</html>

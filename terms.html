@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obchodní podmínky - Bulldogo.cz</title>
+    <meta name="description" content="Obchodní podmínky platformy Bulldogo.cz pro inzerci služeb v ČR/SR.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://bulldogo.cz/terms.html">
+    <meta name="theme-color" content="#ff6a00">
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="icon" type="image/png" href="fotky/bulldogo-logo.png">
+    <link rel="apple-touch-icon" href="fotky/bulldogo-logo.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="electric-border.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK (centralizovaná inicializace) -->
+    <script type="module" src="firebase-init.js"></script>
+    <style>
+        .terms-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.8;
+        }
+        .terms-content h1 {
+            color: var(--primary-color, #ff6a00);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .terms-content h2 {
+            color: var(--primary-color, #ff6a00);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .terms-content h3 {
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .terms-content p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        .terms-content ul, .terms-content ol {
+            margin-bottom: 20px;
+            padding-left: 30px;
+        }
+        .terms-content li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+        .terms-date {
+            color: #888;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+        .terms-section {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <!-- Logo Section -->
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">B</div>
+                <span class="logo-text">
+                    <span class="logo-bull">ULL</span>
+                    <span class="logo-dogo">DOGO</span>
+                </span>
+            </div>
+            <div class="header-buttons">
+            </div>
+        </div>
+
+        <!-- Navigation Section -->
+        <div class="navigation-section">
+            <h3 class="nav-section-title">NAVIGACE</h3>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home nav-icon"></i>
+                        <span class="nav-text">Domů</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="services.html" class="nav-link">
+                        <i class="fas fa-list-alt nav-icon"></i>
+                        <span class="nav-text">Služby</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="my-ads.html" class="nav-link">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span class="nav-text">Mé inzeráty</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#about" class="nav-link">
+                        <i class="fas fa-info-circle nav-icon"></i>
+                        <span class="nav-text">O nás</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contact" class="nav-link">
+                        <i class="fas fa-envelope nav-icon"></i>
+                        <span class="nav-text">Kontakt</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link">
+                        <i class="fas fa-comment-alt nav-icon"></i>
+                        <span class="nav-text">Chat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="top-ads.html" class="nav-link">
+                        <i class="fas fa-fire nav-icon"></i>
+                        <span class="nav-text">Topování</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="packages.html" class="nav-link">
+                        <i class="fas fa-box nav-icon"></i>
+                        <span class="nav-text">Balíčky</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Auth Buttons Section (shown when not logged in) -->
+        <div class="auth-section" id="authSection">
+            <button class="btn-login" onclick="showAuthModal('login')">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Přihlášení</span>
+            </button>
+            <button class="btn-register" onclick="showAuthModal('register')">
+                <i class="fas fa-user-plus"></i>
+                <span>Registrace</span>
+            </button>
+        </div>
+
+        <!-- User Profile Section (shown when logged in) -->
+        <div class="user-profile-section" id="userProfileSection" style="display: none;">
+            <button class="btn-profile" onclick="window.location.href='profile.html'">
+                <i class="fas fa-user-circle"></i>
+                <span>Profil</span>
+            </button>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Odhlásit se</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+        <div class="terms-content">
+            <h1>Obchodní podmínky</h1>
+            <p class="terms-date">Platné od 1. ledna 2024</p>
+
+            <div class="terms-section">
+                <h2>1. Úvodní ustanovení</h2>
+                <p>Tyto obchodní podmínky (dále jen "Podmínky") upravují vzájemná práva a povinnosti mezi provozovatelem platformy Bulldogo.cz (dále jen "Provozovatel") a uživateli této platformy (dále jen "Uživatel").</p>
+                <p>Používáním platformy Bulldogo.cz Uživatel potvrzuje, že se seznámil s těmito Podmínkami a souhlasí s nimi.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>2. Definice pojmů</h2>
+                <ul>
+                    <li><strong>Platforma</strong> - webová aplikace Bulldogo.cz umožňující inzerci a vyhledávání služeb</li>
+                    <li><strong>Uživatel</strong> - fyzická nebo právnická osoba využívající služby Platformy</li>
+                    <li><strong>Inzerát</strong> - zveřejněná nabídka služby na Platformě</li>
+                    <li><strong>Služba</strong> - služba nabízená prostřednictvím Platformy</li>
+                    <li><strong>Topování</strong> - placená služba zvýraznění inzerátu</li>
+                </ul>
+            </div>
+
+            <div class="terms-section">
+                <h2>3. Registrace a uživatelský účet</h2>
+                <h3>3.1 Registrace</h3>
+                <p>Pro využití některých funkcí Platformy je nutná registrace. Uživatel se registruje vyplněním registračního formuláře a potvrzením souhlasu s těmito Podmínkami.</p>
+                
+                <h3>3.2 Povinnosti Uživatele</h3>
+                <p>Uživatel je povinen:</p>
+                <ul>
+                    <li>uvedené údaje udržovat aktuální a pravdivé</li>
+                    <li>zabezpečit svůj účet před neoprávněným přístupem</li>
+                    <li>nepoužívat Platformu k nelegálním účelům</li>
+                    <li>respektovat práva třetích stran</li>
+                </ul>
+            </div>
+
+            <div class="terms-section">
+                <h2>4. Vkládání inzerátů</h2>
+                <h3>4.1 Základní podmínky</h3>
+                <p>Uživatel může vkládat inzeráty zdarma, pokud dodrží následující podmínky:</p>
+                <ul>
+                    <li>inzerát obsahuje pravdivé a aktuální informace</li>
+                    <li>inzerát není v rozporu s právními předpisy</li>
+                    <li>inzerát neobsahuje nevhodný obsah</li>
+                    <li>Uživatel má právo službu poskytovat</li>
+                </ul>
+
+                <h3>4.2 Zákazy</h3>
+                <p>Je zakázáno vkládat inzeráty obsahující:</p>
+                <ul>
+                    <li>nepravdivé nebo zavádějící informace</li>
+                    <li>obsah porušující autorská práva</li>
+                    <li>obsah diskriminační, urážlivý nebo nevhodný</li>
+                    <li>spam nebo nevyžádanou reklamu</li>
+                </ul>
+            </div>
+
+            <div class="terms-section">
+                <h2>5. Placené služby</h2>
+                <h3>5.1 Topování</h3>
+                <p>Topování je placená služba umožňující zvýraznění inzerátu. Ceny topování jsou uvedeny na stránce s balíčky.</p>
+                
+                <h3>5.2 Cirkulace</h3>
+                <p>Cirkulace inzerátu zajišťuje pravidelný návrat inzerátu na přední pozice. Frekvence cirkulace závisí na zvoleném balíčku.</p>
+
+                <h3>5.3 Platba</h3>
+                <p>Platba za placené služby probíhá předem. Provozovatel si vyhrazuje právo změnit ceny s předchozím oznámením.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>6. Odpovědnost</h2>
+                <h3>6.1 Odpovědnost Provozovatele</h3>
+                <p>Provozovatel nenese odpovědnost za:</p>
+                <ul>
+                    <li>kvalitu poskytovaných služeb inzerovaných na Platformě</li>
+                    <li>vztahy mezi Uživateli</li>
+                    <li>škody vzniklé v souvislosti s využitím služeb inzerovaných na Platformě</li>
+                </ul>
+
+                <h3>6.2 Odpovědnost Uživatele</h3>
+                <p>Uživatel nese plnou odpovědnost za obsah svých inzerátů a za služby, které poskytuje.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>7. Ochrana osobních údajů</h2>
+                <p>Zpracování osobních údajů se řídí zásadami ochrany osobních údajů v souladu s nařízením GDPR. Více informací naleznete v našich zásadách ochrany osobních údajů.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>8. Duševní vlastnictví</h2>
+                <p>Všechna práva k Platformě, včetně autorských práv, ochranných známek a dalších práv duševního vlastnictví, náleží Provozovateli nebo jeho poskytovatelům licencí.</p>
+                <p>Uživatel nesmí bez souhlasu Provozovatele kopírovat, upravovat nebo šířit obsah Platformy.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>9. Ukončení služby</h2>
+                <p>Provozovatel si vyhrazuje právo:</p>
+                <ul>
+                    <li>odstranit inzerát, který porušuje tyto Podmínky</li>
+                    <li>dočasně nebo trvale zablokovat Uživatelský účet</li>
+                    <li>ukončit poskytování služeb bez předchozího oznámení v případě závažného porušení Podmínek</li>
+                </ul>
+            </div>
+
+            <div class="terms-section">
+                <h2>10. Změny podmínek</h2>
+                <p>Provozovatel si vyhrazuje právo tyto Podmínky kdykoli změnit. O změnách bude Uživatel informován prostřednictvím Platformy nebo e-mailem. Pokračováním v používání Platformy po změně Podmínek Uživatel vyjadřuje souhlas s novými Podmínkami.</p>
+            </div>
+
+            <div class="terms-section">
+                <h2>11. Závěrečná ustanovení</h2>
+                <h3>11.1 Řešení sporů</h3>
+                <p>V případě sporů se strany zavazují pokusit se o jejich řešení smírnou cestou. Pokud se nedohodnou, příslušné jsou soudy České republiky.</p>
+
+                <h3>11.2 Kontakt</h3>
+                <p>V případě dotazů k těmto Podmínkám nás kontaktujte na e-mailu: <a href="mailto:support@bulldogo.cz">support@bulldogo.cz</a></p>
+
+                <h3>11.3 Důležité informace</h3>
+                <p>Tyto Podmínky jsou platné a účinné od 1. ledna 2024. Provozovatel si vyhrazuje právo je kdykoli změnit.</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h3>Bulldogo.cz</h3>
+                        <p>Profesionální služby pro každého. Spojujeme zákazníky s kvalifikovanými profesionály.</p>
+                    </div>
+                    <div class="footer-section">
+                        <h3>Rychlé odkazy</h3>
+                        <ul>
+                            <li><a href="index.html">Domů</a></li>
+                            <li><a href="services.html">Služby</a></li>
+                            <li><a href="index.html#about">O nás</a></li>
+                            <li><a href="index.html#contact">Kontakt</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h3>Důležité odkazy</h3>
+                        <ul>
+                            <li><a href="#" onclick="return false;" style="cursor: default; text-decoration: none; color: inherit;">Cookies</a></li>
+                            <li><a href="#" onclick="return false;" style="cursor: default; text-decoration: none; color: inherit;">GDPR</a></li>
+                            <li><a href="soubory/podminky.pdf" target="_blank">VOP</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section" id="contact">
+                        <h3>Kontakt</h3>
+                        <p><i class="fas fa-phone"></i> +420 123 456 789</p>
+                        <p><i class="fas fa-envelope"></i> support@bulldogo.cz</p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2025 Bulldogo.cz. Všechna práva vyhrazena.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Přihlášení</h2>
+                <span class="close" onclick="closeAuthModal()">&times;</span>
+            </div>
+            <form id="authForm" class="auth-form">
+                <!-- Výběr typu registrace (pouze při registraci) -->
+                <div class="form-group registration-type" style="display: none;">
+                    <label class="form-label">Typ registrace:</label>
+                    <div class="registration-type-buttons">
+                        <button type="button" class="registration-type-btn active" data-type="person">
+                            <i class="fas fa-user"></i> Fyzická osoba
+                        </button>
+                        <button type="button" class="registration-type-btn" data-type="company">
+                            <i class="fas fa-building"></i> Firma
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulář pro fyzickou osobu -->
+                <div class="person-form" style="display: none;">
+                    <div class="form-group">
+                        <input type="text" id="firstName" name="firstName" placeholder="Jméno" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="lastName" name="lastName" placeholder="Příjmení" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="phone" name="phone" placeholder="Telefon" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="birthDate" name="birthDate" placeholder="Datum narození" required>
+                    </div>
+                </div>
+
+                <!-- Formulář pro firmu -->
+                <div class="company-form" style="display: none;">
+                    <div class="form-group">
+                        <input type="text" id="companyName" name="companyName" placeholder="Obchodní název">
+                    </div>
+                    <div class="form-group">
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <input type="text" id="ico" name="ico" placeholder="IČ" style="flex:1;">
+                            <button type="button" id="btnVerifyICO" class="btn">Ověřit</button>
+                        </div>
+                        <div id="icoStatus" style="font-size:13px; margin-top:4px; color:#6b7280;"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="dic" name="dic" placeholder="DIČ (volitelné)" data-optional="true">
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="companyPhone" name="companyPhone" placeholder="Telefon">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="companyAddress" name="companyAddress" placeholder="Sídlo firmy">
+                    </div>
+                </div>
+
+                <!-- Společná pole -->
+                <div class="form-group">
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" name="password" placeholder="Heslo" required>
+                </div>
+                <!-- Krok 1: tlačítko pro odeslání SMS a přechod na ověření -->
+                <button type="button" id="btnSendPhoneCode" class="btn btn-primary auth-submit-btn" style="display:none;">Pokračovat na ověření telefonního čísla</button>
+                <!-- Výchozí tlačítko pro přihlášení (zůstává pro login) -->
+                <button type="submit" class="btn btn-primary auth-submit-btn" id="btnAuthSubmit">Přihlásit se</button>
+
+                <!-- Krok 2: ověření kódu z SMS (zobrazuje se jen při registraci po odeslání kódu) -->
+                <div id="phoneStep2" style="display:none; margin-top:8px;">
+                    <div class="form-group">
+                        <input type="text" id="smsCode" inputmode="numeric" placeholder="Kód z SMS">
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" id="btnVerifyPhoneCode" class="btn btn-primary">Ověřit kód a dokončit registraci</button>
+                        <button type="button" id="btnPhoneBack" class="btn">Zpět</button>
+                    </div>
+                </div>
+
+                <!-- Neviditelná reCAPTCHA pro ověřování telefonu -->
+                <div id="recaptcha-container" style="height:0; overflow:hidden;"></div>
+            </form>
+            <div class="auth-switch">
+                <button type="button" class="auth-switch-btn" data-type="register">Nemáte účet? Zaregistrujte se</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js" defer></script>
+    <script src="auth.js" defer></script>
+</body>
+</html>
+

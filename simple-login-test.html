@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jednoduchý Test Přihlašování</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; max-width: 600px; margin: 0 auto; }
+        .form-group { margin: 1rem 0; }
+        input { width: 100%; padding: 0.5rem; margin: 0.5rem 0; }
+        button { padding: 1rem 2rem; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .result { margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px; }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+    </style>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        
+        console.log('🔥 Firebase inicializován');
+        
+        // Sledování stavu přihlášení
+        import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js').then(({ onAuthStateChanged }) => {
+            onAuthStateChanged(auth, (user) => {
+                console.log('👤 Auth state changed:', user ? `Přihlášen: ${user.email}` : 'Odhlášen');
+                updateUI(user);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Jednoduchý Test Přihlašování</h1>
+    
+    <div id="status" class="result">
+        <h3>Stav systému:</h3>
+        <div id="status-content">Načítám...</div>
+    </div>
+    
+    <form id="loginForm">
+        <h3>Přihlášení</h3>
+        <div class="form-group">
+            <label>Email:</label><br>
+            <input type="email" id="email" value="test@example.com" required>
+        </div>
+        <div class="form-group">
+            <label>Heslo:</label><br>
+            <input type="password" id="password" value="test123456" required>
+        </div>
+        <button type="submit">Přihlásit se</button>
+    </form>
+    
+    <div id="results" class="result">
+        <h3>Výsledky:</h3>
+        <div id="results-content">Čekám na akci...</div>
+    </div>
+    
+    <div id="userInfo" class="result" style="display: none;">
+        <h3>Informace o uživateli:</h3>
+        <div id="userInfo-content"></div>
+        <button onclick="logout()">Odhlásit se</button>
+    </div>
+    
+    <script>
+        function addResult(message, type = 'info') {
+            const resultsContent = document.getElementById('results-content');
+            const time = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : '';
+            
+            resultsContent.innerHTML += `
+                <div class="${className}" style="margin: 0.5rem 0; padding: 0.5rem; border-radius: 3px;">
+                    <strong>${time}:</strong> ${message}
+                </div>
+            `;
+        }
+        
+        function updateStatus() {
+            const statusContent = document.getElementById('status-content');
+            statusContent.innerHTML = `
+                <p><strong>Firebase Auth:</strong> ${window.firebaseAuth ? '✅ Načten' : '❌ Nenalezen'}</p>
+                <p><strong>Firebase DB:</strong> ${window.firebaseDb ? '✅ Načten' : '❌ Nenalezen'}</p>
+                <p><strong>Current User:</strong> ${window.firebaseAuth?.currentUser ? `Přihlášen: ${window.firebaseAuth.currentUser.email}` : 'Odhlášen'}</p>
+            `;
+        }
+        
+        function updateUI(user) {
+            const userInfo = document.getElementById('userInfo');
+            const userInfoContent = document.getElementById('userInfo-content');
+            
+            if (user) {
+                userInfo.style.display = 'block';
+                userInfoContent.innerHTML = `
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>UID:</strong> ${user.uid}</p>
+                    <p><strong>Vytvořen:</strong> ${new Date(user.metadata.creationTime).toLocaleString()}</p>
+                `;
+                addResult(`✅ Přihlášen jako: ${user.email}`, 'success');
+            } else {
+                userInfo.style.display = 'none';
+                addResult('👋 Odhlášen', 'info');
+            }
+        }
+        
+        async function login(email, password) {
+            try {
+                addResult(`🔐 Pokus o přihlášení: ${email}`, 'info');
+                
+                if (!window.firebaseAuth) {
+                    throw new Error('Firebase Auth není dostupný');
+                }
+                
+                const { signInWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+                
+                const userCredential = await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+                addResult(`✅ Přihlášení úspěšné: ${userCredential.user.email}`, 'success');
+                
+                return userCredential.user;
+            } catch (error) {
+                addResult(`❌ Chyba při přihlašování: ${error.message}`, 'error');
+                console.error('Chyba při přihlašování:', error);
+                throw error;
+            }
+        }
+        
+        async function logout() {
+            try {
+                if (!window.firebaseAuth) {
+                    throw new Error('Firebase Auth není dostupný');
+                }
+                
+                const { signOut } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+                await signOut(window.firebaseAuth);
+                addResult('✅ Odhlášení úspěšné', 'success');
+            } catch (error) {
+                addResult(`❌ Chyba při odhlašování: ${error.message}`, 'error');
+                console.error('Chyba při odhlašování:', error);
+            }
+        }
+        
+        // Event listener pro formulář
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                await login(email, password);
+            } catch (error) {
+                // Chyba už je zobrazena v login funkci
+            }
+        });
+        
+        // Aktualizovat status každou sekundu
+        setInterval(updateStatus, 1000);
+        
+        // Inicializace
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Simple login test načten');
+            updateStatus();
+            addResult('📄 Stránka načtena', 'info');
+        });
+    </script>
+</body>
+</html>
+

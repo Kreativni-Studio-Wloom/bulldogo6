@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hodnocení - Bulldogo.cz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.appspot.com",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        // Inicializace Firebase
+        const app = initializeApp(firebaseConfig);
+        const firebaseAuth = getAuth(app);
+        const firebaseDb = getFirestore(app);
+        const analytics = getAnalytics(app);
+        
+        // Export pro globální použití
+        window.firebaseApp = app;
+        window.firebaseAuth = firebaseAuth;
+        window.firebaseDb = firebaseDb;
+    </script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <!-- Logo Section -->
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">B</div>
+                <span class="logo-text">
+                    <span class="logo-bull">ULL</span>
+                    <span class="logo-dogo">DOGO</span>
+                </span>
+            </div>
+            <div class="header-buttons">
+            </div>
+        </div>
+
+        <!-- Navigation Section -->
+        <div class="navigation-section">
+            <h3 class="nav-section-title">NAVIGACE</h3>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">
+                        <i class="fas fa-home nav-icon"></i>
+                        <span class="nav-text">Domů</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="services.html" class="nav-link">
+                        <i class="fas fa-list-alt nav-icon"></i>
+                        <span class="nav-text">Služby</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="my-ads.html" class="nav-link">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span class="nav-text">Mé inzeráty</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#about" class="nav-link">
+                        <i class="fas fa-info-circle nav-icon"></i>
+                        <span class="nav-text">O nás</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="index.html#contact" class="nav-link">
+                        <i class="fas fa-envelope nav-icon"></i>
+                        <span class="nav-text">Kontakt</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link">
+                        <i class="fas fa-comment-alt nav-icon"></i>
+                        <span class="nav-text">Chat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="top-ads.html" class="nav-link">
+                        <i class="fas fa-fire nav-icon"></i>
+                        <span class="nav-text">Topování</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="packages.html" class="nav-link">
+                        <i class="fas fa-box nav-icon"></i>
+                        <span class="nav-text">Balíčky</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Auth Buttons Section (shown when not logged in) -->
+        <div class="auth-section" id="authSection">
+            <button class="btn-login" onclick="showAuthModal('login')">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Přihlášení</span>
+            </button>
+            <button class="btn-register" onclick="showAuthModal('register')">
+                <i class="fas fa-user-plus"></i>
+                <span>Registrace</span>
+            </button>
+        </div>
+
+        <!-- User Profile Section (shown when logged in) -->
+        <div class="user-profile-section" id="userProfileSection" style="display: none;">
+            <button class="btn-profile" onclick="window.location.href='profile.html'">
+                <i class="fas fa-user-circle"></i>
+                <span>Profil</span>
+            </button>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Odhlásit se</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Toggle Button (when collapsed) -->
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+        <!-- Profile Hero Section -->
+        <section class="page-hero">
+            <div class="container">
+                <div class="page-hero-card">
+                    <div class="page-hero-inner">
+                        <h2 class="services-title"><span class="title-text">Hodnocení</span><span class="title-accent"></span></h2>
+                        <p class="page-hero-subtitle">Přehled vašich hodnocení a recenzí</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Cards -->
+        <section class="profile-stats-section">
+            <div class="container">
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-ad"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">Aktivní inzeráty</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">4.8</div>
+                            <div class="stat-label">Hodnocení</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn" onclick="window.location.href='profile.html'">Přehled</button>
+            <button class="tab-btn" onclick="window.location.href='profile-services.html'">Moje služby</button>
+            <button class="tab-btn active">Hodnocení</button>
+            <button class="tab-btn" onclick="window.location.href='profile-settings.html'">Nastavení</button>
+            <button class="tab-btn" onclick="window.location.href='profile-plan.html'">Spravovat balíček</button>
+            <button class="tab-btn" onclick="window.location.href='top-ads.html'">Topování</button>
+        </div>
+
+        <!-- Ratings Content -->
+        <div class="ratings-content">
+            <div class="ratings-summary">
+                <div class="overall-rating">
+                    <div class="rating-number">-</div>
+                    <div class="rating-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="rating-count">Načítání hodnocení...</div>
+                </div>
+                <div class="rating-breakdown">
+                    <div class="rating-bar rating-bar-5">
+                        <span>5 hvězd</span>
+                        <div class="bar">
+                            <div class="fill" style="width: 0%"></div>
+                        </div>
+                        <span class="rating-count">0</span>
+                    </div>
+                    <div class="rating-bar rating-bar-4">
+                        <span>4 hvězdy</span>
+                        <div class="bar">
+                            <div class="fill" style="width: 0%"></div>
+                        </div>
+                        <span class="rating-count">0</span>
+                    </div>
+                    <div class="rating-bar rating-bar-3">
+                        <span>3 hvězdy</span>
+                        <div class="bar">
+                            <div class="fill" style="width: 0%"></div>
+                        </div>
+                        <span class="rating-count">0</span>
+                    </div>
+                    <div class="rating-bar rating-bar-2">
+                        <span>2 hvězdy</span>
+                        <div class="bar">
+                            <div class="fill" style="width: 0%"></div>
+                        </div>
+                        <span class="rating-count">0</span>
+                    </div>
+                    <div class="rating-bar rating-bar-1">
+                        <span>1 hvězda</span>
+                        <div class="bar">
+                            <div class="fill" style="width: 0%"></div>
+                        </div>
+                        <span class="rating-count">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reviews-section">
+                <h3 class="section-title">Recenze</h3>
+                <div class="reviews-list">
+                    <!-- Hodnocení se načtou dynamicky z Firebase -->
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script src="cities.js"></script>
+    <script src="click-spark.js"></script>
+    <script>
+        // Load user ratings from Firebase
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserRatings();
+            loadUserProfile();
+        });
+
+        // Load user profile data
+        async function loadUserProfile() {
+            console.log('🔧 Loading user profile...');
+            try {
+                // Wait for Firebase to be available
+                const checkFirebase = setInterval(() => {
+                    console.log('🔍 Checking Firebase:', {
+                        firebaseAuth: !!window.firebaseAuth,
+                        firebaseDb: !!window.firebaseDb
+                    });
+                    if (window.firebaseAuth && window.firebaseDb) {
+                        console.log('✅ Firebase available, loading data');
+                        clearInterval(checkFirebase);
+                        loadUserData();
+                        
+                        // Listen for auth state changes
+                        window.firebaseAuth.onAuthStateChanged((user) => {
+                            console.log('👤 Auth state changed on profile page:', user ? user.email : 'Not logged in');
+                            if (user) {
+                                loadUserData();
+                            }
+                        });
+                    }
+                }, 100);
+            } catch (error) {
+                console.error('❌ Chyba při načítání profilu:', error);
+            }
+        }
+
+        async function loadUserRatings() {
+            try {
+                // Wait for Firebase to be available
+                const checkFirebase = setInterval(() => {
+                    if (window.firebaseAuth && window.firebaseDb) {
+                        clearInterval(checkFirebase);
+                        loadRatingsData();
+                    }
+                }, 100);
+            } catch (error) {
+                console.error('Chyba při načítání hodnocení:', error);
+            }
+        }
+
+        async function loadRatingsData() {
+            try {
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) {
+                    console.log('Uživatel není přihlášen');
+                    return;
+                }
+
+                console.log('Načítám hodnocení pro uživatele:', currentUser.uid);
+
+                // Load user profile to get rating data
+                const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                const profileSnap = await getDoc(profileRef);
+                
+                let userProfile = null;
+                if (profileSnap.exists()) {
+                    userProfile = profileSnap.data();
+                }
+
+                // Update ratings display
+                updateRatingsDisplay(userProfile);
+
+            } catch (error) {
+                console.error('Chyba při načítání dat hodnocení:', error);
+            }
+        }
+
+        function updateRatingsDisplay(userProfile) {
+            console.log('🔄 Updating ratings display:', userProfile);
+            
+            // Update overall rating
+            const overallRating = userProfile?.rating || 0;
+            const totalReviews = userProfile?.totalReviews || 0;
+            
+            // Update rating summary
+            const ratingNumber = document.querySelector('.rating-number');
+            if (ratingNumber) {
+                if (totalReviews > 0) {
+                    ratingNumber.textContent = overallRating.toFixed(1);
+                } else {
+                    ratingNumber.textContent = '-';
+                }
+            }
+
+            const ratingCount = document.querySelector('.rating-count');
+            if (ratingCount) {
+                if (totalReviews > 0) {
+                    ratingCount.textContent = `Založeno na ${totalReviews} hodnoceních`;
+                } else {
+                    ratingCount.textContent = 'Zatím žádná hodnocení';
+                }
+            }
+
+            // Update rating breakdown
+            updateRatingBreakdown(userProfile, totalReviews);
+
+            // Update recent reviews
+            updateRecentReviews(userProfile);
+        }
+
+        function updateRatingBreakdown(userProfile, totalReviews) {
+            console.log('📊 Updating rating breakdown:', { userProfile, totalReviews });
+            
+            const breakdown = userProfile?.ratingBreakdown || {
+                5: 0, 4: 0, 3: 0, 2: 0, 1: 0
+            };
+
+            // Update 5-star rating
+            const fiveStarCount = document.querySelector('.rating-bar-5 .rating-count');
+            const fiveStarBar = document.querySelector('.rating-bar-5 .fill');
+            if (fiveStarCount) fiveStarCount.textContent = breakdown[5] || 0;
+            if (fiveStarBar) {
+                const percentage = totalReviews > 0 ? (breakdown[5] / totalReviews) * 100 : 0;
+                fiveStarBar.style.width = `${percentage}%`;
+            }
+
+            // Update 4-star rating
+            const fourStarCount = document.querySelector('.rating-bar-4 .rating-count');
+            const fourStarBar = document.querySelector('.rating-bar-4 .fill');
+            if (fourStarCount) fourStarCount.textContent = breakdown[4] || 0;
+            if (fourStarBar) {
+                const percentage = totalReviews > 0 ? (breakdown[4] / totalReviews) * 100 : 0;
+                fourStarBar.style.width = `${percentage}%`;
+            }
+
+            // Update 3-star rating
+            const threeStarCount = document.querySelector('.rating-bar-3 .rating-count');
+            const threeStarBar = document.querySelector('.rating-bar-3 .fill');
+            if (threeStarCount) threeStarCount.textContent = breakdown[3] || 0;
+            if (threeStarBar) {
+                const percentage = totalReviews > 0 ? (breakdown[3] / totalReviews) * 100 : 0;
+                threeStarBar.style.width = `${percentage}%`;
+            }
+
+            // Update 2-star rating
+            const twoStarCount = document.querySelector('.rating-bar-2 .rating-count');
+            const twoStarBar = document.querySelector('.rating-bar-2 .fill');
+            if (twoStarCount) twoStarCount.textContent = breakdown[2] || 0;
+            if (twoStarBar) {
+                const percentage = totalReviews > 0 ? (breakdown[2] / totalReviews) * 100 : 0;
+                twoStarBar.style.width = `${percentage}%`;
+            }
+
+            // Update 1-star rating
+            const oneStarCount = document.querySelector('.rating-bar-1 .rating-count');
+            const oneStarBar = document.querySelector('.rating-bar-1 .fill');
+            if (oneStarCount) oneStarCount.textContent = breakdown[1] || 0;
+            if (oneStarBar) {
+                const percentage = totalReviews > 0 ? (breakdown[1] / totalReviews) * 100 : 0;
+                oneStarBar.style.width = `${percentage}%`;
+            }
+            
+            console.log('✅ Rating breakdown updated');
+        }
+
+        function updateRecentReviews(userProfile) {
+            const reviewsContainer = document.querySelector('.reviews-list');
+            if (!reviewsContainer) return;
+
+            const reviews = userProfile?.recentReviews || [];
+
+            if (reviews.length === 0) {
+                reviewsContainer.innerHTML = `
+                    <div class="no-reviews">
+                                <i class="fas fa-star"></i>
+                        <h3>Zatím nemáte žádná hodnocení</h3>
+                        <p>Jakmile získáte první hodnocení od zákazníků, zobrazí se zde.</p>
+                            </div>
+                `;
+                return;
+            }
+
+            reviewsContainer.innerHTML = reviews.map(review => createReviewCard(review)).join('');
+        }
+
+        function createReviewCard(review) {
+            console.log('🔍 Creating review card for:', review);
+            console.log('🔍 Available fields:', Object.keys(review));
+            console.log('🔍 ReviewerId:', review.reviewerId);
+            console.log('🔍 ReviewerName:', review.reviewerName);
+            
+            const stars = Array.from({length: 5}, (_, i) => 
+                `<i class="fas fa-star ${i < review.rating ? 'filled' : ''}"></i>`
+            ).join('');
+
+            // Get reviewer name from various possible fields
+            const reviewerName = review.reviewerName || 
+                                review.userName || 
+                                review.authorName || 
+                                review.fromUserName || 
+                                review.name ||
+                                'Anonymní';
+
+            // Get review text from various possible fields
+            const reviewText = review.comment || 
+                              review.text || 
+                              review.message || 
+                              review.reviewText || 
+                              review.description || 
+                              'Žádný komentář';
+
+            // Get service title from various possible fields
+            const serviceTitle = review.serviceTitle || 
+                                review.adTitle || 
+                                review.title || 
+                                review.serviceName || 
+                                'Služba';
+
+            console.log('🔍 Final reviewer name:', reviewerName);
+
+            return `
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="reviewer-details">
+                                <div class="reviewer-name">${reviewerName}</div>
+                                <div class="review-date">${getTimeAgo(review.createdAt)}</div>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            ${stars}
+                        </div>
+                    </div>
+                    <div class="review-content">
+                        <h4 class="review-service">${serviceTitle}</h4>
+                        <p class="review-text">${reviewText}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const reviewDate = new Date(date);
+            const diffMs = now - reviewDate;
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const diffWeeks = Math.floor(diffDays / 7);
+
+            if (diffWeeks > 0) {
+                return `Před ${diffWeeks} týdny`;
+            } else if (diffDays > 0) {
+                return `Před ${diffDays} dny`;
+            } else {
+                return 'Dnes';
+            }
+        }
+
+        // Load actual user data
+        async function loadUserData() {
+            console.log('💾 Loading user data...');
+            try {
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) {
+                    console.log('⚠️ Uživatel není přihlášen');
+                    return;
+                }
+
+                console.log('👤 Načítám data pro uživatele:', currentUser.uid);
+
+                // Load user profile from Firestore
+                const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                const profileSnap = await getDoc(profileRef);
+                
+                let userProfile = null;
+                if (profileSnap.exists()) {
+                    userProfile = profileSnap.data();
+                }
+
+                // Load user ads to get statistics
+                const { getDocs, collection } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const adsRef = collection(window.firebaseDb, 'users', currentUser.uid, 'inzeraty');
+                const adsSnapshot = await getDocs(adsRef);
+                
+                const userAds = [];
+                adsSnapshot.forEach((doc) => {
+                    userAds.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Update statistics
+                console.log('📊 Calling updateStatistics with:', { userAds: userAds.length, userProfile });
+                updateStatistics(userAds, userProfile);
+                
+                // Load all reviews and update rating after loading
+                loadAllUserReviews(currentUser.uid);
+
+            } catch (error) {
+                console.error('Chyba při načítání dat uživatele:', error);
+            }
+        }
+
+        // Update statistics with real data
+        function updateStatistics(userAds, userProfile) {
+            console.log('📊 Updating statistics:', { userAds, userProfile });
+            
+            // Active ads count
+            const activeAds = userAds ? userAds.filter(ad => ad.status === 'active').length : 0;
+            const activeAdsElement = document.querySelector('.stat-card:nth-child(1) .stat-number');
+            if (activeAdsElement) {
+                activeAdsElement.textContent = activeAds > 0 ? activeAds : '-';
+                console.log('📝 Updated active ads:', activeAds);
+            }
+
+            // Rating will be updated after loading reviews
+            const ratingElement = document.querySelector('.stat-card:nth-child(2) .stat-number');
+            if (ratingElement) {
+                ratingElement.textContent = '-';
+            }
+            
+            console.log('✅ Statistics updated');
+        }
+
+        // Load all user reviews (profile + ads)
+        async function loadAllUserReviews(userId) {
+            console.log('⭐ Loading all reviews for user:', userId);
+            try {
+                const { getDocs, collection, collectionGroup, getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                // Load profile reviews
+                const profileReviewsRef = collection(window.firebaseDb, 'users', userId, 'reviews');
+                const profileSnap = await getDocs(profileReviewsRef);
+                const profileReviews = [];
+                
+                for (const docSnap of profileSnap.docs) {
+                    const reviewData = docSnap.data();
+                    
+                    // Load reviewer info if reviewerId exists
+                    if (reviewData.reviewerId) {
+                        try {
+                            console.log('🔍 Loading reviewer profile for ID:', reviewData.reviewerId);
+                            const reviewerProfileRef = doc(window.firebaseDb, 'users', reviewData.reviewerId, 'profile', 'profile');
+                            const reviewerSnap = await getDoc(reviewerProfileRef);
+                            if (reviewerSnap.exists()) {
+                                const reviewerProfile = reviewerSnap.data();
+                                console.log('👤 Reviewer profile data:', reviewerProfile);
+                                
+                                // Get firstName and lastName from database
+                                let reviewerName = 'Anonymní';
+                                if (reviewerProfile.firstName && reviewerProfile.lastName) {
+                                    reviewerName = `${reviewerProfile.firstName} ${reviewerProfile.lastName}`;
+                                } else if (reviewerProfile.firstName) {
+                                    reviewerName = reviewerProfile.firstName;
+                                } else if (reviewerProfile.lastName) {
+                                    reviewerName = reviewerProfile.lastName;
+                                }
+                                
+                                reviewData.reviewerName = reviewerName;
+                                console.log('✅ Set reviewer name to:', reviewerName);
+                            } else {
+                                console.log('❌ Reviewer profile not found anywhere');
+                                // Try loading from user's main profile document
+                                const userDocRef = doc(window.firebaseDb, 'users', reviewData.reviewerId);
+                                const userDocSnap = await getDoc(userDocRef);
+                                if (userDocSnap.exists()) {
+                                    const userData = userDocSnap.data();
+                                    console.log('👤 User document data:', userData);
+                                    
+                                    let reviewerName = 'Anonymní';
+                                    if (userData.firstName && userData.lastName) {
+                                        reviewerName = `${userData.firstName} ${userData.lastName}`;
+                                    } else if (userData.firstName) {
+                                        reviewerName = userData.firstName;
+                                    } else if (userData.lastName) {
+                                        reviewerName = userData.lastName;
+                                    }
+                                    
+                                    reviewData.reviewerName = reviewerName;
+                                }
+                            }
+                        } catch (error) {
+                            console.log('⚠️ Could not load reviewer profile:', error);
+                        }
+                    } else {
+                        console.log('❌ No reviewerId found in review data:', reviewData);
+                    }
+                    
+                    profileReviews.push({ 
+                        id: docSnap.id, 
+                        ...reviewData,
+                        type: 'profile'
+                    });
+                }
+
+                // Load ad reviews using collectionGroup
+                const adReviewsGroup = collectionGroup(window.firebaseDb, 'reviews');
+                const adReviews = [];
+                const groupSnap = await getDocs(adReviewsGroup);
+                
+                for (const docSnap of groupSnap.docs) {
+                    const parent = docSnap.ref.parent; // reviews collection
+                    const adDoc = parent?.parent; // adId document
+                    const inzeraty = adDoc?.parent; // 'inzeraty' collection
+                    const userDoc = inzeraty?.parent; // user uid document
+                    
+                    if (userDoc && userDoc.id === userId && inzeraty.id === 'inzeraty') {
+                        const reviewData = docSnap.data();
+                        
+                        // Load reviewer info if reviewerId exists
+                        if (reviewData.reviewerId) {
+                            try {
+                                console.log('🔍 Loading reviewer profile for ID:', reviewData.reviewerId);
+                                const reviewerProfileRef = doc(window.firebaseDb, 'users', reviewData.reviewerId, 'profile', 'profile');
+                                const reviewerSnap = await getDoc(reviewerProfileRef);
+                                if (reviewerSnap.exists()) {
+                                    const reviewerProfile = reviewerSnap.data();
+                                    console.log('👤 Reviewer profile data:', reviewerProfile);
+                                    
+                                    // Get firstName and lastName from database
+                                    let reviewerName = 'Anonymní';
+                                    if (reviewerProfile.firstName && reviewerProfile.lastName) {
+                                        reviewerName = `${reviewerProfile.firstName} ${reviewerProfile.lastName}`;
+                                    } else if (reviewerProfile.firstName) {
+                                        reviewerName = reviewerProfile.firstName;
+                                    } else if (reviewerProfile.lastName) {
+                                        reviewerName = reviewerProfile.lastName;
+                                    }
+                                    
+                                    reviewData.reviewerName = reviewerName;
+                                    console.log('✅ Set reviewer name to:', reviewerName);
+                                } else {
+                                    console.log('❌ Reviewer profile not found anywhere');
+                                    // Try loading from user's main profile document
+                                    const userDocRef = doc(window.firebaseDb, 'users', reviewData.reviewerId);
+                                    const userDocSnap = await getDoc(userDocRef);
+                                    if (userDocSnap.exists()) {
+                                        const userData = userDocSnap.data();
+                                        console.log('👤 User document data:', userData);
+                                        
+                                        let reviewerName = 'Anonymní';
+                                        if (userData.firstName && userData.lastName) {
+                                            reviewerName = `${userData.firstName} ${userData.lastName}`;
+                                        } else if (userData.firstName) {
+                                            reviewerName = userData.firstName;
+                                        } else if (userData.lastName) {
+                                            reviewerName = userData.lastName;
+                                        }
+                                        
+                                        reviewData.reviewerName = reviewerName;
+                                    }
+                                }
+                            } catch (error) {
+                                console.log('⚠️ Could not load reviewer profile:', error);
+                            }
+                        } else {
+                            console.log('❌ No reviewerId found in review data:', reviewData);
+                        }
+                        
+                        adReviews.push({ 
+                            id: docSnap.id, 
+                            ...reviewData,
+                            type: 'ad',
+                            adId: adDoc.id
+                        });
+                    }
+                }
+
+                // Combine all reviews
+                const allReviews = [...profileReviews, ...adReviews];
+                console.log('📊 Found reviews with user info:', { 
+                    profile: profileReviews.length, 
+                    ads: adReviews.length, 
+                    total: allReviews.length,
+                    reviews: allReviews
+                });
+
+                // Update rating in statistics after loading reviews
+                updateRatingFromReviews(allReviews);
+
+            } catch (error) {
+                console.error('❌ Error loading reviews:', error);
+            }
+        }
+
+        // Update rating in statistics from reviews
+        function updateRatingFromReviews(reviews) {
+            console.log('🔄 Updating rating from reviews:', reviews.length);
+            
+            // Calculate average rating
+            const avgRating = reviews.length > 0 ? 
+                (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length) : 0;
+            
+            // Calculate rating breakdown
+            const breakdown = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+            reviews.forEach(review => {
+                const rating = review.rating || 0;
+                if (rating >= 1 && rating <= 5) {
+                    breakdown[rating]++;
+                }
+            });
+            
+            // Update overall rating display
+            const ratingNumber = document.querySelector('.rating-number');
+            if (ratingNumber) {
+                if (reviews.length > 0) {
+                    ratingNumber.textContent = avgRating.toFixed(1);
+                } else {
+                    ratingNumber.textContent = '-';
+                }
+            }
+
+            const ratingCount = document.querySelector('.rating-count');
+            if (ratingCount) {
+                if (reviews.length > 0) {
+                    ratingCount.textContent = `Založeno na ${reviews.length} hodnoceních`;
+                } else {
+                    ratingCount.textContent = 'Zatím žádná hodnocení';
+                }
+            }
+            
+            // Update rating breakdown
+            updateRatingBreakdownFromData(breakdown, reviews.length);
+            
+            // Update reviews list
+            updateRecentReviewsFromData(reviews);
+            
+            // Update statistics card
+            const ratingElement = document.querySelector('.stat-card:nth-child(2) .stat-number');
+            if (ratingElement) {
+                if (reviews.length > 0) {
+                    ratingElement.textContent = avgRating.toFixed(1);
+                } else {
+                    ratingElement.textContent = '-';
+                }
+                console.log('📝 Updated rating from reviews:', avgRating.toFixed(1), 'reviews:', reviews.length);
+            }
+        }
+
+        // Update rating breakdown from calculated data
+        function updateRatingBreakdownFromData(breakdown, totalReviews) {
+            console.log('📊 Updating rating breakdown from data:', { breakdown, totalReviews });
+            
+            // Update 5-star rating
+            const fiveStarCount = document.querySelector('.rating-bar-5 .rating-count');
+            const fiveStarBar = document.querySelector('.rating-bar-5 .fill');
+            if (fiveStarCount) fiveStarCount.textContent = breakdown[5] || 0;
+            if (fiveStarBar) {
+                const percentage = totalReviews > 0 ? (breakdown[5] / totalReviews) * 100 : 0;
+                fiveStarBar.style.width = `${percentage}%`;
+            }
+
+            // Update 4-star rating
+            const fourStarCount = document.querySelector('.rating-bar-4 .rating-count');
+            const fourStarBar = document.querySelector('.rating-bar-4 .fill');
+            if (fourStarCount) fourStarCount.textContent = breakdown[4] || 0;
+            if (fourStarBar) {
+                const percentage = totalReviews > 0 ? (breakdown[4] / totalReviews) * 100 : 0;
+                fourStarBar.style.width = `${percentage}%`;
+            }
+
+            // Update 3-star rating
+            const threeStarCount = document.querySelector('.rating-bar-3 .rating-count');
+            const threeStarBar = document.querySelector('.rating-bar-3 .fill');
+            if (threeStarCount) threeStarCount.textContent = breakdown[3] || 0;
+            if (threeStarBar) {
+                const percentage = totalReviews > 0 ? (breakdown[3] / totalReviews) * 100 : 0;
+                threeStarBar.style.width = `${percentage}%`;
+            }
+
+            // Update 2-star rating
+            const twoStarCount = document.querySelector('.rating-bar-2 .rating-count');
+            const twoStarBar = document.querySelector('.rating-bar-2 .fill');
+            if (twoStarCount) twoStarCount.textContent = breakdown[2] || 0;
+            if (twoStarBar) {
+                const percentage = totalReviews > 0 ? (breakdown[2] / totalReviews) * 100 : 0;
+                twoStarBar.style.width = `${percentage}%`;
+            }
+
+            // Update 1-star rating
+            const oneStarCount = document.querySelector('.rating-bar-1 .rating-count');
+            const oneStarBar = document.querySelector('.rating-bar-1 .fill');
+            if (oneStarCount) oneStarCount.textContent = breakdown[1] || 0;
+            if (oneStarBar) {
+                const percentage = totalReviews > 0 ? (breakdown[1] / totalReviews) * 100 : 0;
+                oneStarBar.style.width = `${percentage}%`;
+            }
+            
+            console.log('✅ Rating breakdown updated from data');
+        }
+
+        // Update recent reviews from loaded data
+        function updateRecentReviewsFromData(reviews) {
+            console.log('📝 Updating reviews display with:', reviews);
+            
+            const reviewsContainer = document.querySelector('.reviews-list');
+            if (!reviewsContainer) {
+                console.log('❌ Reviews container not found');
+                return;
+            }
+
+            if (reviews.length === 0) {
+                console.log('📝 No reviews found, showing empty state');
+                reviewsContainer.innerHTML = `
+                    <div class="no-reviews">
+                        <i class="fas fa-star"></i>
+                        <h3>Zatím nemáte žádná hodnocení</h3>
+                        <p>Jakmile získáte první hodnocení od zákazníků, zobrazí se zde.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort reviews by date (newest first)
+            const sortedReviews = reviews.sort((a, b) => {
+                const dateA = new Date(a.createdAt?.toDate?.() || a.createdAt || 0);
+                const dateB = new Date(b.createdAt?.toDate?.() || b.createdAt || 0);
+                return dateB - dateA;
+            });
+
+            console.log('📝 Rendering', sortedReviews.length, 'reviews');
+            reviewsContainer.innerHTML = sortedReviews.map(review => createReviewCard(review)).join('');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulldogo.cz - Inzerce služeb</title>
+    <meta name="description" content="Bulldogo.cz – inzerce služeb v ČR/SR. Najděte řemeslníky, IT specialisty, doučování, péči a další. Vložte inzerát zdarma a oslovte zákazníky.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://bulldogo.cz/">
+    <meta name="theme-color" content="#ff6a00">
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preload" as="image" href="fotky/bulldogo-logo.png">
+    <link rel="icon" type="image/png" href="fotky/bulldogo-logo.png">
+    <link rel="apple-touch-icon" href="fotky/bulldogo-logo.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Bulldogo.cz">
+    <meta property="og:title" content="Bulldogo.cz – inzerce služeb pro každého">
+    <meta property="og:description" content="Najděte nebo nabídněte službu. Jednoduše, rychle a férově. Vložte inzerát zdarma.">
+    <meta property="og:url" content="https://bulldogo.cz/">
+    <meta property="og:image" content="https://bulldogo.cz/fotky/bulldogo-logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Bulldogo.cz – inzerce služeb pro každého">
+    <meta name="twitter:description" content="Najděte nebo nabídněte službu v ČR/SR. Vložte inzerát zdarma.">
+    <meta name="twitter:image" content="https://bulldogo.cz/fotky/bulldogo-logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="electric-border.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Skryje spodní popis (tagy) u kartiček kategorií na hlavní stránce */
+        #services-categories .carousel-tags { display: none !important; }
+    </style>
+    <!-- Firebase SDK (centralizovaná inicializace) -->
+    <script type="module" src="firebase-init.js"></script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Bulldogo.cz",
+      "url": "https://bulldogo.cz/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://bulldogo.cz/services.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <!-- Logo Section -->
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">B</div>
+                <span class="logo-text">
+                    <span class="logo-bull">ULL</span>
+                    <span class="logo-dogo">DOGO</span>
+                </span>
+            </div>
+            <div class="header-buttons">
+            </div>
+        </div>
+
+        <!-- Navigation Section -->
+        <div class="navigation-section">
+            <h3 class="nav-section-title">NAVIGACE</h3>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link active">
+                        <i class="fas fa-home nav-icon"></i>
+                        <span class="nav-text">Domů</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="services.html" class="nav-link">
+                        <i class="fas fa-list-alt nav-icon"></i>
+                        <span class="nav-text">Služby</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="my-ads.html" class="nav-link">
+                        <i class="fas fa-user nav-icon"></i>
+                        <span class="nav-text">Mé inzeráty</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#about" class="nav-link">
+                        <i class="fas fa-info-circle nav-icon"></i>
+                        <span class="nav-text">O nás</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#contact" class="nav-link">
+                        <i class="fas fa-envelope nav-icon"></i>
+                        <span class="nav-text">Kontakt</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="chat.html" class="nav-link">
+                        <i class="fas fa-comment-alt nav-icon"></i>
+                        <span class="nav-text">Chat</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="top-ads.html" class="nav-link">
+                        <i class="fas fa-fire nav-icon"></i>
+                        <span class="nav-text">Topování</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="packages.html" class="nav-link">
+                        <i class="fas fa-box nav-icon"></i>
+                        <span class="nav-text">Balíčky</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Auth Buttons Section (shown when not logged in) -->
+        <div class="auth-section" id="authSection">
+            <button class="btn-login" onclick="showAuthModal('login')">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Přihlášení</span>
+            </button>
+            <button class="btn-register" onclick="showAuthModal('register')">
+                <i class="fas fa-user-plus"></i>
+                <span>Registrace</span>
+            </button>
+        </div>
+
+        <!-- User Profile Section (shown when logged in) -->
+        <div class="user-profile-section" id="userProfileSection" style="display: none;">
+            <button class="btn-profile" onclick="window.location.href='profile.html'">
+                <i class="fas fa-user-circle"></i>
+                <span>Profil</span>
+            </button>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Odhlásit se</span>
+            </button>
+        </div>
+    </nav>
+
+    
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+
+    <!-- Hero Section -->
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="top-wave" aria-hidden="true">
+            <svg viewBox="0 0 2000 200" preserveAspectRatio="none">
+                <g class="wave-layer l1">
+                    <path fill="rgba(var(--wave-color), var(--wave-opacity))" d="M0,80 C160,30 320,110 480,70 C640,30 800,120 960,85 C1120,50 1280,110 1440,75 C1600,40 1760,95 1920,60 L2000,60 L2000,0 L0,0 Z"></path>
+                    <use href="#w1" />
+                </g>
+                <g class="wave-layer l2">
+                    <path id="w2" fill="rgba(var(--wave-color), calc(var(--wave-opacity) * .8))" d="M0,95 C170,55 340,120 510,90 C680,60 850,125 1020,95 C1190,65 1360,120 1530,88 C1700,56 1870,110 2000,85 L2000,0 L0,0 Z"></path>
+                    <use href="#w2" x="2000" />
+                </g>
+                <g class="wave-layer l3">
+                    <path id="w3" fill="rgba(var(--wave-color), calc(var(--wave-opacity) * .6))" d="M0,110 C180,80 360,135 540,105 C720,75 900,135 1080,105 C1260,75 1440,135 1620,105 C1800,75 1980,125 2000,115 L2000,0 L0,0 Z"></path>
+                    <use href="#w3" x="2000" />
+                </g>
+            </svg>
+        </div>
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-brand">
+                    <h1 class="hero-title" data-text="Bulldogo.cz">Bulldogo.cz</h1>
+                    <p class="hero-slogan">„Služby jednoduše. Pro každého"</p>
+                </div>
+                
+                <div class="hero-search">
+                    <div class="search-form">
+                        <div class="search-input-group">
+                            <button class="search-btn" id="homeSearchBtn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <input type="text" placeholder="Např. fotograf" class="search-input" id="homeSearchInput">
+                            <select id="homeRegionFilter" class="search-input">
+                                <option value="">Kraj (ČR/SR)</option>
+                                <optgroup label="Česká republika">
+                                    <option value="Praha">Hlavní město Praha</option>
+                                    <option value="Stredocesky">Středočeský kraj</option>
+                                    <option value="Jihocesky">Jihočeský kraj</option>
+                                    <option value="Plzensky">Plzeňský kraj</option>
+                                    <option value="Karlovarsky">Karlovarský kraj</option>
+                                    <option value="Ustecky">Ústecký kraj</option>
+                                    <option value="Liberecky">Liberecký kraj</option>
+                                    <option value="Kralovehradecky">Královehradecký kraj</option>
+                                    <option value="Pardubicky">Pardubický kraj</option>
+                                    <option value="Vysocina">Kraj Vysočina</option>
+                                    <option value="Jihomoravsky">Jihomoravský kraj</option>
+                                    <option value="Olomoucky">Olomoucký kraj</option>
+                                    <option value="Zlinsky">Zlínský kraj</option>
+                                    <option value="Moravskoslezsky">Moravskoslezský kraj</option>
+                                </optgroup>
+                                <optgroup label="Slovenská republika">
+                                    <option value="Bratislavsky">Bratislavský kraj</option>
+                                    <option value="Trnavsky">Trnavský kraj</option>
+                                    <option value="Trenciansky">Trenčianský kraj</option>
+                                    <option value="Nitriansky">Nitriansky kraj</option>
+                                    <option value="Zilinsky">Žilinský kraj</option>
+                                    <option value="Banskobystricky">Banskobystrický kraj</option>
+                                    <option value="Presovsky">Prešovský kraj</option>
+                                    <option value="Kosicky">Košický kraj</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <button class="btn-create-ad" onclick="checkAuthForAddService()">
+                            <i class="fas fa-plus"></i>
+                            Přidat inzerát
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="bulldog-image">
+                    <img src="fotky/bulldogo-logo.png" alt="Bulldogo.cz" class="hero-logo">
+
+                    <!-- Tool Bubbles -->
+                    <div class="tool-bubbles">
+                        <div class="tool-bubble bubble-1 bubble-dir-up pop">
+                            <img src="fotky/buble.png" alt="Bubble" class="bubble-bg">
+                            <i class="fas fa-hammer"></i>
+                        </div>
+                        <div class="tool-bubble bubble-2 bubble-dir-right pop">
+                            <img src="fotky/buble.png" alt="Bubble" class="bubble-bg">
+                            <i class="fas fa-wrench"></i>
+                        </div>
+                        <div class="tool-bubble bubble-3 bubble-dir-down-right pop">
+                            <img src="fotky/buble.png" alt="Bubble" class="bubble-bg">
+                            <i class="fas fa-screwdriver"></i>
+                        </div>
+                        <div class="tool-bubble bubble-4 bubble-dir-down pop">
+                            <img src="fotky/buble.png" alt="Bubble" class="bubble-bg">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div class="tool-bubble bubble-5 bubble-dir-left pop">
+                            <img src="fotky/buble.png" alt="Bubble" class="bubble-bg">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div class="tool-bubble bubble-6 bubble-dir-up-left pop">
+                            <img src="fotky/buble.png" alt="Bubble" class="bubble-bg">
+                            <i class="fas fa-hard-hat"></i>
+                        </div>
+                        <!-- extra bubbles -->
+                        <div class="tool-bubble bubble-7 bubble-dir-up-right pop">
+                            <img src="fotky/buble.png" alt="Bubble" class="bubble-bg">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="tool-bubble bubble-8 bubble-dir-down-left pop">
+                            <img src="fotky/buble.png" alt="Bubble" class="bubble-bg">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="tool-bubble bubble-9 bubble-dir-right pop">
+                            <img src="fotky/buble.png" alt="Bubble" class="bubble-bg">
+                            <i class="fas fa-paint-roller"></i>
+                        </div>
+                        <div class="tool-bubble bubble-10 bubble-dir-left pop">
+                            <img src="fotky/buble.png" alt="Bubble" class="bubble-bg">
+                            <i class="fas fa-screwdriver-wrench"></i>
+                        </div>
+                        <div class="tool-bubble bubble-11 bubble-dir-up pop">
+                            <img src="fotky/buble.png" alt="Bubble" class="bubble-bg">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div class="tool-bubble bubble-12 bubble-dir-down-right pop">
+                            <img src="fotky/buble.png" alt="Bubble" class="bubble-bg">
+                            <i class="fas fa-wrench"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+	<!-- Rotace benefitů v promo kartě (čistý JS) -->
+	<script>
+		// Rotuje benefity vedle CTA tlačítek v promo kartě
+		// Postup: přečte <li> položky z .promo-benefits (skryté), a v intervalu přepíná obsah v #promoRotateInline
+		document.addEventListener('DOMContentLoaded', () => {
+			const source = document.querySelector('#promo .promo-benefits');
+			const t1 = document.getElementById('promoRotateInline');
+			if (!source || !t1) return;
+
+			// Vyrobit cyklus z položek (ikona + text)
+			const items = Array.from(source.querySelectorAll('li')).map(li => ({
+				iconHtml: li.querySelector('i') ? li.querySelector('i').outerHTML : '',
+				text: (li.textContent || '').trim()
+			})).filter(i => i.text);
+			if (items.length === 0) return;
+
+			let idx = 0;
+			const updateTargets = () => {
+				t1.classList.add('out');
+				setTimeout(() => {
+					const a = items[idx];
+					t1.innerHTML = `${a.iconHtml}<span>${a.text}</span>`;
+					t1.classList.remove('out');
+					idx = (idx + 1) % items.length;
+				}, 220);
+			};
+
+			// Start rotace benefitů
+			updateTargets();
+			setInterval(updateTargets, 3500);
+
+			// Rotace CTA (stejný fade efekt jako pilulka): jeden odkaz mění cíl, ikonu a text
+			const ctaAlternate = document.getElementById('ctaAlternate');
+			if (ctaAlternate) {
+				const states = [
+					{ href: 'packages.html', icon: '<i class="fas fa-bolt"></i>', text: 'Zobrazit balíčky' },
+					{ href: 'top-ads.html', icon: '<i class="fas fa-fire"></i>', text: 'Zobrazit topování' }
+				];
+				let ci = 0;
+				const swapCTA = () => {
+					ctaAlternate.classList.add('out');
+					setTimeout(() => {
+						const s = states[ci];
+						ctaAlternate.setAttribute('href', s.href);
+						ctaAlternate.innerHTML = `${s.icon}${s.text ? '\n\t\t\t\t\t\t\t' + s.text : ''}`;
+						ctaAlternate.classList.remove('out');
+						ci = (ci + 1) % states.length;
+					}, 220);
+				};
+				setTimeout(() => {
+					swapCTA();
+					setInterval(swapCTA, 3500);
+				}, 1200);
+			}
+		});
+	</script>
+
+    <!-- Services Categories Carousel -->
+    <section id="services-categories" class="services-carousel">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="services-title">
+                    <span class="title-text">Kategorie služeb</span>
+                    <span class="title-accent"></span>
+                </h2>
+            </div>
+
+            <div class="carousel-wrapper" data-visible="3">
+                <button class="carousel-arrow prev" aria-label="Předchozí kategorie">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <div class="carousel-viewport">
+                    <ul class="carousel-track">
+                        <li class="carousel-slide">
+                            <div class="carousel-card thumb-small">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/domacnost-remeslnici.png" alt="Domácnost &amp; Řemeslníci" data-category="Domácnost &amp; Řemeslníci" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Domácnost & Řemeslníci</h3>
+                                <p class="carousel-desc">Instalatér, elektrikář, uklízečky, malíři a další práce v domácnosti.</p>
+                                <p class="carousel-tags">Instalatér • Elektrikář • Úklid • Malování</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/Auto-Moto.png" alt="Auto &amp; Moto" data-category="Auto &amp; Moto" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Auto & Moto</h3>
+                                <p class="carousel-desc">Mytí aut, pneuservis, detailing, odtah, autopůjčovna a další.</p>
+                                <p class="carousel-tags">Mytí a detailing • Pneuservis • Odtah • Autopůjčovna</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/Zahrada-exterier.png" alt="Zahrada &amp; Exteriér" data-category="Zahrada &amp; Exteriér" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Zahrada & Exteriér</h3>
+                                <p class="carousel-desc">Zahradnictví, údržba trávníku, pokládka trávníku/dlažby, střih keřů.</p>
+                                <p class="carousel-tags">Údržba trávníku • Pokládka trávníku/dlažby • Stříhání keřů • Realizace zahrad</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/vzdelani-doucovani.png" alt="Vzdělávání &amp; Doučování" data-category="Vzdělávání &amp; Doučování" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Vzdělávání & Doučování</h3>
+                                <p class="carousel-desc">Doučování matematiky, jazyků, IT kurzy, sportovní lekce a další.</p>
+                                <p class="carousel-tags">Matematika • Jazyky • IT kurzy • Sportovní lekce</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/IT-technologie.png" alt="IT &amp; technologie" data-category="IT &amp; technologie" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">IT & technologie</h3>
+                                <p class="carousel-desc">Webdesign, správa sítí, programování a další technologické služby.</p>
+                                <p class="carousel-tags">Webdesign • Správa sítí • Programování • IT poradenství</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/Zdravi-pece.png" alt="Zdraví a Osobní péče" data-category="Zdraví a Osobní péče" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Zdraví a Osobní péče</h3>
+                                <p class="carousel-desc">Kosmetika, masáže, osobní trenér, péče o vlasy, kadeřnictví, manikúra.</p>
+                                <p class="carousel-tags">Masáže • Kadeřnictví • Manikúra • Osobní trenér</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/Gastronomie-Catering.png" alt="Gastronomie &amp; Catering" data-category="Gastronomie &amp; Catering" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Gastronomie & Catering</h3>
+                                <p class="carousel-desc">Catering, pečení dortů, barista, degustační akce a další služby.</p>
+                                <p class="carousel-tags">Catering • Pečení dortů • Barista • Degustace</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/udalosti-zabava.png" alt="Události &amp; Zábava" data-category="Události &amp; Zábava" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Události & Zábava</h3>
+                                <p class="carousel-desc">Fotograf, DJ, moderátor, svatby, event manager a další.</p>
+                                <p class="carousel-tags">Fotograf • DJ / moderátor • Svatby • Event management</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/osobni-sluzby-drobne-prace.png" alt="Osobní služby &amp; drobné práce" data-category="Osobní služby &amp; drobné práce" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Osobní služby & drobné práce</h3>
+                                <p class="carousel-desc">Čištění bot, praní/žehlení, osobní asistent, nákupy, malé opravy.</p>
+                                <p class="carousel-tags">Čištění bot • Praní / žehlení • Osobní asistent • Malé opravy</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card thumb-small">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/Auto-moto-doprava.png" alt="Auto - moto doprava" data-category="Auto - moto doprava" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Auto - moto doprava</h3>
+                                <p class="carousel-desc">Taxi, přeprava nákladu, autopůjčovna, kurýr a další.</p>
+                                <p class="carousel-tags">Taxi • Přeprava nákladu • Kurýr • Autopůjčovna</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/hobby-kreativni-sluzby.png" alt="Hobby &amp; kreativní služby" data-category="Hobby &amp; kreativní služby" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Hobby & kreativní služby</h3>
+                                <p class="carousel-desc">Fotografování, tisk fotek, dekorace, malování na zakázku apod.</p>
+                                <p class="carousel-tags">Fotografování • Tisk fotek • Dekorace • Malování na zakázku</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/pravo-finance-administrativa.png" alt="Právo &amp; finance &amp; administrativa" data-category="Právo &amp; finance &amp; administrativa" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Právo & finance & administrativa</h3>
+                                <p class="carousel-desc">Účetní služby, daňové a finanční poradenství, právník, notář.</p>
+                                <p class="carousel-tags">Účetnictví • Daňové poradenství • Finanční poradenství • Právní služby</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/domaci-zvirata.png" alt="Domácí zvířata" data-category="Domácí zvířata" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Domácí zvířata</h3>
+                                <p class="carousel-desc">Venčení psů, péče o kočky, psí salon, veterinární služby, výcvik.</p>
+                                <p class="carousel-tags">Venčení psů • Psí salon • Veterinární služby • Výcvik</p>
+                            </div>
+                        </li>
+                        <li class="carousel-slide">
+                            <div class="carousel-card">
+                                <div class="carousel-thumb">
+                                    <img loading="lazy" decoding="async" src="fotky/specializovane-sluzby.png" alt="Specializované služby na přání" data-category="Specializované služby na přání" onerror="categoryImgFallback(this)">
+                                </div>
+                                <h3 class="carousel-title">Specializované služby na přání</h3>
+                                <p class="carousel-desc">Služby na míru, pronájem vybavení, speciální objednávky a individuální poptávky.</p>
+                                <p class="carousel-tags">Služby na míru • Pronájem vybavení • Speciální objednávky • Individuální poptávky</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <button class="carousel-arrow next" aria-label="Další kategorie">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Promo Section: Inzerujte chytře -->
+    <section id="promo" class="promo-section">
+        <div class="container">
+            <div class="promo-card">
+                <div class="promo-container">
+                    <img src="fotky/mince.png" alt="Chytrá inzerce" class="promo-illustration" onerror="this.onerror=null; this.src='fotky/mince.jpg'">
+                    <div class="promo-text">
+                        <h2 class="promo-title"><span class="promo-accent">Inzerujte chytře.</span> Viditelně. Férově.</h2>
+						<p class="promo-subtitle">Začněte zdarma a získejte skutečný dosah – bez složitostí.</p>
+						<!-- Klíčové benefity (zdroj dat pro rotaci; skryto a čteno skriptem) -->
+						<ul class="promo-benefits" aria-hidden="true">
+							<li>
+								<i class="fas fa-bullseye"></i>
+								Relevantní publikum v celé ČR/SR
+							</li>
+							<li>
+								<i class="fas fa-rocket"></i>
+								Zvýraznění a cirkulace pro lepší viditelnost
+							</li>
+							<li>
+								<i class="fas fa-shield-alt"></i>
+								Férové ceny, jasná pravidla
+							</li>
+						</ul>
+						<div class="promo-cta">
+                            <a class="btn-cta-primary" href="#addServiceModal" onclick="document.getElementById('addServiceModal').style.display='block'">
+                                <i class="fas fa-plus"></i>
+                                Vložit inzerát zdarma
+                            </a>
+							<a class="btn-cta-secondary fade-like-pill" id="ctaAlternate" href="packages.html">
+								<i class="fas fa-bolt"></i>
+								Zobrazit balíčky
+							</a>
+							<!-- Rotující benefit vedle tlačítek -->
+							<div class="promo-rotate-inline" id="promoRotateInline" aria-live="polite">
+								<i class="fas fa-bullseye" aria-hidden="true"></i>
+								<span>Relevantní publikum v celé ČR/SR</span>
+							</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- --- Úkol 1 dokončen --- -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Ads Grid Section -->
+    <section class="ads-section">
+        <div class="container">
+            <!-- data-limit: omezí počet dlaždic (např. na homepage 6), data-show-actions: zda zobrazit spodní ikonky -->
+            <div class="ads-grid" id="servicesGrid" data-limit="16" data-show-actions="true"></div>
+        </div>
+    </section>
+
+    
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <img src="fotky/bulldogo-overlay.png" alt="Bulldogo overlay" class="about-overlay-dog" />
+                <div class="about-text">
+                    <h2 class="services-title">
+                        <span class="title-text">Co je bulldogo? Platforma, kde začíná spolupráce.</span>
+                        <span class="title-accent"></span>
+                    </h2>
+                    <p>
+                        Vytvořili jsme tento web s jednoduchou myšlenkou – hledání a nabízení služeb nemusí být složité.
+                        Chceme, aby náš portál byl místem, kam lidé rádi přijdou, když potřebují pomoci, a kde poskytovatelé služeb snadno osloví nové zákazníky.
+                    </p>
+                    <p>
+                        Naším cílem je zjednodušit cestu mezi tím, kdo hledá, a tím, kdo nabízí.
+                    </p>
+                    <p>
+                        U nás platí jednoduché pravidlo:<br>
+                        Nabízím službu – inzeruji.<br>
+                        Hledám službu – najdu rychle a pohodlně.
+                    </p>
+                    <p>
+                        Moderní design, přehlednost a snadná komunikace jsou pro nás samozřejmostí.
+                        Portál jsem založil z osobní vášně pro jednoduchost a férové služby – aby každý návštěvník měl pocit, že je tu vítán a všechno najde snadno, na jednom místě.
+                    </p>
+                    <p>
+                        S pozdravem,<br>
+                        Dominik Hašek<br>
+                        <img src="fotky/podpis.PNG" alt="Podpis Dominik Hašek" style="width: 35% !important; max-width: 105px !important; height: auto !important; display: block !important; margin: 10px auto 0 !important;">
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <!-- Circulation (Cirkulace inzerátu) Section -->
+    <section class="circulation">
+        <div class="container">
+            <div class="circulation-content">
+                <div class="circulation-text">
+                    <h2 class="services-title">
+                        <span class="title-text">Cirkulace inzerátu</span>
+                        <span class="title-accent"></span>
+                    </h2>
+                    <div style="height: 1cm;"></div>
+                    <p>
+                        Inzeráty na platformě chytře cirkulují a zůstávají viditelné. Díky této funkci
+                        se váš inzerát pravidelně vrací na přední pozice a nikdy nezapadne.
+                    </p>
+                    <p>
+                        Zvolíte‑li frekvenci topování 3× měsíčně, objeví se každých 10 dní mezi nejnovějšími.
+                        Cirkulace zvyšuje pravděpodobnost úspěšného propojení.
+                    </p>
+                </div>
+                <div class="circulation-visual">
+                    <div class="circulation-ring">
+                        <!-- Rotating image for arrows -->
+                        <img class="circulation-svg" src="fotky/sipky.png" alt="Cirkulující šipky" aria-hidden="true" />
+
+                        <!-- Tilted card with category photo -->
+                        <div class="circulation-card">
+                            <img src="fotky/domaci-zvirata.png" alt="Domácí zvířata">
+                            <div class="circulation-card-caption">Domácí zvířata</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA: Klik – a jste propojeni! -->
+    <section class="cta-connect">
+        <div class="container">
+            <div class="cta-card">
+                <h2 class="services-title">
+                    <span class="title-text">A tohle jsme my. Přidáš se?</span>
+                    <span class="title-accent"></span>
+                </h2>
+                <div class="cta-actions">
+                    <a href="#home" class="btn-cta-primary">
+                        <i class="fas fa-search"></i>
+                        Vyhledat inzerát
+                    </a>
+                    <a href="#addServiceModal" class="btn-cta-secondary" onclick="document.getElementById('addServiceModal').style.display='block'">
+                        <i class="fas fa-plus"></i>
+                        Přidat svůj inzerát
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Bulldogo.cz</h3>
+                    <p>Profesionální služby pro každého. Spojujeme zákazníky s kvalifikovanými profesionály.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Rychlé odkazy</h3>
+                    <ul>
+                        <li><a href="#home">Domů</a></li>
+                        <li><a href="#services">Služby</a></li>
+                        <li><a href="#about">O nás</a></li>
+                        <li><a href="#contact">Kontakt</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Důležité odkazy</h3>
+                    <ul>
+                        <li><a href="#" onclick="return false;" style="cursor: default; text-decoration: none; color: inherit;">Cookies</a></li>
+                        <li><a href="#" onclick="return false;" style="cursor: default; text-decoration: none; color: inherit;">GDPR</a></li>
+                        <li><a href="soubory/podminky.pdf" target="_blank">VOP</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section" id="contact">
+                    <h3>Kontakt</h3>
+                    <p><i class="fas fa-phone"></i> +420 123 456 789</p>
+                    <p><i class="fas fa-envelope"></i> support@bulldogo.cz</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Bulldogo.cz. Všechna práva vyhrazena.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Přihlášení</h2>
+                <span class="close" onclick="closeAuthModal()">&times;</span>
+            </div>
+            <form id="authForm" class="auth-form">
+                <!-- Výběr typu registrace (pouze při registraci) -->
+                <div class="form-group registration-type" style="display: none;">
+                    <label class="form-label">Typ registrace:</label>
+                    <div class="registration-type-buttons">
+                        <button type="button" class="registration-type-btn active" data-type="person">
+                            <i class="fas fa-user"></i> Fyzická osoba
+                        </button>
+                        <button type="button" class="registration-type-btn" data-type="company">
+                            <i class="fas fa-building"></i> Firma
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulář pro fyzickou osobu -->
+                <div class="person-form" style="display: none;">
+                    <div class="form-group">
+                        <input type="text" id="firstName" name="firstName" placeholder="Jméno" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="lastName" name="lastName" placeholder="Příjmení" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="phone" name="phone" placeholder="Telefon" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="birthDate" name="birthDate" placeholder="Datum narození" required>
+                    </div>
+                </div>
+
+                <!-- Formulář pro firmu -->
+                <div class="company-form" style="display: none;">
+                    <div class="form-group">
+                        <input type="text" id="companyName" name="companyName" placeholder="Obchodní název">
+                    </div>
+                    <div class="form-group">
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <input type="text" id="ico" name="ico" placeholder="IČ" style="flex:1;">
+                            <button type="button" id="btnVerifyICO" class="btn">Ověřit</button>
+                        </div>
+                        <div id="icoStatus" style="font-size:13px; margin-top:4px; color:#6b7280;"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="dic" name="dic" placeholder="DIČ (volitelné)" data-optional="true">
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="companyPhone" name="companyPhone" placeholder="Telefon">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="companyAddress" name="companyAddress" placeholder="Sídlo firmy">
+                    </div>
+                </div>
+
+                <!-- Společná pole -->
+                <div class="form-group">
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" name="password" placeholder="Heslo" required>
+                </div>
+                <!-- Krok 1: tlačítko pro odeslání SMS a přechod na ověření -->
+                <button type="button" id="btnSendPhoneCode" class="btn btn-primary auth-submit-btn" style="display:none;">Pokračovat na ověření telefonního čísla</button>
+                <!-- Výchozí tlačítko pro přihlášení (zůstává pro login) -->
+                <button type="submit" class="btn btn-primary auth-submit-btn" id="btnAuthSubmit">Přihlásit se</button>
+
+                <!-- Krok 2: ověření kódu z SMS (zobrazuje se jen při registraci po odeslání kódu) -->
+                <div id="phoneStep2" style="display:none; margin-top:8px;">
+                    <div class="form-group">
+                        <input type="text" id="smsCode" inputmode="numeric" placeholder="Kód z SMS">
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" id="btnVerifyPhoneCode" class="btn btn-primary">Ověřit kód a dokončit registraci</button>
+                        <button type="button" id="btnPhoneBack" class="btn">Zpět</button>
+                    </div>
+                </div>
+
+                <!-- Neviditelná reCAPTCHA pro ověřování telefonu -->
+                <div id="recaptcha-container" style="height:0; overflow:hidden;"></div>
+            </form>
+            <div class="auth-switch">
+                <button type="button" class="auth-switch-btn" data-type="register">Nemáte účet? Zaregistrujte se</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Service Modal -->
+    <div id="addServiceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Přidat službu</h2>
+                <span class="close" onclick="closeAddServiceModal()">&times;</span>
+            </div>
+            <form id="addServiceForm" class="service-form">
+                <div class="form-group">
+                    <input type="text" id="serviceTitle" name="title" placeholder="Název služby" required>
+                </div>
+                <div class="form-group">
+                    <select id="serviceCategory" name="category" required>
+                        <option value="">Vyberte kategorii</option>
+                        <option value="home_craftsmen">Domácnost & Řemeslníci</option>
+                        <option value="auto_moto">Auto & Moto</option>
+                        <option value="garden_exterior">Zahrada & Exteriér</option>
+                        <option value="education_tutoring">Vzdělávání & Doučování</option>
+                        <option value="it_technology">IT & technologie</option>
+                        <option value="health_personal_care">Zdraví a Osobní péče</option>
+                        <option value="gastronomy_catering">Gastronomie & Catering</option>
+                        <option value="events_entertainment">Události & Zábava</option>
+                        <option value="personal_small_jobs">Osobní služby & drobné práce</option>
+                        <option value="auto_moto_transport">Auto - moto doprava</option>
+                        <option value="hobby_creative">Hobby & kreativní služby</option>
+                        <option value="law_finance_admin">Právo & finance & administrativa</option>
+                        <option value="pets">Domácí zvířata</option>
+                        <option value="specialized_custom">Specializované služby / na přání</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <textarea id="serviceDescription" name="description" placeholder="Popis služby" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cena</label>
+                    <div class="price-options">
+                        <label class="price-option">
+                            <input type="radio" name="priceType" value="fixed" onchange="togglePriceInputs()">
+                            <span class="option-text">Fixní cena</span>
+                        </label>
+                        <label class="price-option">
+                            <input type="radio" name="priceType" value="range" onchange="togglePriceInputs()">
+                            <span class="option-text">Rozmezí</span>
+                        </label>
+                        <label class="price-option">
+                            <input type="radio" name="priceType" value="negotiable" onchange="togglePriceInputs()">
+                            <span class="option-text">Dohodou</span>
+                        </label>
+                    </div>
+                    <div id="priceInputs" class="price-inputs" style="display: none;">
+                        <div class="price-unit-selection" style="display: none;">
+                            <label class="form-label">Jednotka ceny</label>
+                            <div class="unit-options">
+                                <label class="unit-option">
+                                    <input type="radio" name="priceUnit" value="hour" checked>
+                                    <span class="option-text">Za hodinu</span>
+                                </label>
+                                <label class="unit-option">
+                                    <input type="radio" name="priceUnit" value="work">
+                                    <span class="option-text">Za odvedenou práci</span>
+                                </label>
+                            </div>
+                        </div>
+                        <input type="text" id="servicePrice" name="price" placeholder="Cena (např. 500 Kč/hod)" style="display: none;">
+                        <input type="text" id="servicePriceFrom" name="priceFrom" placeholder="Od (např. 300 Kč/hod)" style="display: none;">
+                        <input type="text" id="servicePriceTo" name="priceTo" placeholder="Do (např. 800 Kč/hod)" style="display: none;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <select id="serviceLocation" name="location" required>
+                        <option value="">Vyberte kraj (ČR/SR)</option>
+                        <optgroup label="Česká republika">
+                            <option value="Praha">Hlavní město Praha</option>
+                            <option value="Stredocesky">Středočeský kraj</option>
+                            <option value="Jihocesky">Jihočeský kraj</option>
+                            <option value="Plzensky">Plzeňský kraj</option>
+                            <option value="Karlovarsky">Karlovarský kraj</option>
+                            <option value="Ustecky">Ústecký kraj</option>
+                            <option value="Liberecky">Liberecký kraj</option>
+                            <option value="Kralovehradecky">Královéhradecký kraj</option>
+                            <option value="Pardubicky">Pardubický kraj</option>
+                            <option value="Vysocina">Kraj Vysočina</option>
+                            <option value="Jihomoravsky">Jihomoravský kraj</option>
+                            <option value="Olomoucky">Olomoucký kraj</option>
+                            <option value="Zlinsky">Zlínský kraj</option>
+                            <option value="Moravskoslezsky">Moravskoslezský kraj</option>
+                        </optgroup>
+                        <optgroup label="Slovenská republika">
+                            <option value="Bratislavsky">Bratislavský kraj</option>
+                            <option value="Trnavsky">Trnavský kraj</option>
+                            <option value="Trenciansky">Trenčianský kraj</option>
+                            <option value="Nitriansky">Nitriansky kraj</option>
+                            <option value="Zilinsky">Žilinský kraj</option>
+                            <option value="Banskobystricky">Banskobystrický kraj</option>
+                            <option value="Presovsky">Prešovský kraj</option>
+                            <option value="Kosicky">Košický kraj</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <!-- Sekce pro nahrávání obrázků -->
+                <div class="form-group">
+                    <label for="previewImage" class="form-label">
+                        <i class="fas fa-image"></i> Náhledový obrázek <span class="required">*</span>
+                    </label>
+                    <input type="file" id="previewImage" name="previewImage" accept="image/*" required>
+                    <div class="image-preview" id="previewImagePreview"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="additionalImages" class="form-label">
+                        <i class="fas fa-images"></i> Další fotky (volitelné, max 10)
+                    </label>
+                    <input type="file" id="additionalImages" name="additionalImages" accept="image/*" multiple>
+                    <div class="images-grid" id="additionalImagesPreview"></div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Přidat službu</button>
+            </form>
+        </div>
+    </div>
+
+    </div> <!-- End main-content wrapper -->
+
+    <script src="script.js" defer></script>
+    <script src="services.js" defer></script>
+    <script src="auth.js" defer></script>
+    <script src="cities.js" defer></script>
+    <script src="aurora.js" defer></script>
+    <script src="click-spark.js" defer></script>
+    <script src="electric-border.js" defer></script>
+</body>
+</html>

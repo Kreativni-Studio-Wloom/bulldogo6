@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Hlavní Stránky - Bulldogo.cz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+        
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        
+        console.log('🔥 Firebase inicializován pro test hlavní stránky');
+    </script>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <!-- Logo Section -->
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">B</div>
+                <span class="logo-text">
+                    <span class="logo-bull">ULL</span>
+                    <span class="logo-dogo">DOGO</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Auth Buttons Section -->
+        <div class="auth-section">
+            <button class="btn-login" onclick="showAuthModal('login')">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Přihlášení</span>
+            </button>
+            <button class="btn-register" onclick="showAuthModal('register')">
+                <i class="fas fa-user-plus"></i>
+                <span>Registrace</span>
+            </button>
+            <button class="btn-profile" onclick="window.location.href='profile.html'">
+                <i class="fas fa-user-circle"></i>
+                <span>Profil</span>
+            </button>
+        </div>
+
+        <!-- User Profile Section -->
+        <div class="user-profile-section" style="display: none;">
+            <div class="user-profile-card" onclick="toggleUserDropdown()">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <div class="user-email">lo3esports@email.cz</div>
+                    <div class="user-role">Host</div>
+                </div>
+                <i class="fas fa-chevron-down dropdown-arrow"></i>
+            </div>
+            <div class="user-dropdown-menu">
+                <div class="user-dropdown-header">
+                    <i class="fas fa-user-circle"></i>
+                    <div class="user-info-text">
+                        <div class="user-display-name"></div>
+                        <div class="user-email"></div>
+                    </div>
+                </div>
+                <div class="user-dropdown-divider"></div>
+                <div class="user-balance">
+                    <i class="fas fa-wallet"></i>
+                    <span class="balance-amount">0 Kč</span>
+                </div>
+                <div class="user-dropdown-divider"></div>
+                <a href="my-ads.html" class="user-dropdown-item">
+                    <i class="fas fa-list"></i>
+                    Mé inzeráty
+                </a>
+                <button class="user-dropdown-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Odhlásit se
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div style="padding: 2rem;">
+            <h1>Test Hlavní Stránky</h1>
+            
+            <div id="debug-info" style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+                <h3>Debug informace:</h3>
+                <div id="debug-content">Načítám...</div>
+            </div>
+            
+            <button onclick="testLogin()" style="padding: 1rem 2rem; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 1rem 0;">
+                Test Přihlášení
+            </button>
+            
+            <button onclick="testLogout()" style="padding: 1rem 2rem; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 1rem 0;">
+                Test Odhlášení
+            </button>
+            
+            <button onclick="testUpdateUI()" style="padding: 1rem 2rem; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 1rem 0;">
+                Test updateUI Funkce
+            </button>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Přihlášení</h2>
+                <span class="close" onclick="closeAuthModal()">&times;</span>
+            </div>
+            <form id="authForm" class="auth-form">
+                <div class="form-group">
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" name="password" placeholder="Heslo" required>
+                </div>
+                <button type="submit" class="btn btn-primary auth-submit-btn">Přihlásit se</button>
+            </form>
+            <div class="auth-switch">
+                <button type="button" class="auth-switch-btn" data-type="register">Nemáte účet? Zaregistrujte se</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    
+    <script>
+        function updateDebugInfo() {
+            const debugContent = document.getElementById('debug-content');
+            const authSection = document.querySelector('.auth-section');
+            const userProfileSection = document.querySelector('.user-profile-section');
+            
+            debugContent.innerHTML = `
+                <p><strong>Firebase Auth:</strong> ${window.firebaseAuth ? '✅ Načten' : '❌ Nenalezen'}</p>
+                <p><strong>Current User:</strong> ${window.firebaseAuth?.currentUser ? `Přihlášen: ${window.firebaseAuth.currentUser.email}` : 'Odhlášen'}</p>
+                <p><strong>Auth Section:</strong> ${authSection ? '✅ Nalezen' : '❌ Nenalezen'} (display: ${authSection ? authSection.style.display : 'N/A'})</p>
+                <p><strong>User Profile Section:</strong> ${userProfileSection ? '✅ Nalezen' : '❌ Nenalezen'} (display: ${userProfileSection ? userProfileSection.style.display : 'N/A'})</p>
+                <p><strong>updateUI funkce:</strong> ${typeof window.updateUI}</p>
+                <p><strong>Stránka:</strong> ${window.location.pathname}</p>
+            `;
+        }
+        
+        async function testLogin() {
+            try {
+                const email = 'test@gmail.com';
+                const password = '123123';
+                
+                console.log('🧪 Test přihlášení na hlavní stránce:', email);
+                if (typeof window.login === 'function') {
+                    await window.login(email, password);
+                } else {
+                    alert('Login funkce není dostupná!');
+                }
+            } catch (error) {
+                console.error('Chyba při testu přihlášení:', error);
+                alert('Chyba při přihlášení: ' + error.message);
+            }
+        }
+        
+        async function testLogout() {
+            try {
+                console.log('🧪 Test odhlášení na hlavní stránce');
+                if (typeof window.logout === 'function') {
+                    await window.logout();
+                } else {
+                    alert('Logout funkce není dostupná!');
+                }
+            } catch (error) {
+                console.error('Chyba při testu odhlášení:', error);
+                alert('Chyba při odhlášení: ' + error.message);
+            }
+        }
+        
+        function testUpdateUI() {
+            console.log('🧪 Test updateUI funkce');
+            if (typeof window.updateUI === 'function') {
+                const currentUser = window.firebaseAuth?.currentUser;
+                console.log('🔧 Volám updateUI s uživatelem:', currentUser ? currentUser.email : 'null');
+                window.updateUI(currentUser);
+            } else {
+                alert('updateUI funkce není dostupná!');
+            }
+        }
+        
+        // Aktualizovat debug info každou sekundu
+        setInterval(updateDebugInfo, 1000);
+        
+        // Inicializace
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Test hlavní stránky načten');
+            updateDebugInfo();
+        });
+    </script>
+</body>
+</html>

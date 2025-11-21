@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Ad Actions Layout</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="electric-border.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div style="padding: 50px; background: #f5f5f5;">
+        <h1>Test Ad Actions Layout</h1>
+        
+        <!-- Test 1: Basic ad card -->
+        <div style="margin: 20px 0;">
+            <h3>Test 1: Basic Ad Card (Hover to see actions)</h3>
+            <article class="ad-card" style="position: relative; width: 300px; height: 200px; background: white; border-radius: 10px; padding: 20px; border: 1px solid #ddd;">
+                <div class="ad-body">
+                    <h3>Test Inzerát</h3>
+                    <p>Popis inzerátu - najedte myší pro zobrazení akcí</p>
+                </div>
+                <div class="ad-actions">
+                    <button class="btn-contact" title="Kontaktovat">
+                        <i class="fas fa-comment"></i>
+                    </button>
+                    <button class="btn-profile" title="Profil">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button class="btn-info" title="Info">
+                        <i class="fas fa-info"></i>
+                    </button>
+                </div>
+            </article>
+        </div>
+
+        <!-- Test 2: My ads style -->
+        <div style="margin: 20px 0;">
+            <h3>Test 2: My Ads Style (Hover to see actions)</h3>
+            <article class="ad-card" style="position: relative; width: 300px; height: 200px; background: white; border-radius: 10px; padding: 20px; border: 1px solid #ddd;">
+                <div class="ad-body">
+                    <h3>Můj Inzerát</h3>
+                    <p>Popis mého inzerátu - najedte myší pro zobrazení akcí</p>
+                </div>
+                <div class="ad-actions">
+                    <button class="btn-edit" title="Upravit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-delete" title="Smazat">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="btn-pause" title="Pozastavit">
+                        <i class="fas fa-pause"></i>
+                    </button>
+                </div>
+            </article>
+        </div>
+
+        <!-- Test 3: Direct CSS test -->
+        <div style="margin: 20px 0;">
+            <h3>Test 3: Direct CSS Test</h3>
+            <div style="position: relative; width: 300px; height: 200px; background: white; border-radius: 10px; padding: 20px;">
+                <div style="position: absolute; top: 16px; right: 16px; display: flex; flex-direction: row; align-items: center; gap: 8px; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 10px;">
+                    <button style="width: 40px; height: 40px; border: none; border-radius: 8px; background: #007bff; color: white; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button style="width: 40px; height: 40px; border: none; border-radius: 8px; background: #dc3545; color: white; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button style="width: 40px; height: 40px; border: none; border-radius: 8px; background: #ffc107; color: white; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-pause"></i>
+                    </button>
+                </div>
+                <h3>Direct CSS Test</h3>
+                <p>Test s přímými CSS styly</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

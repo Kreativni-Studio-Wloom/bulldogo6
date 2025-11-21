@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Nastavení - Bulldogo.cz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
+            authDomain: "inzerio-inzerce.firebaseapp.com",
+            projectId: "inzerio-inzerce",
+            storageBucket: "inzerio-inzerce.firebasestorage.app",
+            messagingSenderId: "262039290071",
+            appId: "1:262039290071:web:30af0eb1c65cd75e307092",
+            measurementId: "G-7VD0ZE08M3"
+        };
+        
+        // Inicializace Firebase
+        const app = initializeApp(firebaseConfig);
+        const firebaseAuth = getAuth(app);
+        const firebaseDb = getFirestore(app);
+        
+        // Export pro globální použití
+        window.firebaseApp = app;
+        window.firebaseAuth = firebaseAuth;
+        window.firebaseDb = firebaseDb;
+    </script>
+</head>
+<body>
+    <div class="container" style="max-width: 800px; margin: 50px auto; padding: 20px;">
+        <h1>🧪 Test Nastavení Profilu</h1>
+        
+        <div class="test-section" style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h2>1. Firebase Připojení</h2>
+            <div id="firebaseStatus">Kontroluji...</div>
+            <button onclick="testFirebaseConnection()">Test Firebase</button>
+        </div>
+
+        <div class="test-section" style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h2>2. Test Ukládání Osobních Informací</h2>
+            <div style="display: grid; gap: 10px; margin: 10px 0;">
+                <input type="text" id="testFirstName" placeholder="Křestní jméno" style="padding: 10px;">
+                <input type="text" id="testLastName" placeholder="Příjmení" style="padding: 10px;">
+                <input type="email" id="testEmail" placeholder="Email" style="padding: 10px;">
+                <input type="tel" id="testPhone" placeholder="Telefon" style="padding: 10px;">
+                <input type="text" id="testCity" placeholder="Město" style="padding: 10px;">
+                <textarea id="testBio" placeholder="O mně" rows="3" style="padding: 10px;"></textarea>
+            </div>
+            <button onclick="testSavePersonal()">Test Uložení</button>
+            <div id="personalResult"></div>
+        </div>
+
+        <div class="test-section" style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h2>3. Test Obchodních Informací</h2>
+            <div style="display: grid; gap: 10px; margin: 10px 0;">
+                <input type="text" id="testBusinessName" placeholder="Název firmy" style="padding: 10px;">
+                <input type="text" id="testBusinessIco" placeholder="IČ" style="padding: 10px;">
+                <input type="text" id="testBusinessDic" placeholder="DIČ" style="padding: 10px;">
+                <textarea id="testBusinessAddress" placeholder="Adresa firmy" rows="2" style="padding: 10px;"></textarea>
+            </div>
+            <button onclick="testSaveBusiness()">Test Uložení Obchodních Informací</button>
+            <div id="businessResult"></div>
+        </div>
+
+        <div class="test-section" style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h2>4. Test Načtení Dat</h2>
+            <button onclick="testLoadData()">Načíst Data</button>
+            <div id="loadResult"></div>
+        </div>
+
+        <div class="test-section" style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h2>4. Test Real-time Listener</h2>
+            <button onclick="testRealtimeListener()">Spustit Listener</button>
+            <button onclick="stopRealtimeListener()">Zastavit Listener</button>
+            <div id="realtimeResult"></div>
+        </div>
+
+        <div class="test-section" style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h2>5. Test Změny Hesla</h2>
+            <div style="display: grid; gap: 10px; margin: 10px 0;">
+                <input type="password" id="testCurrentPassword" placeholder="Současné heslo" style="padding: 10px;">
+                <input type="password" id="testNewPassword" placeholder="Nové heslo" style="padding: 10px;">
+                <input type="password" id="testConfirmPassword" placeholder="Potvrdit heslo" style="padding: 10px;">
+            </div>
+            <button onclick="testChangePassword()">Test Změny Hesla</button>
+            <div id="passwordResult"></div>
+        </div>
+
+        <div class="test-section" style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h2>6. Test Prefilled Funkcionality</h2>
+            <p>Testuje, zda se formulář vždy naplní aktuálními daty uživatele:</p>
+            <button onclick="testPrefilledData()">Test Prefilled Data</button>
+            <div id="prefilledResult"></div>
+        </div>
+
+        <div class="test-section" style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h2>7. Přesměrování na Nastavení</h2>
+            <button onclick="window.location.href='profile-settings.html'" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                Otevřít Nastavení
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let realtimeListener = null;
+
+        // Test Firebase připojení
+        async function testFirebaseConnection() {
+            const statusDiv = document.getElementById('firebaseStatus');
+            try {
+                if (window.firebaseAuth && window.firebaseDb) {
+                    const currentUser = window.firebaseAuth.currentUser;
+                    statusDiv.innerHTML = `
+                        <div style="color: green;">
+                            ✅ Firebase připojen<br>
+                            Auth: ${!!window.firebaseAuth}<br>
+                            DB: ${!!window.firebaseDb}<br>
+                            Uživatel: ${currentUser ? currentUser.email : 'Není přihlášen'}
+                        </div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = '<div style="color: red;">❌ Firebase není připojen</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div style="color: red;">❌ Chyba: ${error.message}</div>`;
+            }
+        }
+
+        // Test ukládání osobních informací
+        async function testSavePersonal() {
+            const resultDiv = document.getElementById('personalResult');
+            try {
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) {
+                    resultDiv.innerHTML = '<div style="color: red;">❌ Musíte být přihlášeni</div>';
+                    return;
+                }
+
+                const firstName = document.getElementById('testFirstName').value;
+                const lastName = document.getElementById('testLastName').value;
+
+                const personalData = {
+                    firstName: firstName,
+                    lastName: lastName,
+                    name: `${firstName} ${lastName}`.trim(),
+                    email: document.getElementById('testEmail').value,
+                    phone: document.getElementById('testPhone').value,
+                    city: document.getElementById('testCity').value,
+                    bio: document.getElementById('testBio').value,
+                    updatedAt: new Date()
+                };
+
+                const { setDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                
+                await setDoc(profileRef, personalData, { merge: true });
+
+                resultDiv.innerHTML = `
+                    <div style="color: green;">
+                        ✅ Data úspěšně uložena<br>
+                        <pre>${JSON.stringify(personalData, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">❌ Chyba: ${error.message}</div>`;
+            }
+        }
+
+        // Test ukládání obchodních informací
+        async function testSaveBusiness() {
+            const resultDiv = document.getElementById('businessResult');
+            try {
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) {
+                    resultDiv.innerHTML = '<div style="color: red;">❌ Musíte být přihlášeni</div>';
+                    return;
+                }
+
+                const businessData = {
+                    businessName: document.getElementById('testBusinessName').value,
+                    businessIco: document.getElementById('testBusinessIco').value,
+                    businessDic: document.getElementById('testBusinessDic').value,
+                    businessAddress: document.getElementById('testBusinessAddress').value,
+                    updatedAt: new Date()
+                };
+
+                const { setDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                
+                await setDoc(profileRef, businessData, { merge: true });
+
+                resultDiv.innerHTML = `
+                    <div style="color: green;">
+                        ✅ Obchodní informace úspěšně uloženy<br>
+                        <pre>${JSON.stringify(businessData, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">❌ Chyba: ${error.message}</div>`;
+            }
+        }
+
+        // Test načtení dat
+        async function testLoadData() {
+            const resultDiv = document.getElementById('loadResult');
+            try {
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) {
+                    resultDiv.innerHTML = '<div style="color: red;">❌ Musíte být přihlášeni</div>';
+                    return;
+                }
+
+                const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                const profileSnap = await getDoc(profileRef);
+                
+                if (profileSnap.exists()) {
+                    const data = profileSnap.data();
+                    resultDiv.innerHTML = `
+                        <div style="color: green;">
+                            ✅ Data načtena<br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                    
+                    // Naplnit formulář
+                    document.getElementById('testFirstName').value = data.firstName || '';
+                    document.getElementById('testLastName').value = data.lastName || '';
+                    document.getElementById('testEmail').value = data.email || '';
+                    document.getElementById('testPhone').value = data.phone || '';
+                    document.getElementById('testCity').value = data.city || '';
+                    document.getElementById('testBio').value = data.bio || '';
+                    document.getElementById('testBusinessName').value = data.businessName || '';
+                    document.getElementById('testBusinessIco').value = data.businessIco || '';
+                    document.getElementById('testBusinessDic').value = data.businessDic || '';
+                    document.getElementById('testBusinessAddress').value = data.businessAddress || '';
+                } else {
+                    resultDiv.innerHTML = '<div style="color: orange;">⚠️ Žádná data nenalezena</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">❌ Chyba: ${error.message}</div>`;
+            }
+        }
+
+        // Test real-time listener
+        async function testRealtimeListener() {
+            const resultDiv = document.getElementById('realtimeResult');
+            try {
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) {
+                    resultDiv.innerHTML = '<div style="color: red;">❌ Musíte být přihlášeni</div>';
+                    return;
+                }
+
+                const { onSnapshot, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                
+                realtimeListener = onSnapshot(profileRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.data();
+                        resultDiv.innerHTML = `
+                            <div style="color: blue;">
+                                🔄 Real-time aktualizace:<br>
+                                <pre>${JSON.stringify(data, null, 2)}</pre>
+                            </div>
+                        `;
+                    }
+                }, (error) => {
+                    resultDiv.innerHTML = `<div style="color: red;">❌ Listener chyba: ${error.message}</div>`;
+                });
+
+                resultDiv.innerHTML = '<div style="color: green;">✅ Real-time listener spuštěn</div>';
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">❌ Chyba: ${error.message}</div>`;
+            }
+        }
+
+        // Zastavit real-time listener
+        function stopRealtimeListener() {
+            if (realtimeListener) {
+                realtimeListener();
+                realtimeListener = null;
+                document.getElementById('realtimeResult').innerHTML = '<div style="color: orange;">⚠️ Listener zastaven</div>';
+            }
+        }
+
+        // Test změny hesla
+        async function testChangePassword() {
+            const resultDiv = document.getElementById('passwordResult');
+            try {
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) {
+                    resultDiv.innerHTML = '<div style="color: red;">❌ Musíte být přihlášeni</div>';
+                    return;
+                }
+
+                const currentPassword = document.getElementById('testCurrentPassword').value;
+                const newPassword = document.getElementById('testNewPassword').value;
+                const confirmPassword = document.getElementById('testConfirmPassword').value;
+
+                if (!currentPassword || !newPassword || !confirmPassword) {
+                    resultDiv.innerHTML = '<div style="color: red;">❌ Vyplňte všechna pole</div>';
+                    return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    resultDiv.innerHTML = '<div style="color: red;">❌ Nová hesla se neshodují</div>';
+                    return;
+                }
+
+                if (newPassword.length < 6) {
+                    resultDiv.innerHTML = '<div style="color: red;">❌ Nové heslo musí mít alespoň 6 znaků</div>';
+                    return;
+                }
+
+                // Re-autentifikace
+                const { reauthenticateWithCredential, EmailAuthProvider } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+                const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+                await reauthenticateWithCredential(currentUser, credential);
+
+                // Změna hesla
+                const { updatePassword } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+                await updatePassword(currentUser, newPassword);
+
+                // Vyčistit formulář
+                document.getElementById('testCurrentPassword').value = '';
+                document.getElementById('testNewPassword').value = '';
+                document.getElementById('testConfirmPassword').value = '';
+
+                resultDiv.innerHTML = '<div style="color: green;">✅ Heslo úspěšně změněno</div>';
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">❌ Chyba: ${error.message}</div>`;
+            }
+        }
+
+        // Test prefilled funkcionality
+        async function testPrefilledData() {
+            const resultDiv = document.getElementById('prefilledResult');
+            try {
+                const currentUser = window.firebaseAuth.currentUser;
+                if (!currentUser) {
+                    resultDiv.innerHTML = '<div style="color: red;">❌ Musíte být přihlášeni</div>';
+                    return;
+                }
+
+                const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const profileRef = doc(window.firebaseDb, 'users', currentUser.uid, 'profile', 'profile');
+                const profileSnap = await getDoc(profileRef);
+                
+                if (profileSnap.exists()) {
+                    const data = profileSnap.data();
+                    resultDiv.innerHTML = `
+                        <div style="color: green;">
+                            ✅ Prefilled data nalezena:<br>
+                            <strong>Křestní jméno:</strong> ${data.firstName || 'Není vyplněno'}<br>
+                            <strong>Příjmení:</strong> ${data.lastName || 'Není vyplněno'}<br>
+                            <strong>Celé jméno:</strong> ${data.name || 'Není vyplněno'}<br>
+                            <strong>Email:</strong> ${data.email || 'Není vyplněno'}<br>
+                            <strong>Telefon:</strong> ${data.phone || 'Není vyplněno'}<br>
+                            <strong>Město:</strong> ${data.city || 'Není vyplněno'}<br>
+                            <strong>Bio:</strong> ${data.bio || 'Není vyplněno'}<br>
+                            <strong>Firma:</strong> ${data.businessName || 'Není vyplněno'}<br>
+                            <strong>IČ:</strong> ${data.businessIco || 'Není vyplněno'}<br>
+                            <strong>DIČ:</strong> ${data.businessDic || 'Není vyplněno'}<br>
+                            <br>
+                            <em>Tyto hodnoty se automaticky naplní do formuláře při otevření stránky nastavení.</em>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="color: orange;">
+                            ⚠️ Žádný profil nenalezen - bude vytvořen základní profil s aktuálními daty uživatele:<br>
+                            <strong>Email:</strong> ${currentUser.email}<br>
+                            <strong>Jméno:</strong> ${currentUser.displayName || currentUser.email.split('@')[0]}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div style="color: red;">❌ Chyba: ${error.message}</div>`;
+            }
+        }
+
+        // Inicializace
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Test stránka načtena');
+            testFirebaseConnection();
+        });
+    </script>
+</body>
+</html>

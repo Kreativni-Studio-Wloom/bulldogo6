@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spravovat balíček - Bulldogo.cz</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="electric-border.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script type="module" src="firebase-init.js"></script>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">B</div>
+                <span class="logo-text"><span class="logo-bull">ULL</span><span class="logo-dogo">DOGO</span></span>
+            </div>
+            <div class="header-buttons"></div>
+        </div>
+        <div class="navigation-section">
+            <h3 class="nav-section-title">NAVIGACE</h3>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-home nav-icon"></i><span class="nav-text">Domů</span></a></li>
+                <li class="nav-item"><a href="services.html" class="nav-link"><i class="fas fa-list-alt nav-icon"></i><span class="nav-text">Služby</span></a></li>
+                <li class="nav-item"><a href="my-ads.html" class="nav-link"><i class="fas fa-user nav-icon"></i><span class="nav-text">Mé inzeráty</span></a></li>
+                <li class="nav-item"><a href="index.html#about" class="nav-link"><i class="fas fa-info-circle nav-icon"></i><span class="nav-text">O nás</span></a></li>
+                <li class="nav-item"><a href="index.html#contact" class="nav-link"><i class="fas fa-envelope nav-icon"></i><span class="nav-text">Kontakt</span></a></li>
+                <li class="nav-item"><a href="chat.html" class="nav-link"><i class="fas fa-comment-alt nav-icon"></i><span class="nav-text">Chat</span></a></li>
+                <li class="nav-item"><a href="top-ads.html" class="nav-link"><i class="fas fa-fire nav-icon"></i><span class="nav-text">Topování</span></a></li>
+                <li class="nav-item"><a href="packages.html" class="nav-link"><i class="fas fa-box nav-icon"></i><span class="nav-text">Balíčky</span></a></li>
+            </ul>
+        </div>
+        <div class="auth-section" id="authSection">
+            <button class="btn-login" onclick="showAuthModal('login')"><i class="fas fa-sign-in-alt"></i><span>Přihlášení</span></button>
+            <button class="btn-register" onclick="showAuthModal('register')"><i class="fas fa-user-plus"></i><span>Registrace</span></button>
+        </div>
+        <div class="user-profile-section" id="userProfileSection" style="display:none;">
+            <button class="btn-profile" onclick="window.location.href='profile.html'"><i class="fas fa-user-circle"></i><span>Profil</span></button>
+            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Odhlásit se</span></button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Toggle Button (when collapsed) -->
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+        <!-- Profile Hero Section -->
+        <section class="page-hero">
+            <div class="container">
+                <div class="page-hero-card">
+                    <div class="page-hero-inner">
+                        <h2 class="services-title"><span class="title-text">Spravovat balíček</span><span class="title-accent"></span></h2>
+                        <p class="page-hero-subtitle">Zobrazení aktuálního balíčku a správa zrušení na konci období</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Cards -->
+        <section class="profile-stats-section">
+            <div class="container">
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="currentPlanBadge">-</div>
+                            <div class="stat-label">Aktuální balíček</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="currentPlanDays">-</div>
+                            <div class="stat-label">Zbývá dní</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn" onclick="window.location.href='profile.html'">Přehled</button>
+            <button class="tab-btn" onclick="window.location.href='profile-services.html'">Moje služby</button>
+            <button class="tab-btn" onclick="window.location.href='profile-ratings.html'">Hodnocení</button>
+            <button class="tab-btn" onclick="window.location.href='profile-settings.html'">Nastavení</button>
+            <button class="tab-btn active">Spravovat balíček</button>
+            <button class="tab-btn" onclick="window.location.href='profile-top.html'">Spravovat topování</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="profile-content">
+            <div class="content-left">
+                <!-- Manage Plan Section -->
+                <div class="content-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-box"></i> Správa balíčku
+                    </h3>
+                    <div id="manageSection" class="manage-plan">
+                        <div class="manage-actions">
+                            <button class="btn btn-secondary" onclick="refreshBadge()">
+                                <i class="fas fa-sync"></i>
+                                Aktualizovat odznak
+                            </button>
+                            <button class="btn btn-secondary" onclick="updatePlanInfo()">
+                                <i class="fas fa-rotate"></i>
+                                Aktualizovat údaje
+                            </button>
+                            <button class="btn btn-primary" id="btnCancelPlan" onclick="cancelPlan()">
+                                <i class="fas fa-ban"></i>
+                                Zrušit na konci období
+                            </button>
+                            <button class="btn btn-secondary" id="btnUndoCancel" onclick="undoCancel()" style="display:none;">
+                                <i class="fas fa-undo"></i>
+                                Zrušit zrušení
+                            </button>
+                        </div>
+                        <div class="plan-info" style="margin-top: 20px;">
+                            <div class="plan-info-item">
+                                <span class="plan-info-label">Aktuální balíček:</span>
+                                <strong id="currentPlan">Načítám…</strong>
+                            </div>
+                            <div class="plan-info-item">
+                                <span class="plan-info-label">Platné do:</span>
+                                <strong id="currentPlanEnd">-</strong>
+                            </div>
+                            <div class="plan-info-item">
+                                <span class="plan-info-label">Délka období:</span>
+                                <strong id="currentPlanDuration">-</strong>
+                            </div>
+                            <div class="plan-info-item">
+                                <span class="plan-info-label">Zbývá:</span>
+                                <strong id="currentPlanRemaining">-</strong>
+                            </div>
+                            <div class="plan-info-item" id="cancelInfo" style="display:none;">
+                                <span class="plan-info-label">Zrušení naplánováno k:</span>
+                                <strong id="currentPlanCancelAt">-</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+    <script src="plan.js"></script>
+</body>
+</html>

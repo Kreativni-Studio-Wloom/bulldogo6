@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test - Bulldogo.cz</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-button { 
+            background: #667eea; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test stránka</h1>
+    <p>Pokud vidíte tuto stránku, server funguje!</p>
+    
+    <button class="test-button" onclick="alert('Tlačítko funguje!')">
+        Test tlačítka
+    </button>
+    
+    <button class="test-button" onclick="window.location.href='services.html'">
+        Jít na služby
+    </button>
+    
+    <button class="test-button" onclick="window.location.href='chat.html'">
+        Jít na chat
+    </button>
+    
+    <p><strong>Čas:</strong> <span id="time"></span></p>
+    
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString('cs-CZ');
+        setInterval(() => {
+            document.getElementById('time').textContent = new Date().toLocaleString('cs-CZ');
+        }, 1000);
+    </script>
+</body>
+</html>
