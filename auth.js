@@ -1273,15 +1273,26 @@ async function addService(serviceData) {
         const storage = window.firebaseStorage;
         const uploadedImages = [];
         
+        const bucketName = window.firebaseApp?.options?.storageBucket;
         console.log('📦 Storage inicializace:', {
             app: !!window.firebaseApp,
             storage: !!storage,
-            bucket: window.firebaseApp?.options?.storageBucket || 'default'
+            bucket: bucketName || 'default',
+            storageUrl: storage?._delegate?._host || 'unknown'
         });
         
         // Kontrola, zda Storage bucket existuje
-        if (!window.firebaseApp?.options?.storageBucket) {
+        if (!bucketName) {
             throw new Error('Storage bucket není nakonfigurovaný v Firebase konfiguraci');
+        }
+        
+        // Debug: zkontrolovat Storage instance
+        if (storage) {
+            console.log('📦 Storage instance detaily:', {
+                bucket: bucketName,
+                host: storage?._delegate?._host,
+                protocol: storage?._delegate?._protocol
+            });
         }
         
         // Nahrát náhledový obrázek

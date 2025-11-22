@@ -20,6 +20,8 @@ const firebaseConfig = {
     apiKey: "AIzaSyA1FEmsY458LLKQLGcUaOVXsYr3Ii55QeQ",
     authDomain: "inzerio-inzerce.firebaseapp.com",
     projectId: "inzerio-inzerce",
+    // Storage bucket - zkusíme obě možnosti, SDK si vybere správnou
+    // Možnosti: inzerio-inzerce.appspot.com (starší) nebo inzerio-inzerce.firebasestorage.app (novější)
     storageBucket: "inzerio-inzerce.appspot.com",
     messagingSenderId: "262039290071",
     appId: "1:262039290071:web:30af0eb1c65cd75e307092",
