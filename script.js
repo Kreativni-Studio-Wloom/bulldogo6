@@ -593,7 +593,7 @@ const observer = new IntersectionObserver((entries) => {
 }, observerOptions);
 
 // Observe elements for animation
-document.querySelectorAll('.service-card, .about-content, .contact-content').forEach(el => {
+document.querySelectorAll('.service-card').forEach(el => {
     observer.observe(el);
 });
 
@@ -878,12 +878,11 @@ console.log(`
 document.addEventListener('DOMContentLoaded', () => {
     // Check if all required elements exist (pouze pro debug, nevyhazovat warnings)
     // Tyto elementy nemusí být na všech stránkách, což je normální
+    // Odstraněno .about a .contact, protože tyto sekce už neexistují
     const requiredElements = [
         '.header',
         '.hero',
         '.services',
-        '.about',
-        '.contact',
         '.footer'
     ];
     
