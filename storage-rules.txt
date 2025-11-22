@@ -1,0 +1,32 @@
+// Firebase Storage pravidla pro povolení nahrávání
+// Tyto pravidla musí být nastavena v Firebase Console
+// 
+// DŮLEŽITÉ: Zkopírujte tento obsah do Firebase Console → Storage → Rules → Edit
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Povolit přihlášeným uživatelům nahrávat obrázky do jejich složek
+    match /services/{userId}/{allPaths=**} {
+      // Každý může číst obrázky
+      allow read: if true;
+      
+      // Pouze vlastník (userId odpovídá UID) může nahrávat
+      allow write: if request.auth != null && request.auth.uid == userId;
+      
+      // Povolit pouze obrázky
+      allow create: if request.auth != null 
+                    && request.auth.uid == userId 
+                    && request.resource.contentType.matches('image/.*')
+                    && request.resource.size < 5 * 1024 * 1024; // max 5MB
+      
+      // Vlastník může aktualizovat nebo smazat své soubory
+      allow update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Výchozí: zakázat přístup
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

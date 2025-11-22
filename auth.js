@@ -1234,7 +1234,7 @@ async function addService(serviceData) {
         }
 
         const { addDoc, collection, setDoc, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-        const { getStorage, ref, uploadBytes, getDownloadURL } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
+        const { ref, uploadBytes, getDownloadURL } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
 
         // Zkontrolovat, zda uživatel existuje, pokud ne, vytvořit ho
         const userRef = doc(firebaseDb, 'users', authCurrentUser.uid);
@@ -1258,8 +1258,19 @@ async function addService(serviceData) {
         }
 
         // Nahrát obrázky do Firebase Storage
-        // Použít globálně inicializované Storage nebo inicializovat nové
-        const storage = window.firebaseStorage || getStorage(window.firebaseApp);
+        // Zkontrolovat, zda Storage je dostupné
+        if (!window.firebaseApp) {
+            throw new Error('Firebase App není inicializované');
+        }
+        
+        // Použít globálně inicializované Storage (musí existovat z firebase-init.js)
+        if (!window.firebaseStorage) {
+            const { getStorage } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js');
+            window.firebaseStorage = getStorage(window.firebaseApp);
+            console.log('✅ Vytvořil jsem novou Storage instanci');
+        }
+        
+        const storage = window.firebaseStorage;
         const uploadedImages = [];
         
         console.log('📦 Storage inicializace:', {
@@ -1268,12 +1279,25 @@ async function addService(serviceData) {
             bucket: window.firebaseApp?.options?.storageBucket || 'default'
         });
         
+        // Kontrola, zda Storage bucket existuje
+        if (!window.firebaseApp?.options?.storageBucket) {
+            throw new Error('Storage bucket není nakonfigurovaný v Firebase konfiguraci');
+        }
+        
         // Nahrát náhledový obrázek
         if (serviceData.previewImage) {
             try {
-                console.log('📸 Nahrávám náhledový obrázek...');
-                const previewRef = ref(storage, `services/${authCurrentUser.uid}/${Date.now()}_preview.jpg`);
+                console.log('📸 Nahrávám náhledový obrázek...', {
+                    fileName: serviceData.previewImage.name,
+                    fileSize: serviceData.previewImage.size,
+                    fileType: serviceData.previewImage.type
+                });
+                const fileName = `services/${authCurrentUser.uid}/${Date.now()}_preview.jpg`;
+                console.log('📍 Cesta k souboru:', fileName);
+                const previewRef = ref(storage, fileName);
+                console.log('📤 Začínám nahrávání...');
                 const previewSnapshot = await uploadBytes(previewRef, serviceData.previewImage);
+                console.log('✅ Upload úspěšný, získávám URL...');
                 const previewUrl = await getDownloadURL(previewSnapshot.ref);
                 uploadedImages.push({
                     url: previewUrl,
@@ -1283,7 +1307,20 @@ async function addService(serviceData) {
                 console.log('✅ Náhledový obrázek nahrán:', previewUrl);
             } catch (uploadError) {
                 console.error('❌ Chyba při nahrávání náhledového obrázku:', uploadError);
-                showMessage('Nepodařilo se nahrát náhledový obrázek. Zkuste to znovu.', 'error');
+                console.error('❌ Error code:', uploadError.code);
+                console.error('❌ Error message:', uploadError.message);
+                console.error('❌ Error serverResponse:', uploadError.serverResponse);
+                
+                let errorMessage = 'Nepodařilo se nahrát náhledový obrázek. ';
+                if (uploadError.code === 'storage/unauthorized') {
+                    errorMessage += 'Nemáte oprávnění k nahrávání. Zkontrolujte Storage Rules.';
+                } else if (uploadError.code === 'storage/unknown') {
+                    errorMessage += 'Storage není dostupné. Zkontrolujte, zda je Storage povolené v Firebase projektu.';
+                } else {
+                    errorMessage += `Chyba: ${uploadError.message || 'Neznámá chyba'}`;
+                }
+                
+                showMessage(errorMessage, 'error');
                 throw uploadError; // Přerušit proces přidávání služby
             }
         }

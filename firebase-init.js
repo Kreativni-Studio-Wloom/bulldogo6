@@ -88,9 +88,13 @@ try {
     let storage;
     try {
         storage = getStorage(app);
-        console.log('✅ Firebase Storage inicializován');
+        console.log('✅ Firebase Storage inicializován', {
+            bucket: app.options.storageBucket || 'není nastaven',
+            storage: !!storage
+        });
     } catch (err) {
-        console.warn('⚠️ Storage není k dispozici:', err);
+        console.error('❌ Chyba při inicializaci Storage:', err);
+        console.warn('⚠️ Storage možná není povolené v projektu Firebase');
     }
 
     // Analytics (bezpečně; v některých prostředích nemusí být k dispozici)
