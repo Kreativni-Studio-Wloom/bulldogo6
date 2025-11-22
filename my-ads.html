@@ -414,7 +414,10 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <textarea id="editServiceDescription" name="description" placeholder="Popis služby" rows="4" required></textarea>
+                    <textarea id="editServiceDescription" name="description" placeholder="Popis služby" rows="4" maxlength="600" required></textarea>
+                    <div class="char-counter">
+                        <span id="editServiceDescriptionCounter">600</span> znaků zbývá
+                    </div>
                 </div>
                 <div class="form-group">
                     <input type="text" id="editServicePrice" name="price" placeholder="Cena (např. 500 Kč/hod)">

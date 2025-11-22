@@ -113,14 +113,7 @@ async function showSuccess() {
         behavior: 'smooth' 
     });
 
-    // Uložit vybraný plán pro další gating (odznak, přidání inzerátu)
-    try {
-        if (selectedPlan && selectedPlan.plan) {
-            localStorage.setItem('bdg_plan', selectedPlan.plan);
-        }
-    } catch (_) {}
-
-    // Zapsat plán také do Firestore profilu uživatele (users/{uid}/profile/profile)
+    // Zapsat plán do Firestore profilu uživatele (users/{uid}/profile/profile) - zdroj pravdy
     try {
         const user = window.firebaseAuth && window.firebaseAuth.currentUser;
         if (user && window.firebaseDb && selectedPlan && selectedPlan.plan) {
@@ -128,14 +121,23 @@ async function showSuccess() {
             const now = new Date();
             const durationDays = 30; // měsíční předplatné
             const periodEnd = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+            
+            console.log('💾 Ukládám balíček do databáze:', selectedPlan.plan);
             await setDoc(
                 doc(window.firebaseDb, 'users', user.uid, 'profile', 'profile'),
                 { plan: selectedPlan.plan, planUpdatedAt: now, planPeriodStart: now, planPeriodEnd: periodEnd, planDurationDays: durationDays, planCancelAt: null },
                 { merge: true }
             );
+            console.log('✅ Balíček úspěšně uložen do databáze');
+            
+            // Volitelně synchronizovat do localStorage pouze pro zobrazení odznaku (cache)
+            try {
+                localStorage.setItem('bdg_plan', selectedPlan.plan);
+            } catch (_) {}
         }
     } catch (e) {
         console.error('❌ Uložení plánu do Firestore selhalo:', e);
+        showMessage('Nepodařilo se uložit balíček. Zkuste to prosím znovu.', 'error');
     }
 }
 
@@ -158,13 +160,36 @@ async function refreshBadge() {
         const user = window.firebaseAuth && window.firebaseAuth.currentUser;
         if (!user) { showAuthModal('login'); return; }
         if (!window.firebaseDb) return;
-        const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-        const ref = doc(window.firebaseDb, 'users', user.uid, 'profile', 'profile');
-        const snap = await getDoc(ref);
-        const plan = snap.exists() ? (snap.data().plan || localStorage.getItem('bdg_plan')) : localStorage.getItem('bdg_plan');
+        
+        // Kontrola balíčku přímo z databáze (použít globální funkci pokud existuje)
+        let plan = null;
+        if (typeof window.checkUserPlanFromDatabase === 'function') {
+            plan = await window.checkUserPlanFromDatabase(user.uid);
+        } else {
+            // Fallback: načíst přímo z databáze
+            const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            const ref = doc(window.firebaseDb, 'users', user.uid, 'profile', 'profile');
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                const data = snap.data();
+                plan = data.plan || null;
+                // Kontrola, zda je balíček aktivní
+                if (plan) {
+                    const planPeriodEnd = data.planPeriodEnd ? (data.planPeriodEnd.toDate ? data.planPeriodEnd.toDate() : new Date(data.planPeriodEnd)) : null;
+                    if (planPeriodEnd && new Date() >= planPeriodEnd) {
+                        plan = null;
+                    }
+                }
+            }
+        }
+        
+        // Volitelně synchronizovat do localStorage pro cache (zobrazení odznaku)
         if (plan) {
             try { localStorage.setItem('bdg_plan', plan); } catch (_) {}
+        } else {
+            try { localStorage.removeItem('bdg_plan'); } catch (_) {}
         }
+        
         // Vložit/aktualizovat odznak v tlačítku Profil
         const userProfileSection = document.getElementById('userProfileSection');
         const btnProfile = userProfileSection && userProfileSection.querySelector('.btn-profile');

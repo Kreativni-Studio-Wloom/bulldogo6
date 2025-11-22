@@ -9,6 +9,7 @@ console.log('🔥 firebase-init.js: Začínám načítat Firebase...');
 import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore, initializeFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getStorage } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
 // App Check importujeme dynamicky pouze pro produkci
 
@@ -83,6 +84,15 @@ try {
         }
     }
 
+    // Storage inicializace
+    let storage;
+    try {
+        storage = getStorage(app);
+        console.log('✅ Firebase Storage inicializován');
+    } catch (err) {
+        console.warn('⚠️ Storage není k dispozici:', err);
+    }
+
     // Analytics (bezpečně; v některých prostředích nemusí být k dispozici)
     let analytics;
     try { 
@@ -96,6 +106,7 @@ try {
     window.firebaseApp = app;
     window.firebaseAuth = auth;
     window.firebaseDb = db;
+    if (storage) window.firebaseStorage = storage;
     if (analytics) window.firebaseAnalytics = analytics;
 
     // Signalizovat, že Firebase je připraven

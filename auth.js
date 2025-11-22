@@ -658,44 +658,65 @@ function updateUI(user) {
                         balanceAmount.textContent = `${balance.toLocaleString('cs-CZ')} Kč`;
                     }
 
-                    // Pokud má profil uložený plán, synchronizovat do localStorage pro odznak
+                    // Kontrola balíčku z databáze pro zobrazení odznaku
                     try {
+                        let activePlan = null;
                         if (userProfile && userProfile.plan) {
-                            localStorage.setItem('bdg_plan', userProfile.plan);
+                            // Kontrola, zda je balíček aktivní
+                            const end = userProfile.planPeriodEnd ? (userProfile.planPeriodEnd.toDate ? userProfile.planPeriodEnd.toDate() : new Date(userProfile.planPeriodEnd)) : null;
+                            const cancelAt = userProfile.planCancelAt ? (userProfile.planCancelAt.toDate ? userProfile.planCancelAt.toDate() : new Date(userProfile.planCancelAt)) : null;
+                            
+                            // Pokud má zrušení naplánované a období skončilo, balíček není aktivní
+                            if (cancelAt && end && new Date() >= end) {
+                                // Aktualizovat databázi - odstranit plan
+                                (async () => {
+                                    try {
+                                        const { setDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                                        await setDoc(doc(firebaseDb, 'users', user.uid, 'profile', 'profile'), { plan: null, planCancelAt: null }, { merge: true });
+                                    } catch (_) {}
+                                })();
+                                activePlan = null;
+                            } else if (end && new Date() >= end) {
+                                // Období skončilo, balíček není aktivní
+                                activePlan = null;
+                            } else {
+                                // Balíček je aktivní
+                                activePlan = userProfile.plan;
+                            }
+                        }
+                        
+                        // Synchronizace do localStorage pouze pro zobrazení odznaku (volitelné)
+                        if (activePlan) {
+                            localStorage.setItem('bdg_plan', activePlan);
                         } else {
                             localStorage.removeItem('bdg_plan');
-                        }
-                        // Pokud bylo naplánované zrušení a období skončilo, nastavit plan na none
-                        const end = userProfile && userProfile.planPeriodEnd ? (userProfile.planPeriodEnd.toDate ? userProfile.planPeriodEnd.toDate() : new Date(userProfile.planPeriodEnd)) : null;
-                        const cancelAt = userProfile && userProfile.planCancelAt ? (userProfile.planCancelAt.toDate ? userProfile.planCancelAt.toDate() : new Date(userProfile.planCancelAt)) : null;
-                        if (cancelAt && end && new Date() >= end) {
-                            (async () => {
-                                try {
-                                    const { setDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-                                    await setDoc(doc(firebaseDb, 'users', user.uid, 'profile', 'profile'), { plan: null, planCancelAt: null }, { merge: true });
-                                    localStorage.removeItem('bdg_plan');
-                                } catch (_) {}
-                            })();
                         }
                     } catch (_) {}
                 });
                 userEmail.textContent = user.email;
             }
 
-            // Odznak podle balíčku (hobby/firma/?) vedle tlačítka Profil
+            // Odznak podle balíčku (hobby/firma/?) vedle tlačítka Profil - získat z databáze
             try {
-                const plan = localStorage.getItem('bdg_plan');
-                const btnProfile = userProfileSection.querySelector('.btn-profile');
-                if (btnProfile) {
-                    const old = btnProfile.querySelector('.user-badge');
-                    if (old) old.remove();
-                    const badge = document.createElement('span');
-                    const label = plan === 'business' ? 'Firma' : plan === 'hobby' ? 'Hobby' : '?';
-                    const cls = plan === 'business' ? 'badge-business' : plan === 'hobby' ? 'badge-hobby' : 'badge-unknown';
-                    badge.className = 'user-badge ' + cls;
-                    badge.textContent = label;
-                    btnProfile.appendChild(badge);
-                }
+                (async () => {
+                    try {
+                        const activePlan = await checkUserPlanFromDatabase(user.uid);
+                        const btnProfile = userProfileSection.querySelector('.btn-profile');
+                        if (btnProfile) {
+                            const old = btnProfile.querySelector('.user-badge');
+                            if (old) old.remove();
+                            
+                            if (activePlan) {
+                                const badge = document.createElement('span');
+                                const label = activePlan === 'business' ? 'Firma' : activePlan === 'hobby' ? 'Hobby' : '?';
+                                const cls = activePlan === 'business' ? 'badge-business' : activePlan === 'hobby' ? 'badge-hobby' : 'badge-unknown';
+                                badge.className = 'user-badge ' + cls;
+                                badge.textContent = label;
+                                btnProfile.appendChild(badge);
+                            }
+                        }
+                    } catch (_) {}
+                })();
             } catch (_) {}
         }
         
@@ -1020,8 +1041,49 @@ window.closeAuthModal = closeAuthModal;
 window.createAuthModal = createAuthModal;
 window.setupAuthModalEvents = setupAuthModalEvents;
 
+// Funkce pro kontrolu aktivního balíčku z databáze (globální)
+window.checkUserPlanFromDatabase = async function(userId) {
+    try {
+        if (!userId || !window.firebaseDb) return null;
+        
+        const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const profileRef = doc(window.firebaseDb, 'users', userId, 'profile', 'profile');
+        const snap = await getDoc(profileRef);
+        
+        if (!snap.exists()) return null;
+        
+        const data = snap.data();
+        const plan = data.plan;
+        
+        // Pokud nemá balíček, vrátit null
+        if (!plan || plan === 'none') return null;
+        
+        // Kontrola, zda je balíček aktivní (planPeriodEnd je v budoucnosti)
+        const planPeriodEnd = data.planPeriodEnd ? (data.planPeriodEnd.toDate ? data.planPeriodEnd.toDate() : new Date(data.planPeriodEnd)) : null;
+        const planCancelAt = data.planCancelAt ? (data.planCancelAt.toDate ? data.planCancelAt.toDate() : new Date(data.planCancelAt)) : null;
+        
+        // Pokud má zrušení naplánované a období skončilo, balíček není aktivní
+        if (planCancelAt && planPeriodEnd && new Date() >= planPeriodEnd) {
+            return null;
+        }
+        
+        // Pokud je planPeriodEnd v minulosti, balíček už není aktivní
+        if (planPeriodEnd && new Date() >= planPeriodEnd) {
+            return null;
+        }
+        
+        return plan;
+    } catch (error) {
+        console.error('Chyba při kontrole balíčku z databáze:', error);
+        return null;
+    }
+};
+
+// Export funkce pro globální použití
+window.checkUserPlanFromDatabase = checkUserPlanFromDatabase;
+
 // Zobrazení modalu pro přidání služby
-function showAddServiceModal() {
+async function showAddServiceModal() {
     // Gating: vyžaduje přihlášení a vybraný balíček
     const viewer = window.firebaseAuth?.currentUser;
     if (!viewer) {
@@ -1032,16 +1094,26 @@ function showAddServiceModal() {
         }
         return;
     }
-    const plan = localStorage.getItem('bdg_plan');
+    
+    // Kontrola balíčku přímo z databáze
+    const plan = await checkUserPlanFromDatabase(viewer.uid);
     if (!plan) {
-        // Nemá balíček – nasměrujeme na výběr balíčku
+        // Nemá aktivní balíček – nasměrujeme na výběr balíčku
         showMessage('Nejdříve si vyberte balíček.', 'info');
         window.location.href = 'packages.html';
         return;
     }
+    
     const modal = document.getElementById('addServiceModal');
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    
+    // Inicializace counteru pro popis inzerátu
+    if (typeof initCharCounter === 'function') {
+        setTimeout(() => {
+            initCharCounter('serviceDescription', 'serviceDescriptionCounter', 600);
+        }, 100);
+    }
 }
 
 // Zavření modalu pro přidání služby
@@ -1053,6 +1125,15 @@ function closeAddServiceModal() {
     // Vyčištění formuláře
     const form = document.getElementById('addServiceForm');
     form.reset();
+    
+    // Reset counteru
+    const counter = document.getElementById('serviceDescriptionCounter');
+    if (counter) {
+        counter.textContent = '600';
+        if (counter.parentElement) {
+            counter.parentElement.classList.remove('warning', 'error');
+        }
+    }
 }
 
 // Export dalších funkcí
@@ -1177,38 +1258,57 @@ async function addService(serviceData) {
         }
 
         // Nahrát obrázky do Firebase Storage
-        const storage = getStorage();
+        // Použít globálně inicializované Storage nebo inicializovat nové
+        const storage = window.firebaseStorage || getStorage(window.firebaseApp);
         const uploadedImages = [];
+        
+        console.log('📦 Storage inicializace:', {
+            app: !!window.firebaseApp,
+            storage: !!storage,
+            bucket: window.firebaseApp?.options?.storageBucket || 'default'
+        });
         
         // Nahrát náhledový obrázek
         if (serviceData.previewImage) {
-            console.log('📸 Nahrávám náhledový obrázek...');
-            const previewRef = ref(storage, `services/${authCurrentUser.uid}/${Date.now()}_preview.jpg`);
-            const previewSnapshot = await uploadBytes(previewRef, serviceData.previewImage);
-            const previewUrl = await getDownloadURL(previewSnapshot.ref);
-            uploadedImages.push({
-                url: previewUrl,
-                isPreview: true,
-                name: serviceData.previewImage.name
-            });
-            console.log('✅ Náhledový obrázek nahrán:', previewUrl);
+            try {
+                console.log('📸 Nahrávám náhledový obrázek...');
+                const previewRef = ref(storage, `services/${authCurrentUser.uid}/${Date.now()}_preview.jpg`);
+                const previewSnapshot = await uploadBytes(previewRef, serviceData.previewImage);
+                const previewUrl = await getDownloadURL(previewSnapshot.ref);
+                uploadedImages.push({
+                    url: previewUrl,
+                    isPreview: true,
+                    name: serviceData.previewImage.name
+                });
+                console.log('✅ Náhledový obrázek nahrán:', previewUrl);
+            } catch (uploadError) {
+                console.error('❌ Chyba při nahrávání náhledového obrázku:', uploadError);
+                showMessage('Nepodařilo se nahrát náhledový obrázek. Zkuste to znovu.', 'error');
+                throw uploadError; // Přerušit proces přidávání služby
+            }
         }
         
         // Nahrát další obrázky
         if (serviceData.additionalImages && serviceData.additionalImages.length > 0) {
             console.log('📸 Nahrávám další obrázky...', serviceData.additionalImages.length);
-            for (let i = 0; i < serviceData.additionalImages.length; i++) {
-                const image = serviceData.additionalImages[i];
-                const imageRef = ref(storage, `services/${authCurrentUser.uid}/${Date.now()}_${i}.jpg`);
-                const imageSnapshot = await uploadBytes(imageRef, image);
-                const imageUrl = await getDownloadURL(imageSnapshot.ref);
-                uploadedImages.push({
-                    url: imageUrl,
-                    isPreview: false,
-                    name: image.name
-                });
+            try {
+                for (let i = 0; i < serviceData.additionalImages.length; i++) {
+                    const image = serviceData.additionalImages[i];
+                    const imageRef = ref(storage, `services/${authCurrentUser.uid}/${Date.now()}_${i}.jpg`);
+                    const imageSnapshot = await uploadBytes(imageRef, image);
+                    const imageUrl = await getDownloadURL(imageSnapshot.ref);
+                    uploadedImages.push({
+                        url: imageUrl,
+                        isPreview: false,
+                        name: image.name
+                    });
+                }
+                console.log('✅ Všechny další obrázky nahrány');
+            } catch (uploadError) {
+                console.error('❌ Chyba při nahrávání dalších obrázků:', uploadError);
+                showMessage('Nepodařilo se nahrát některé obrázky. Zkuste to znovu.', 'error');
+                throw uploadError; // Přerušit proces přidávání služby
             }
-            console.log('✅ Všechny další obrázky nahrány');
         }
 
         // Vytvořit službu s URL obrázků

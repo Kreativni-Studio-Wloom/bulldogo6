@@ -529,7 +529,7 @@
 							</li>
 						</ul>
 						<div class="promo-cta">
-                            <a class="btn-cta-primary" href="#addServiceModal" onclick="document.getElementById('addServiceModal').style.display='block'">
+                            <a class="btn-cta-primary" href="#addServiceModal" onclick="if(typeof showAddServiceModal === 'function') { showAddServiceModal(); } else { const modal = document.getElementById('addServiceModal'); if(modal) { modal.style.display='block'; document.body.style.overflow='hidden'; if(typeof initCharCounter === 'function') { setTimeout(() => { initCharCounter('serviceDescription', 'serviceDescriptionCounter', 600); }, 100); } } } return false;">
                                 <i class="fas fa-plus"></i>
                                 Vložit inzerát zdarma
                             </a>
@@ -558,11 +558,15 @@
         </div>
     </section>
 
+    <!-- White Divider -->
+    <div class="white-divider"></div>
+
     <!-- Features Section: Co u nás najdete -->
     <section id="features" class="features-section">
         <div class="container">
             <!-- Banner s gradientem -->
             <div class="features-banner">
+                <img src="fotky/bulldogo-overlay.png" alt="Bulldogo overlay" class="features-banner-overlay-dog" />
                 <h1 class="features-banner-title">SLUŽBY JEDNODUŠE. PRO KAŽDÉHO</h1>
                 <h2 class="features-banner-subtitle">BULLDOGO.CZ</h2>
             </div>
@@ -581,7 +585,7 @@
             <div class="features-grid">
                 <div class="feature-item">
                     <div class="feature-icon">
-                        <i class="fas fa-comments"></i>
+                        <i class="far fa-message"></i>
                     </div>
                     <h3 class="feature-title">Chat v reálném čase</h3>
                     <p class="feature-description">přímá komunikace mezi zákazníkem a poskytovatelem služby.</p>
@@ -589,7 +593,7 @@
                 
                 <div class="feature-item">
                     <div class="feature-icon">
-                        <i class="fas fa-search"></i>
+                        <i class="far fa-magnifying-glass"></i>
                     </div>
                     <h3 class="feature-title">Rychlé vyhledávání</h3>
                     <p class="feature-description">přehledně podle města, kraje nebo typu služby.</p>
@@ -597,7 +601,7 @@
                 
                 <div class="feature-item">
                     <div class="feature-icon">
-                        <i class="fas fa-mobile-alt"></i>
+                        <i class="far fa-mobile-screen-button"></i>
                     </div>
                     <h3 class="feature-title">Ověření uživatelů</h3>
                     <p class="feature-description">SMS ověření a kontrola firem přes IČO pro větší důvěryhodnost.</p>
@@ -605,7 +609,7 @@
                 
                 <div class="feature-item">
                     <div class="feature-icon">
-                        <i class="fas fa-user-check"></i>
+                        <i class="far fa-user-check"></i>
                     </div>
                     <h3 class="feature-title">Jednoduchá registrace</h3>
                     <p class="feature-description">vytvoření profilu během pár minut.</p>
@@ -613,7 +617,7 @@
                 
                 <div class="feature-item">
                     <div class="feature-icon">
-                        <i class="fas fa-user-cog"></i>
+                        <i class="far fa-user-gear"></i>
                     </div>
                     <h3 class="feature-title">Správa profilu</h3>
                     <p class="feature-description">přidejte logo, popis, ceník a spravujte své inzeráty.</p>
@@ -621,7 +625,7 @@
                 
                 <div class="feature-item">
                     <div class="feature-icon">
-                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
                     </div>
                     <h3 class="feature-title">Topování inzerátů</h3>
                     <p class="feature-description">zvýrazněte své nabídky a získejte více zákazníků.</p>
@@ -629,7 +633,7 @@
                 
                 <div class="feature-item">
                     <div class="feature-icon">
-                        <i class="fas fa-tools"></i>
+                        <i class="far fa-wrench"></i>
                     </div>
                     <h3 class="feature-title">Vše na jednom místě</h3>
                     <p class="feature-description">žádné zdlouhavé hledání, jen přehledné a rychlé řešení.</p>
@@ -637,7 +641,7 @@
                 
                 <div class="feature-item">
                     <div class="feature-icon">
-                        <i class="fas fa-globe"></i>
+                        <i class="far fa-globe"></i>
                     </div>
                     <h3 class="feature-title">Přehlednost a rychlost</h3>
                     <p class="feature-description">web navržený tak, aby vás nic nezdržovalo.</p>
@@ -646,43 +650,6 @@
         </div>
     </section>
 
-    
-
-    <!-- About Section -->
-    <section id="about" class="about">
-        <div class="container">
-            <div class="about-content">
-                <img src="fotky/bulldogo-overlay.png" alt="Bulldogo overlay" class="about-overlay-dog" />
-                <div class="about-text">
-                    <h2 class="services-title">
-                        <span class="title-text">Co je bulldogo? Platforma, kde začíná spolupráce.</span>
-                        <span class="title-accent"></span>
-                    </h2>
-                    <p>
-                        Vytvořili jsme tento web s jednoduchou myšlenkou – hledání a nabízení služeb nemusí být složité.
-                        Chceme, aby náš portál byl místem, kam lidé rádi přijdou, když potřebují pomoci, a kde poskytovatelé služeb snadno osloví nové zákazníky.
-                    </p>
-                    <p>
-                        Naším cílem je zjednodušit cestu mezi tím, kdo hledá, a tím, kdo nabízí.
-                    </p>
-                    <p>
-                        U nás platí jednoduché pravidlo:<br>
-                        Nabízím službu – inzeruji.<br>
-                        Hledám službu – najdu rychle a pohodlně.
-                    </p>
-                    <p>
-                        Moderní design, přehlednost a snadná komunikace jsou pro nás samozřejmostí.
-                        Portál jsem založil z osobní vášně pro jednoduchost a férové služby – aby každý návštěvník měl pocit, že je tu vítán a všechno najde snadno, na jednom místě.
-                    </p>
-                    <p>
-                        S pozdravem,<br>
-                        Dominik Hašek<br>
-                        <img src="fotky/podpis.PNG" alt="Podpis Dominik Hašek" style="width: 35% !important; max-width: 105px !important; height: auto !important; display: block !important; margin: 10px auto 0 !important;">
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
 
     
 
@@ -734,7 +701,7 @@
                         <i class="fas fa-search"></i>
                         Vyhledat inzerát
                     </a>
-                    <a href="#addServiceModal" class="btn-cta-secondary" onclick="document.getElementById('addServiceModal').style.display='block'">
+                    <a href="#addServiceModal" class="btn-cta-secondary" onclick="if(typeof showAddServiceModal === 'function') { showAddServiceModal(); } else { const modal = document.getElementById('addServiceModal'); if(modal) { modal.style.display='block'; document.body.style.overflow='hidden'; if(typeof initCharCounter === 'function') { setTimeout(() => { initCharCounter('serviceDescription', 'serviceDescriptionCounter', 600); }, 100); } } } return false;">
                         <i class="fas fa-plus"></i>
                         Přidat svůj inzerát
                     </a>
@@ -905,7 +872,10 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <textarea id="serviceDescription" name="description" placeholder="Popis služby" rows="4" required></textarea>
+                    <textarea id="serviceDescription" name="description" placeholder="Popis služby" rows="4" maxlength="600" required></textarea>
+                    <div class="char-counter">
+                        <span id="serviceDescriptionCounter">600</span> znaků zbývá
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Cena</label>

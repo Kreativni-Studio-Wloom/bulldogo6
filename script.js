@@ -34,6 +34,43 @@ document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', 
 // Dark mode disabled: force light theme
 function toggleDarkMode() {}
 
+// Globální funkce pro inicializaci character counteru pro textarea
+window.initCharCounter = function(textareaId, counterId, maxLength = 600) {
+    const textarea = document.getElementById(textareaId);
+    const counter = document.getElementById(counterId);
+    
+    if (!textarea || !counter) return;
+    
+    // Funkce pro aktualizaci counteru
+    const updateCounter = () => {
+        const remaining = maxLength - textarea.value.length;
+        counter.textContent = remaining;
+        
+        // Změna barvy podle zbývajících znaků
+        if (counter.parentElement) {
+            counter.parentElement.classList.remove('warning', 'error');
+            if (remaining < 50) {
+                counter.parentElement.classList.add('error');
+            } else if (remaining < 100) {
+                counter.parentElement.classList.add('warning');
+            }
+        }
+    };
+    
+    // Event listenery pro real-time aktualizaci
+    textarea.addEventListener('input', updateCounter);
+    textarea.addEventListener('paste', () => {
+        setTimeout(updateCounter, 10);
+    });
+    textarea.addEventListener('change', updateCounter);
+    
+    // Inicializace při načtení (pro případ, že textarea už má hodnotu)
+    updateCounter();
+    
+    // Vrátit funkci updateCounter pro případné manuální volání
+    return updateCounter;
+}
+
 // Load preferences on page load
 document.addEventListener('DOMContentLoaded', () => {
     // Force light mode
@@ -54,6 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize auth state management
     initializeAuthState();
+    
+    // Inicializace character counteru pro popis inzerátu
+    initCharCounter('serviceDescription', 'serviceDescriptionCounter', 600);
+    initCharCounter('editServiceDescription', 'editServiceDescriptionCounter', 600);
 
     // Lazy-load pro všechny obrázky bez atributu (kromě hlavního loga v hero)
     try {

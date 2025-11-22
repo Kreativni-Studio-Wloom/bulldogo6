@@ -375,11 +375,34 @@ function editAd(adId) {
     document.getElementById('editServiceLocation').value = ad.location;
     document.getElementById('editServiceStatus').value = ad.status;
     
+    // Aktualizovat counter po naplnění hodnoty
+    const editDescription = document.getElementById('editServiceDescription');
+    const editCounter = document.getElementById('editServiceDescriptionCounter');
+    if (editDescription && editCounter) {
+        const remaining = 600 - editDescription.value.length;
+        editCounter.textContent = remaining;
+        if (editCounter.parentElement) {
+            editCounter.parentElement.classList.remove('warning', 'error');
+            if (remaining < 50) {
+                editCounter.parentElement.classList.add('error');
+            } else if (remaining < 100) {
+                editCounter.parentElement.classList.add('warning');
+            }
+        }
+    }
+    
     // Zobrazit modal
     const modal = document.getElementById('editServiceModal');
     console.log('Modal element:', modal);
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    
+    // Inicializace counteru pro editaci popisu (kdyby ještě nebyl inicializovaný)
+    if (typeof initCharCounter === 'function') {
+        setTimeout(() => {
+            initCharCounter('editServiceDescription', 'editServiceDescriptionCounter', 600);
+        }, 100);
+    }
 }
 
 // Aktualizace inzerátu
