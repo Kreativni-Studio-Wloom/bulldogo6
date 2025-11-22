@@ -52,38 +52,34 @@ try {
         console.log('✅ Firebase Firestore inicializován standardně');
     }
 
-    // App Check (pomáhá s chybou auth/invalid-app-credential, pokud je v projektu vynucený)
-    // Pro localhost používáme debug token, pokud je App Check vynucený v projektu
-    if (typeof window !== 'undefined' && window.location) {
-        const isLocalhost = window.location.hostname === 'localhost' || 
-                           window.location.hostname === '127.0.0.1' ||
-                           window.location.hostname === '';
-        
-        if (isLocalhost) {
-            // Pro localhost úplně vypínáme App Check - API není povoleno v projektu
-            // App Check není potřeba pro lokální vývoj
-            console.log('⚠️ App Check vypnut pro localhost (lokální vývoj)');
-        } else {
-            // Pro produkci dynamicky importujeme a inicializujeme App Check
-            const siteKey = window.FIREBASE_RECAPTCHA_V3_SITE_KEY || '';
-            if (siteKey) {
-                import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js')
-                    .then(({ initializeAppCheck, ReCaptchaV3Provider }) => {
-                        const appCheck = initializeAppCheck(app, {
-                            provider: new ReCaptchaV3Provider(siteKey),
-                            isTokenAutoRefreshEnabled: true,
-                        });
-                        window.firebaseAppCheck = appCheck;
-                        console.log('✅ Firebase App Check inicializován (produkce)');
-                    })
-                    .catch((err) => {
-                        console.warn('⚠️ App Check není k dispozici nebo selhala inicializace:', err);
+    // App Check - VYPNUTO pro všechny prostředí (lokální i produkce)
+    // App Check může způsobovat CORS problémy, pokud není správně nakonfigurovaný
+    // Pokud potřebuješ App Check, musíš ho aktivovat v Firebase Console a nastavit reCAPTCHA
+    console.log('⚠️ App Check vypnut - pokud máš CORS problémy, zkontroluj Firebase Console → App Check a vypni "Enforce App Check"');
+    
+    // Pokud v budoucnu budeš chtít App Check aktivovat:
+    // 1. Firebase Console → App Check → nastav reCAPTCHA V3 Site Key
+    // 2. Přidej do HTML: <script>window.FIREBASE_RECAPTCHA_V3_SITE_KEY = 'tvuj-site-key';</script>
+    // 3. Odkomentuj kód níže
+    /*
+    if (typeof window !== 'undefined' && window.location && !window.location.hostname.includes('localhost')) {
+        const siteKey = window.FIREBASE_RECAPTCHA_V3_SITE_KEY || '';
+        if (siteKey) {
+            import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check.js')
+                .then(({ initializeAppCheck, ReCaptchaV3Provider }) => {
+                    const appCheck = initializeAppCheck(app, {
+                        provider: new ReCaptchaV3Provider(siteKey),
+                        isTokenAutoRefreshEnabled: true,
                     });
-            } else {
-                console.warn('⚠️ App Check není nakonfigurován. Pro produkci nastavte window.FIREBASE_RECAPTCHA_V3_SITE_KEY.');
-            }
+                    window.firebaseAppCheck = appCheck;
+                    console.log('✅ Firebase App Check inicializován (produkce)');
+                })
+                .catch((err) => {
+                    console.warn('⚠️ App Check není k dispozici nebo selhala inicializace:', err);
+                });
         }
     }
+    */
 
     // Storage inicializace
     let storage;
