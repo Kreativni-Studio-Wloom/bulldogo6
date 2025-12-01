@@ -7,8 +7,11 @@ let currentPaymentId = null;
 const GOPAY_CONFIG = {
     isTest: true, // Pro produkci změň na false
     clientId: '1204015758', // Test ClientID
-    clientSecret: '7WFS2HCS', // Test ClientSecret
-    goId: '8419533331' // Test GoID
+    clientSecret: '7WFS2HCS', // Test ClientSecret (používá se jen na serveru, zde jen pro referenci)
+    goId: '8419533331', // Test GoID
+    // URL API endpointů (Vercel Serverless Functions)
+    // Automaticky se použije aktuální doména + /api
+    functionsBaseURL: typeof window !== 'undefined' ? window.location.origin + '/api' : '/api'
 };
 
 // Initialize page

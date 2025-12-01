@@ -5,6 +5,14 @@ class GoPayAPI {
     constructor(config) {
         // Testovací prostředí
         this.isTest = config.isTest !== false; // defaultně true
+        
+        // URL API endpointů (Vercel Serverless Functions nebo Firebase Cloud Functions)
+        // Vercel: automaticky /api/gopay-token, /api/gopay-create-payment, atd.
+        // Firebase: https://us-central1-inzerio-inzerce.cloudfunctions.net/gopayToken
+        this.functionsBaseURL = config.functionsBaseURL || 
+            (typeof window !== 'undefined' ? window.location.origin + '/api' : '/api');
+        
+        // Původní GoPay API URL (používá se jen pro referenci)
         this.baseURL = this.isTest 
             ? 'https://gw.sandbox.gopay.com/api'
             : 'https://gate.gopay.cz/api';
@@ -31,25 +39,19 @@ class GoPayAPI {
         }
 
         try {
-            const url = `${this.baseURL}/oauth2/token`;
-            const credentials = btoa(`${this.clientId}:${this.clientSecret}`);
+            // Volání přes API proxy (Vercel nebo Firebase Functions)
+            const url = `${this.functionsBaseURL}/gopay-token?scope=${scope}`;
             
-            console.log('🔐 Žádám GoPay OAuth token:', {
+            console.log('🔐 Žádám GoPay OAuth token přes Cloud Functions:', {
                 url: url,
-                scope: scope,
-                baseURL: this.baseURL
+                scope: scope
             });
             
             const response = await fetch(url, {
-                method: 'POST',
+                method: 'GET',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': `Basic ${credentials}`
-                },
-                body: new URLSearchParams({
-                    grant_type: 'client_credentials',
-                    scope: scope
-                })
+                    'Content-Type': 'application/json'
+                }
             });
 
             console.log('📡 GoPay OAuth response:', {
@@ -72,7 +74,7 @@ class GoPayAPI {
             
             // Uložit token do cache (expiruje za 30 minut, uložíme s 5min rezervou)
             this.tokenCache = data.access_token;
-            const expiresIn = (data.expires_in || 1800) - 300; // 30 min - 5 min rezerva
+            const expiresIn = 1800 - 300; // 30 min - 5 min rezerva (Cloud Functions vrací token s 30min expirací)
             this.tokenExpiry = new Date(Date.now() + expiresIn * 1000);
             
             console.log('✅ GoPay token získán:', {
@@ -90,11 +92,6 @@ class GoPayAPI {
                 name: error.name
             });
             
-            // Přidat více informací o chybě
-            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                throw new Error('Network error - zkontrolujte připojení k internetu a CORS nastavení. GoPay API může vyžadovat server-side proxy.');
-            }
-            
             throw error;
         }
     }
@@ -106,10 +103,10 @@ class GoPayAPI {
      */
     async createPayment(paymentData) {
         try {
-            const token = await this.getAccessToken('payment-create');
-            const url = `${this.baseURL}/payments/payment`;
+            // Volání přes API proxy (Vercel nebo Firebase Functions)
+            const url = `${this.functionsBaseURL}/gopay-create-payment`;
 
-            console.log('💳 Vytvářím GoPay platbu:', {
+            console.log('💳 Vytvářím GoPay platbu přes Cloud Functions:', {
                 url: url,
                 amount: paymentData.amount,
                 currency: paymentData.currency,
@@ -119,8 +116,7 @@ class GoPayAPI {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(paymentData)
             });
@@ -132,9 +128,9 @@ class GoPayAPI {
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error('❌ GoPay create payment error response:', errorText);
-                throw new Error(`GoPay create payment error: ${response.status} - ${errorText}`);
+                const errorData = await response.json().catch(() => ({ error: await response.text() }));
+                console.error('❌ GoPay create payment error response:', errorData);
+                throw new Error(`GoPay create payment error: ${response.status} - ${errorData.error || errorData.message || 'Unknown error'}`);
             }
 
             const data = await response.json();
@@ -168,19 +164,19 @@ class GoPayAPI {
      */
     async getPaymentStatus(paymentId) {
         try {
-            const token = await this.getAccessToken('payment-all');
-            const url = `${this.baseURL}/payments/payment/${paymentId}`;
+            // Volání přes API proxy (Vercel nebo Firebase Functions)
+            const url = `${this.functionsBaseURL}/gopay-payment-status?id=${paymentId}`;
 
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 }
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`GoPay get payment status error: ${response.status} - ${errorText}`);
+                const errorData = await response.json().catch(() => ({ error: await response.text() }));
+                throw new Error(`GoPay get payment status error: ${response.status} - ${errorData.error || errorData.message || 'Unknown error'}`);
             }
 
             const data = await response.json();
