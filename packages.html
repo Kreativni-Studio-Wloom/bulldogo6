@@ -420,12 +420,13 @@
     <script type="text/javascript" src="https://gw.sandbox.gopay.com/gp-gw/js/embed.js" 
             onload="console.log('✅ GoPay SDK načteno'); window.gopaySDKLoaded = true;"
             onerror="console.error('❌ Chyba při načítání GoPay SDK'); window.gopaySDKLoaded = false;"></script>
-    <!-- GoPay API Wrapper -->
+    <!-- GoPay API Wrapper - MUSÍ být před packages.js (bez defer!) -->
     <script src="gopay.js" 
-            onload="console.log('✅ GoPay API wrapper načteno');"
+            onload="console.log('✅ GoPay API wrapper načteno, GoPayAPI:', typeof window.GoPayAPI);"
             onerror="console.error('❌ Chyba při načítání GoPay API wrapper');"></script>
     <script src="script.js" defer></script>
     <script src="auth.js" defer></script>
+    <!-- packages.js musí být načteno PO gopay.js -->
     <script src="packages.js" defer></script>
 </body>
 </html>

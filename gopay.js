@@ -128,9 +128,15 @@ class GoPayAPI {
             });
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ error: await response.text() }));
-                console.error('❌ GoPay create payment error response:', errorData);
-                throw new Error(`GoPay create payment error: ${response.status} - ${errorData.error || errorData.message || 'Unknown error'}`);
+                let errorText;
+                try {
+                    const errorData = await response.json();
+                    errorText = errorData.error || errorData.message || JSON.stringify(errorData);
+                } catch (e) {
+                    errorText = await response.text();
+                }
+                console.error('❌ GoPay create payment error response:', errorText);
+                throw new Error(`GoPay create payment error: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
@@ -175,8 +181,14 @@ class GoPayAPI {
             });
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ error: await response.text() }));
-                throw new Error(`GoPay get payment status error: ${response.status} - ${errorData.error || errorData.message || 'Unknown error'}`);
+                let errorText;
+                try {
+                    const errorData = await response.json();
+                    errorText = errorData.error || errorData.message || JSON.stringify(errorData);
+                } catch (e) {
+                    errorText = await response.text();
+                }
+                throw new Error(`GoPay get payment status error: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
