@@ -183,6 +183,10 @@ async function processPayment() {
 
         // Vytvoření platby přes GoPay API
         const paymentData = {
+            target: {
+                type: 'ACCOUNT',
+                go_id: GOPAY_CONFIG.goId
+            },
             payer: {
                 default_payment_instrument: 'PAYMENT_CARD',
                 allowed_payment_instruments: ['PAYMENT_CARD', 'BANK_ACCOUNT'],
