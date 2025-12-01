@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test GoPay Integrace</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test GoPay Integrace</h1>
+    
+    <div class="test-section">
+        <h2>1. Kontrola načtení skriptů</h2>
+        <div id="scripts-check"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test GoPay API - OAuth Token</h2>
+        <button onclick="testOAuth()">Testovat OAuth Token</button>
+        <div id="oauth-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Test GoPay API - Vytvoření platby</h2>
+        <button onclick="testCreatePayment()">Testovat vytvoření platby</button>
+        <div id="payment-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Test GoPay SDK</h2>
+        <button onclick="testSDK()">Testovat SDK</button>
+        <div id="sdk-result"></div>
+    </div>
+
+    <!-- GoPay JavaScript SDK -->
+    <script type="text/javascript" src="https://gw.sandbox.gopay.com/gp-gw/js/embed.js" 
+            onload="console.log('✅ GoPay SDK načteno'); window.gopaySDKLoaded = true;"
+            onerror="console.error('❌ Chyba při načítání GoPay SDK'); window.gopaySDKLoaded = false;"></script>
+    <script src="gopay.js"></script>
+
+    <script>
+        const GOPAY_CONFIG = {
+            isTest: true,
+            clientId: '1204015758',
+            clientSecret: '7WFS2HCS',
+            goId: '8419533331'
+        };
+
+        let gopayAPI = null;
+
+        // Kontrola načtení skriptů
+        function checkScripts() {
+            const result = document.getElementById('scripts-check');
+            let html = '<ul>';
+            
+            // GoPay API
+            if (typeof GoPayAPI !== 'undefined') {
+                html += '<li class="success">✅ GoPayAPI je k dispozici</li>';
+                gopayAPI = new GoPayAPI(GOPAY_CONFIG);
+            } else {
+                html += '<li class="error">❌ GoPayAPI není k dispozici</li>';
+            }
+            
+            // GoPay SDK
+            if (typeof _gopay !== 'undefined') {
+                html += '<li class="success">✅ GoPay SDK (_gopay) je k dispozici</li>';
+                if (typeof _gopay.checkout === 'function') {
+                    html += '<li class="success">✅ _gopay.checkout je funkce</li>';
+                } else {
+                    html += '<li class="error">❌ _gopay.checkout není funkce</li>';
+                }
+            } else {
+                html += '<li class="error">❌ GoPay SDK (_gopay) není k dispozici</li>';
+            }
+            
+            html += '</ul>';
+            result.innerHTML = html;
+        }
+
+        // Test OAuth
+        async function testOAuth() {
+            const result = document.getElementById('oauth-result');
+            result.innerHTML = '<p>Testuji...</p>';
+            
+            try {
+                if (!gopayAPI) {
+                    gopayAPI = new GoPayAPI(GOPAY_CONFIG);
+                }
+                
+                const token = await gopayAPI.getAccessToken('payment-create');
+                result.innerHTML = `
+                    <p class="success">✅ OAuth token úspěšně získán!</p>
+                    <pre>Token: ${token.substring(0, 20)}...</pre>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <p class="error">❌ Chyba při získávání OAuth tokenu:</p>
+                    <pre>${error.message}\n\n${error.stack}</pre>
+                `;
+            }
+        }
+
+        // Test vytvoření platby
+        async function testCreatePayment() {
+            const result = document.getElementById('payment-result');
+            result.innerHTML = '<p>Testuji...</p>';
+            
+            try {
+                if (!gopayAPI) {
+                    gopayAPI = new GoPayAPI(GOPAY_CONFIG);
+                }
+                
+                const paymentData = {
+                    payer: {
+                        default_payment_instrument: 'PAYMENT_CARD',
+                        allowed_payment_instruments: ['PAYMENT_CARD'],
+                        contact: {
+                            email: 'test@test.cz',
+                            first_name: 'Test',
+                            last_name: 'Uživatel'
+                        }
+                    },
+                    amount: 100, // 1 Kč
+                    currency: 'CZK',
+                    order_number: 'TEST-' + Date.now(),
+                    order_description: 'Testovací platba',
+                    items: [
+                        {
+                            name: 'Test',
+                            amount: 100,
+                            count: 1
+                        }
+                    ],
+                    callback: {
+                        return_url: window.location.origin + '/packages.html',
+                        notification_url: window.location.origin + '/gopay-notification.html'
+                    },
+                    lang: 'cs'
+                };
+                
+                const payment = await gopayAPI.createPayment(paymentData);
+                result.innerHTML = `
+                    <p class="success">✅ Platba úspěšně vytvořena!</p>
+                    <pre>ID: ${payment.id}\nStav: ${payment.state}\nGW URL: ${payment.gw_url}</pre>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <p class="error">❌ Chyba při vytváření platby:</p>
+                    <pre>${error.message}\n\n${error.stack}</pre>
+                    <p class="warning">⚠️ Pokud vidíte CORS chybu, GoPay API může vyžadovat server-side proxy.</p>
+                `;
+            }
+        }
+
+        // Test SDK
+        function testSDK() {
+            const result = document.getElementById('sdk-result');
+            
+            if (typeof _gopay === 'undefined') {
+                result.innerHTML = '<p class="error">❌ GoPay SDK není načteno</p>';
+                return;
+            }
+            
+            if (typeof _gopay.checkout !== 'function') {
+                result.innerHTML = '<p class="error">❌ _gopay.checkout není funkce</p>';
+                return;
+            }
+            
+            result.innerHTML = '<p class="success">✅ GoPay SDK je funkční</p>';
+        }
+
+        // Spustit kontrolu po načtení
+        window.addEventListener('load', () => {
+            setTimeout(checkScripts, 500); // Počkat na načtení skriptů
+        });
+    </script>
+</body>
+</html>
+

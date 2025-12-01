@@ -34,6 +34,12 @@ class GoPayAPI {
             const url = `${this.baseURL}/oauth2/token`;
             const credentials = btoa(`${this.clientId}:${this.clientSecret}`);
             
+            console.log('🔐 Žádám GoPay OAuth token:', {
+                url: url,
+                scope: scope,
+                baseURL: this.baseURL
+            });
+            
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -46,12 +52,23 @@ class GoPayAPI {
                 })
             });
 
+            console.log('📡 GoPay OAuth response:', {
+                status: response.status,
+                statusText: response.statusText,
+                ok: response.ok
+            });
+
             if (!response.ok) {
                 const errorText = await response.text();
+                console.error('❌ GoPay OAuth error response:', errorText);
                 throw new Error(`GoPay OAuth error: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
+            
+            if (!data.access_token) {
+                throw new Error('GoPay OAuth: Token nebyl vrácen v odpovědi');
+            }
             
             // Uložit token do cache (expiruje za 30 minut, uložíme s 5min rezervou)
             this.tokenCache = data.access_token;
@@ -60,12 +77,24 @@ class GoPayAPI {
             
             console.log('✅ GoPay token získán:', {
                 expiresIn: expiresIn,
-                expiry: this.tokenExpiry
+                expiry: this.tokenExpiry,
+                tokenLength: this.tokenCache.length
             });
             
             return this.tokenCache;
         } catch (error) {
             console.error('❌ Chyba při získávání GoPay tokenu:', error);
+            console.error('❌ Error details:', {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            });
+            
+            // Přidat více informací o chybě
+            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                throw new Error('Network error - zkontrolujte připojení k internetu a CORS nastavení. GoPay API může vyžadovat server-side proxy.');
+            }
+            
             throw error;
         }
     }
@@ -80,6 +109,13 @@ class GoPayAPI {
             const token = await this.getAccessToken('payment-create');
             const url = `${this.baseURL}/payments/payment`;
 
+            console.log('💳 Vytvářím GoPay platbu:', {
+                url: url,
+                amount: paymentData.amount,
+                currency: paymentData.currency,
+                orderNumber: paymentData.order_number
+            });
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -89,12 +125,24 @@ class GoPayAPI {
                 body: JSON.stringify(paymentData)
             });
 
+            console.log('📡 GoPay create payment response:', {
+                status: response.status,
+                statusText: response.statusText,
+                ok: response.ok
+            });
+
             if (!response.ok) {
                 const errorText = await response.text();
+                console.error('❌ GoPay create payment error response:', errorText);
                 throw new Error(`GoPay create payment error: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
+            
+            if (!data.id || !data.gw_url) {
+                throw new Error('GoPay: Neplatná odpověď - chybí ID nebo gw_url');
+            }
+            
             console.log('✅ GoPay platba vytvořena:', {
                 id: data.id,
                 state: data.state,
@@ -104,6 +152,11 @@ class GoPayAPI {
             return data;
         } catch (error) {
             console.error('❌ Chyba při vytváření GoPay platby:', error);
+            console.error('❌ Error details:', {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            });
             throw error;
         }
     }

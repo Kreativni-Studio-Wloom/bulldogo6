@@ -40,8 +40,16 @@ function initializeGoPay() {
     gopayAPI = new GoPayAPI(GOPAY_CONFIG);
     console.log('✅ GoPay API inicializováno:', {
         isTest: GOPAY_CONFIG.isTest,
-        baseURL: gopayAPI.baseURL
+        baseURL: gopayAPI.baseURL,
+        clientId: GOPAY_CONFIG.clientId ? 'nastaveno' : 'chybí'
     });
+    
+    // Kontrola GoPay SDK
+    if (typeof _gopay === 'undefined') {
+        console.warn('⚠️ GoPay JavaScript SDK (_gopay) není načteno. Použije se redirect varianta.');
+    } else {
+        console.log('✅ GoPay JavaScript SDK je k dispozici');
+    }
 }
 
 function initializePackages() {
@@ -144,9 +152,15 @@ async function processPayment() {
         if (!gopayAPI) {
             initializeGoPay();
             if (!gopayAPI) {
-                throw new Error('GoPay API není k dispozici');
+                throw new Error('GoPay API není k dispozici. Zkontroluj, zda je gopay.js načten.');
             }
         }
+
+        // Kontrola GoPay SDK
+        console.log('🔍 Kontroluji GoPay SDK:', {
+            _gopay: typeof _gopay,
+            checkout: typeof _gopay !== 'undefined' ? typeof _gopay.checkout : 'N/A'
+        });
 
         // Příprava dat pro platbu
         const amount = selectedPlan.price * 100; // převod na haléře
@@ -193,39 +207,94 @@ async function processPayment() {
             lang: 'cs'
         };
 
-        console.log('💳 Vytvářím GoPay platbu:', paymentData);
+        console.log('💳 Vytvářím GoPay platbu:', {
+            amount: amount,
+            currency: currency,
+            orderNumber: orderNumber,
+            returnURL: returnURL,
+            notificationURL: notificationURL
+        });
 
         // Vytvoření platby
-        const payment = await gopayAPI.createPayment(paymentData);
+        let payment;
+        try {
+            payment = await gopayAPI.createPayment(paymentData);
+            console.log('✅ Platba vytvořena:', {
+                id: payment.id,
+                state: payment.state,
+                gw_url: payment.gw_url
+            });
+        } catch (apiError) {
+            console.error('❌ Chyba při vytváření platby přes GoPay API:', apiError);
+            
+            // Detailnější error message
+            let errorMessage = 'Nepodařilo se vytvořit platbu. ';
+            if (apiError.message.includes('CORS') || apiError.message.includes('Failed to fetch')) {
+                errorMessage += 'CORS chyba - GoPay API může vyžadovat server-side proxy. ';
+                errorMessage += 'Zkuste použít redirect variantu nebo nasadit backend endpoint.';
+            } else if (apiError.message.includes('401') || apiError.message.includes('403')) {
+                errorMessage += 'Chyba autentizace - zkontrolujte ClientID a ClientSecret.';
+            } else {
+                errorMessage += apiError.message;
+            }
+            
+            throw new Error(errorMessage);
+        }
         
         // Uložení informací o platbě do Firestore
-        await savePaymentToFirestore(user.uid, payment.id, selectedPlan, orderNumber);
+        try {
+            await savePaymentToFirestore(user.uid, payment.id, selectedPlan, orderNumber);
+        } catch (firestoreError) {
+            console.warn('⚠️ Nepodařilo se uložit platbu do Firestore:', firestoreError);
+            // Pokračujeme i když se nepodařilo uložit do Firestore
+        }
 
         currentPaymentId = payment.id;
-        console.log('✅ Platba vytvořena, ID:', payment.id);
+        console.log('✅ Platba připravena, ID:', payment.id);
 
         // Zobrazení GoPay platební brány
-        if (typeof _gopay !== 'undefined' && _gopay.checkout) {
+        if (typeof _gopay !== 'undefined' && _gopay && typeof _gopay.checkout === 'function') {
             // Inline varianta (pokud je SSL)
             const isHTTPS = window.location.protocol === 'https:';
             
-            _gopay.checkout({
-                gatewayUrl: payment.gw_url,
-                inline: isHTTPS
-            }, async (checkoutResult) => {
-                // Callback po dokončení platby (pouze pro inline, pokud nedojde k redirectu)
-                console.log('🔄 GoPay checkout callback:', checkoutResult);
-                await handlePaymentResult(checkoutResult.id, checkoutResult.state);
-            });
+            console.log('🚀 Otevírám GoPay platební bránu (inline:', isHTTPS, ')');
+            
+            try {
+                _gopay.checkout({
+                    gatewayUrl: payment.gw_url,
+                    inline: isHTTPS
+                }, async (checkoutResult) => {
+                    // Callback po dokončení platby (pouze pro inline, pokud nedojde k redirectu)
+                    console.log('🔄 GoPay checkout callback:', checkoutResult);
+                    if (checkoutResult && checkoutResult.id) {
+                        await handlePaymentResult(checkoutResult.id, checkoutResult.state);
+                    }
+                });
+            } catch (checkoutError) {
+                console.error('❌ Chyba při otevírání GoPay checkout:', checkoutError);
+                // Fallback: redirect
+                console.log('🔄 Používám redirect jako fallback');
+                window.location.href = payment.gw_url;
+            }
         } else {
             // Fallback: redirect na platební bránu
-            console.warn('⚠️ GoPay JavaScript SDK není načteno, přesměrovávám na platební bránu');
+            console.warn('⚠️ GoPay JavaScript SDK není načteno, používám redirect');
+            console.log('🔗 Přesměrovávám na:', payment.gw_url);
             window.location.href = payment.gw_url;
         }
 
     } catch (error) {
         console.error('❌ Chyba při zpracování platby:', error);
-        alert('Nastala chyba při vytváření platby: ' + error.message);
+        console.error('❌ Error stack:', error.stack);
+        
+        // Detailnější error message pro uživatele
+        let userMessage = 'Nastala chyba při vytváření platby.';
+        if (error.message) {
+            userMessage += '\n\n' + error.message;
+        }
+        userMessage += '\n\nZkuste to prosím znovu nebo kontaktujte podporu.';
+        
+        alert(userMessage);
         payButton.innerHTML = originalText;
         payButton.disabled = false;
     }
