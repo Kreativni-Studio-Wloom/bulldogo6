@@ -1,10 +1,25 @@
 // Packages functionality
 let selectedPlan = null;
+let gopayAPI = null;
+let currentPaymentId = null;
+
+// GoPay konfigurace
+const GOPAY_CONFIG = {
+    isTest: true, // Pro produkci změň na false
+    clientId: '1204015758', // Test ClientID
+    clientSecret: '7WFS2HCS', // Test ClientSecret
+    goId: '8419533331' // Test GoID
+};
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     initializePackages();
     initializeAuthState();
+    initializeGoPay();
+    
+    // Zpracování návratu z GoPay platební brány
+    handleGoPayReturn();
+    
     // Po načtení stránky vyčkej na Firebase a načti stav balíčku
     (function waitAndLoadPlan(){
         if (window.firebaseAuth && window.firebaseDb) {
@@ -14,6 +29,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })();
 });
+
+// Inicializace GoPay API
+function initializeGoPay() {
+    if (typeof GoPayAPI === 'undefined') {
+        console.error('❌ GoPayAPI není k dispozici. Zkontroluj, zda je gopay.js načten.');
+        return;
+    }
+    
+    gopayAPI = new GoPayAPI(GOPAY_CONFIG);
+    console.log('✅ GoPay API inicializováno:', {
+        isTest: GOPAY_CONFIG.isTest,
+        baseURL: gopayAPI.baseURL
+    });
+}
 
 function initializePackages() {
     console.log('🚀 Initializing packages');
@@ -90,18 +119,281 @@ function updatePaymentSummary() {
     }
 }
 
-function processPayment() {
+async function processPayment() {
+    // Kontrola přihlášení
+    const user = window.firebaseAuth && window.firebaseAuth.currentUser;
+    if (!user) {
+        alert('Pro dokončení platby se prosím přihlaste.');
+        showAuthModal('login');
+        return;
+    }
+
+    if (!selectedPlan) {
+        alert('Prosím vyberte balíček.');
+        return;
+    }
+
     // Show loading state
     const payButton = document.querySelector('.payment-actions .btn-primary');
     const originalText = payButton.innerHTML;
     payButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Zpracovávám...';
     payButton.disabled = true;
-    
-    // Simulate payment processing
-    setTimeout(() => {
-        // Simulate successful payment
-        showSuccess();
-    }, 2000);
+
+    try {
+        // Kontrola GoPay API
+        if (!gopayAPI) {
+            initializeGoPay();
+            if (!gopayAPI) {
+                throw new Error('GoPay API není k dispozici');
+            }
+        }
+
+        // Příprava dat pro platbu
+        const amount = selectedPlan.price * 100; // převod na haléře
+        const currency = 'CZK';
+        const orderNumber = `PKG-${Date.now()}-${user.uid.substring(0, 8)}`;
+        
+        // URL pro návrat a notifikace
+        const baseURL = window.location.origin;
+        const returnURL = `${baseURL}/packages.html?payment_return=true`;
+        const notificationURL = `${baseURL}/gopay-notification.html`;
+
+        // Popis balíčku
+        const planName = selectedPlan.plan === 'hobby' ? 'Hobby uživatel' : 'Firma';
+        const planDescription = selectedPlan.plan === 'hobby' 
+            ? 'První měsíc zdarma, poté 39 Kč/měsíc'
+            : 'Měsíční předplatné';
+
+        // Vytvoření platby přes GoPay API
+        const paymentData = {
+            payer: {
+                default_payment_instrument: 'PAYMENT_CARD',
+                allowed_payment_instruments: ['PAYMENT_CARD', 'BANK_ACCOUNT'],
+                contact: {
+                    email: user.email || '',
+                    first_name: user.displayName?.split(' ')[0] || '',
+                    last_name: user.displayName?.split(' ').slice(1).join(' ') || ''
+                }
+            },
+            amount: amount,
+            currency: currency,
+            order_number: orderNumber,
+            order_description: `${planName} - ${planDescription}`,
+            items: [
+                {
+                    name: planName,
+                    amount: amount,
+                    count: 1
+                }
+            ],
+            callback: {
+                return_url: returnURL,
+                notification_url: notificationURL
+            },
+            lang: 'cs'
+        };
+
+        console.log('💳 Vytvářím GoPay platbu:', paymentData);
+
+        // Vytvoření platby
+        const payment = await gopayAPI.createPayment(paymentData);
+        
+        // Uložení informací o platbě do Firestore
+        await savePaymentToFirestore(user.uid, payment.id, selectedPlan, orderNumber);
+
+        currentPaymentId = payment.id;
+        console.log('✅ Platba vytvořena, ID:', payment.id);
+
+        // Zobrazení GoPay platební brány
+        if (typeof _gopay !== 'undefined' && _gopay.checkout) {
+            // Inline varianta (pokud je SSL)
+            const isHTTPS = window.location.protocol === 'https:';
+            
+            _gopay.checkout({
+                gatewayUrl: payment.gw_url,
+                inline: isHTTPS
+            }, async (checkoutResult) => {
+                // Callback po dokončení platby (pouze pro inline, pokud nedojde k redirectu)
+                console.log('🔄 GoPay checkout callback:', checkoutResult);
+                await handlePaymentResult(checkoutResult.id, checkoutResult.state);
+            });
+        } else {
+            // Fallback: redirect na platební bránu
+            console.warn('⚠️ GoPay JavaScript SDK není načteno, přesměrovávám na platební bránu');
+            window.location.href = payment.gw_url;
+        }
+
+    } catch (error) {
+        console.error('❌ Chyba při zpracování platby:', error);
+        alert('Nastala chyba při vytváření platby: ' + error.message);
+        payButton.innerHTML = originalText;
+        payButton.disabled = false;
+    }
+}
+
+// Uložení informací o platbě do Firestore
+async function savePaymentToFirestore(userId, paymentId, plan, orderNumber) {
+    try {
+        if (!window.firebaseDb) {
+            throw new Error('Firestore není k dispozici');
+        }
+
+        const { setDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const paymentRef = doc(window.firebaseDb, 'payments', paymentId);
+
+        await setDoc(paymentRef, {
+            userId: userId,
+            paymentId: paymentId,
+            orderNumber: orderNumber,
+            plan: plan.plan,
+            amount: plan.price,
+            currency: 'CZK',
+            status: 'CREATED',
+            createdAt: new Date(),
+            updatedAt: new Date()
+        }, { merge: true });
+
+        console.log('✅ Informace o platbě uloženy do Firestore:', paymentId);
+    } catch (error) {
+        console.error('❌ Chyba při ukládání platby do Firestore:', error);
+        // Nevyhazujeme chybu, pokračujeme s platbou
+    }
+}
+
+// Aktualizace stavu platby v Firestore
+async function updatePaymentStatus(paymentId, status, paymentData = null) {
+    try {
+        if (!window.firebaseDb) return;
+
+        const { updateDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const paymentRef = doc(window.firebaseDb, 'payments', paymentId);
+
+        const updateData = {
+            status: status,
+            updatedAt: new Date()
+        };
+
+        if (paymentData) {
+            updateData.state = paymentData.state;
+            updateData.payer = paymentData.payer;
+            if (paymentData.payment_instrument) {
+                updateData.paymentInstrument = paymentData.payment_instrument;
+            }
+        }
+
+        await updateDoc(paymentRef, updateData);
+        console.log('✅ Stav platby aktualizován:', paymentId, status);
+    } catch (error) {
+        console.error('❌ Chyba při aktualizaci stavu platby:', error);
+    }
+}
+
+// Zpracování výsledku platby
+async function handlePaymentResult(paymentId, state) {
+    try {
+        if (!gopayAPI) {
+            initializeGoPay();
+        }
+
+        // Dotaz na aktuální stav platby
+        const paymentData = await gopayAPI.getPaymentStatus(paymentId);
+        
+        // Aktualizace stavu v Firestore
+        await updatePaymentStatus(paymentId, paymentData.state, paymentData);
+
+        // Zpracování podle stavu
+        if (paymentData.state === 'PAID') {
+            // Platba úspěšná - aktivovat balíček
+            await activatePlanFromPayment(paymentId, paymentData);
+            showSuccess();
+        } else if (paymentData.state === 'CANCELED') {
+            alert('Platba byla zrušena.');
+            hidePayment();
+        } else if (paymentData.state === 'TIMEOUTED') {
+            alert('Platba vypršela. Zkuste to prosím znovu.');
+            hidePayment();
+        } else {
+            console.log('ℹ️ Platba ve stavu:', paymentData.state);
+            // Jiné stavy (CREATED, PAYMENT_METHOD_CHOSEN, atd.) - čekáme na notifikaci
+        }
+    } catch (error) {
+        console.error('❌ Chyba při zpracování výsledku platby:', error);
+        alert('Nastala chyba při ověřování platby. Zkontrolujte prosím stav objednávky.');
+    }
+}
+
+// Aktivace balíčku po úspěšné platbě
+async function activatePlanFromPayment(paymentId, paymentData) {
+    try {
+        if (!window.firebaseDb) return;
+
+        // Načíst informace o platbě z Firestore
+        const { getDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const paymentRef = doc(window.firebaseDb, 'payments', paymentId);
+        const paymentSnap = await getDoc(paymentRef);
+
+        if (!paymentSnap.exists()) {
+            console.error('❌ Platba nenalezena v Firestore:', paymentId);
+            return;
+        }
+
+        const paymentInfo = paymentSnap.data();
+        const userId = paymentInfo.userId;
+        const plan = paymentInfo.plan;
+
+        if (!userId || !plan) {
+            console.error('❌ Chybí userId nebo plan v platbě:', paymentInfo);
+            return;
+        }
+
+        // Aktivovat balíček
+        const now = new Date();
+        const durationDays = 30; // měsíční předplatné
+        const periodEnd = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+        const { setDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        await setDoc(
+            doc(window.firebaseDb, 'users', userId, 'profile', 'profile'),
+            {
+                plan: plan,
+                planUpdatedAt: now,
+                planPeriodStart: now,
+                planPeriodEnd: periodEnd,
+                planDurationDays: durationDays,
+                planCancelAt: null
+            },
+            { merge: true }
+        );
+
+        // Označit platbu jako zpracovanou
+        const { updateDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        await updateDoc(paymentRef, {
+            processed: true,
+            planActivatedAt: now
+        });
+
+        console.log('✅ Balíček aktivován pro uživatele:', userId, plan);
+    } catch (error) {
+        console.error('❌ Chyba při aktivaci balíčku:', error);
+        throw error;
+    }
+}
+
+// Zpracování návratu z GoPay platební brány
+function handleGoPayReturn() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentReturn = urlParams.get('payment_return');
+    const paymentId = urlParams.get('id');
+
+    if (paymentReturn === 'true' && paymentId) {
+        console.log('🔄 Návrat z GoPay platební brány, ID platby:', paymentId);
+        
+        // Odstranit parametry z URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        // Zpracovat výsledek platby
+        handlePaymentResult(paymentId);
+    }
 }
 
 async function showSuccess() {

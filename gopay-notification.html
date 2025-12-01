@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoPay Notifikace</title>
+    <!-- Firebase SDK -->
+    <script type="module" src="firebase-init.js"></script>
+    <!-- GoPay API Wrapper -->
+    <script src="gopay.js"></script>
+</head>
+<body>
+    <h1>Zpracovávání GoPay notifikace...</h1>
+    <script>
+        // GoPay konfigurace (stejná jako v packages.js)
+        const GOPAY_CONFIG = {
+            isTest: true, // Pro produkci změň na false
+            clientId: '1204015758',
+            clientSecret: '7WFS2HCS',
+            goId: '8419533331'
+        };
+
+        // Zpracování notifikace
+        async function processNotification() {
+            try {
+                // Získání ID platby z URL parametru
+                const urlParams = new URLSearchParams(window.location.search);
+                const paymentId = urlParams.get('id');
+
+                if (!paymentId) {
+                    console.error('❌ Chybí ID platby v notifikaci');
+                    document.body.innerHTML = '<h1>Chyba: Chybí ID platby</h1>';
+                    return;
+                }
+
+                console.log('📬 Zpracovávám GoPay notifikaci pro platbu:', paymentId);
+
+                // Počkat na Firebase
+                let retries = 0;
+                while (!window.firebaseDb && retries < 50) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    retries++;
+                }
+
+                if (!window.firebaseDb) {
+                    throw new Error('Firestore není k dispozici');
+                }
+
+                // Inicializace GoPay API
+                if (typeof GoPayAPI === 'undefined') {
+                    throw new Error('GoPayAPI není k dispozici');
+                }
+
+                const gopayAPI = new GoPayAPI(GOPAY_CONFIG);
+
+                // Dotaz na stav platby
+                const paymentData = await gopayAPI.getPaymentStatus(paymentId);
+                console.log('✅ Stav platby:', paymentData.state);
+
+                // Aktualizace stavu v Firestore
+                const { updateDoc, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                const paymentRef = doc(window.firebaseDb, 'payments', paymentId);
+                const paymentSnap = await getDoc(paymentRef);
+
+                if (!paymentSnap.exists()) {
+                    console.warn('⚠️ Platba nenalezena v Firestore:', paymentId);
+                    document.body.innerHTML = '<h1>Platba nenalezena v databázi</h1>';
+                    return;
+                }
+
+                const paymentInfo = paymentSnap.data();
+
+                // Aktualizace stavu platby
+                await updateDoc(paymentRef, {
+                    status: paymentData.state,
+                    state: paymentData.state,
+                    updatedAt: new Date(),
+                    lastNotificationAt: new Date()
+                });
+
+                // Pokud je platba zaplacená, aktivovat balíček
+                if (paymentData.state === 'PAID' && !paymentInfo.processed) {
+                    const userId = paymentInfo.userId;
+                    const plan = paymentInfo.plan;
+
+                    if (userId && plan) {
+                        const now = new Date();
+                        const durationDays = 30;
+                        const periodEnd = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+                        await updateDoc(
+                            doc(window.firebaseDb, 'users', userId, 'profile', 'profile'),
+                            {
+                                plan: plan,
+                                planUpdatedAt: now,
+                                planPeriodStart: now,
+                                planPeriodEnd: periodEnd,
+                                planDurationDays: durationDays,
+                                planCancelAt: null
+                            }
+                        );
+
+                        // Označit platbu jako zpracovanou
+                        await updateDoc(paymentRef, {
+                            processed: true,
+                            planActivatedAt: now
+                        });
+
+                        console.log('✅ Balíček aktivován pro uživatele:', userId, plan);
+                    }
+                }
+
+                // Vrátit HTTP 200 (GoPay očekává tento status)
+                document.body.innerHTML = '<h1>Notifikace zpracována</h1><p>Stav platby: ' + paymentData.state + '</p>';
+                
+                // Vrátit HTTP 200 status (pro server-side by to mělo být automatické)
+                // V client-side HTML můžeme jen zobrazit potvrzení
+                
+            } catch (error) {
+                console.error('❌ Chyba při zpracování notifikace:', error);
+                document.body.innerHTML = '<h1>Chyba při zpracování notifikace</h1><p>' + error.message + '</p>';
+            }
+        }
+
+        // Spustit zpracování po načtení stránky
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', processNotification);
+        } else {
+            processNotification();
+        }
+    </script>
+</body>
+</html>
+

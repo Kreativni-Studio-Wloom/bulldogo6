@@ -47,3 +47,4 @@ Pokud potřebuješ App Check, musíš:
 1. Nastavit reCAPTCHA V3 Site Key
 2. Přidat do HTML: `<script>window.FIREBASE_RECAPTCHA_V3_SITE_KEY = 'tvuj-site-key';</script>`
 3. Aktivovat App Check v kódu (ale pro teď je lepší ho vypnout)
+

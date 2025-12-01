@@ -35,3 +35,4 @@ Po publikování pravidel by mělo:
 2. Počkej 2-3 minuty (pravidla se aktivují s malým zpožděním)
 3. Obnov stránku v prohlížeči (Ctrl+Shift+R)
 4. Zkontroluj konzoli prohlížeče pro další chyby
+

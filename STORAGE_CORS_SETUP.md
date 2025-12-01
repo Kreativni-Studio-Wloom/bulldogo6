@@ -75,3 +75,4 @@ Pokud stále dostáváš chybu:
 - Zkontroluj, že bucket název je správný
 - Zkontroluj, že CORS pravidla jsou publikovaná
 - Zkontroluj konzoli prohlížeče pro další chyby
+

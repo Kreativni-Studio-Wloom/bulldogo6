@@ -59,3 +59,4 @@ Znovu zkontroluj:
 ```bash
 gsutil cors get gs://inzerio-inzerce.appspot.com
 ```
+
